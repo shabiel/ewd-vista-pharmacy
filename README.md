@@ -1,1 +1,1 @@
-# ewd-vista-taskman-monitor
+# ewd-vista-pharmacy## Set-up notesMake sure your NULL device is properly configured and is tied to a subtype with a page length of > 60000 to prevent ^DIR errors.
