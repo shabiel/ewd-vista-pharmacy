@@ -1,0 +1,15 @@
+# OS X
+._*
+.DS_Store
+
+# Node.js
+node_modules/
+bundle.js
+
+# Eclipse
+.project
+routines/
+
+# VistA
+*.mje
+*.mjo

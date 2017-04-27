@@ -1,0 +1,25 @@
+{
+  "name": "ewd-vista-taskman-monitor",
+  "version": "0.1.0",
+  "description": "QEWD VistA: Pharmacy Prototyping Module",
+  "main": "index.js",
+  "author": "Sam Habiel",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shabiel/ewd-vista-pharmacy.git"
+  },
+  "devDependencies": {
+    "eslint": "",
+    "eslint-plugin-json": ""
+  },
+  "ewdVista": {
+    "module": "ewd-vista-pharmacy",
+    "parentModule": "ewd-vista",
+    "name": "Pharmacy",
+    "clientModuleName": "pharmacy",
+    "htmlName": "pharmacy",
+    "sortOrder": "40",
+    "securityKeys": []
+  }
+}
