@@ -6,7 +6,7 @@ pharmacy.prep = function(EWD) {
     vista.switchApp();
     pharmacy.landingPage(EWD);
   });
-};
+}; // ~prep
 
 pharmacy.landingPage = function(EWD) {
   let params = {
@@ -24,12 +24,15 @@ pharmacy.landingPage = function(EWD) {
     };
     EWD.send(params2, (res) => pharmacy.drawPendingOrders(res.message));
   });
-};
+}; // ~landingPage
 
 pharmacy.drawPendingOrders = function(tableData) {
 
-  // Grab Table Body (table doesn't work)
-  let t = $('#pending-table > table > tbody');
+  // Grab Table Body pointer (table by itself will malfunction)
+  let t = $('#inpatient-pending-table > table > tbody');
+
+  // Counters for updating the "badges" next to the tabs
+  let countIV = 0, countUD = 0;
 
   // For each ward group or clinic
   Object.keys(tableData).map((type) => {
@@ -47,13 +50,25 @@ pharmacy.drawPendingOrders = function(tableData) {
       `);
 
       // Then each ^ piece after that as IV/UD/IV/UD
-      for (item in tableData[type][name].split('^'))
+
+      let itemArray = tableData[type][name].split('^');
+      for (var itemIndex in itemArray)
       {
+        // IVs are in position 0 and 2; UDs in 1 and 3
+        // NB: || 0 is to change empty strings to zero.
+        countIV += itemIndex % 2 ? 0 : parseInt(itemArray[itemIndex] || 0);
+        countUD += itemIndex % 2 ? parseInt(itemArray[itemIndex] || 0) : 0;
         t.append(`
-        <td>${tableData[type][name].split('^')[item]}</td>
+        <td>${tableData[type][name].split('^')[itemIndex]}</td>
         `);
       }
       t.append('</tr>');
     });
   });
-};
+
+  // Insert the counts into the badges
+  $('ul.dropdown-menu > li > a:contains("UD") > span.badge').html(countUD);
+  $('ul.dropdown-menu > li > a:contains("IV") > span.badge').html(countIV);
+  $('ul.nav-tabs > li > a:contains("Inpatient") > span.badge').html(countUD + countIV);
+
+}; // ~pharmacy.drawPendingOrders
