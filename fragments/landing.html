@@ -14,12 +14,12 @@
   <div class="alert alert-info" role="alert">Or select a pending order from below.</div>
   <!-- Tabs -->
   <ul class="nav nav-tabs" role="tablist">
-    <li role="presentation" class="active"><a href="#outpatient-pending-table" aria-controls="outpatient-pending-table" role="tab" data-toggle="tab">Outpatient <span class="badge">42</span></a></li>
+    <li role="presentation" class="active"><a href="#outpatient-pending-table" aria-controls="outpatient-pending-table" role="tab" data-toggle="tab">Outpatient <span class="badge"></span></a></li>
     <li role="presentation" class="dropdown">
-    <a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Inpatient <span class="caret"></span><span class="badge">42</span></a>
+    <a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Inpatient <span class="caret"></span><span class="badge"></span></a>
       <ul class="dropdown-menu">
-        <li><a href="#inpatient-pending-table" aria-controls="inpatient-pending-table" role="tab" data-toggle="tab">UD <span class="badge">42</span></a></li>
-        <li><a href="#inpatient-pending-table" aria-controls="inpatient-pending-table" role="tab" data-toggle="tab">IV <span class="badge">42</span></a></li>
+        <li><a href="#inpatient-pending-table" aria-controls="inpatient-pending-table" role="tab" data-toggle="tab">UD <span class="badge"></span></a></li>
+        <li><a href="#inpatient-pending-table" aria-controls="inpatient-pending-table" role="tab" data-toggle="tab">IV <span class="badge"></span></a></li>
       </ul>
     </li>
   </ul>
@@ -28,7 +28,12 @@
   <!-- Tab Content -->
   <div class="tab-content">
     <div role="tabpanel" class="tab-pane active" id="outpatient-pending-table">
-      <p>Lorem ipsum</p>
+      <table class="table">
+        <tr>
+          <th>Clinic Name&nbsp;<i class="fa fa-caret-down sortable" aria-hidden="true"></i></th>
+          <th>Count&nbsp;<i class="fa fa-caret-down sortable" aria-hidden="true"></i></th>
+        </tr>
+      </table>
     </div>
     <div role="tabpanel" class="tab-pane" id="inpatient-pending-table">
       <table class="table">

@@ -2,3 +2,7 @@
   display: flex;
   align-items: center;
 }
+
+.fa-caret-down, .fa-caret-up {
+  cursor: pointer;
+}

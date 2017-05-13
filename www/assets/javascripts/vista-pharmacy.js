@@ -8,6 +8,7 @@ pharmacy.prep = function(EWD) {
   });
 }; // ~prep
 
+// Main set-up
 pharmacy.landingPage = function(EWD) {
   let params = {
     service: 'ewd-vista-pharmacy',
@@ -18,15 +19,26 @@ pharmacy.landingPage = function(EWD) {
   EWD.getFragment(params, function() {
     $('.fileman-autocomplete').filemanAutocomplete();
 
-    let params2 = {
-      service: 'ewd-vista-pharmacy',
-      type: 'ordersSummaryDashboard'
-    };
-    EWD.send(params2, (res) => pharmacy.drawPendingOrders(res.message));
+    // Braces for let isolation
+    {
+      let params = {
+        service: 'ewd-vista-pharmacy',
+        type: 'inpatientOrdersSummary'
+      };
+      EWD.send(params, (res) => pharmacy.drawInpatientPendingOrders(res.message));
+    }
+
+    {
+      let params = {
+        service: 'ewd-vista-pharmacy',
+        type: 'outpatientOrdersSummary'
+      };
+      EWD.send(params, (res) => pharmacy.drawOutpatientPendingOrders(res.message));
+    }
   });
 }; // ~landingPage
 
-pharmacy.drawPendingOrders = function(tableData) {
+pharmacy.drawInpatientPendingOrders = function(tableData) {
 
   // Grab Table Body pointer (table by itself will malfunction)
   let t = $('#inpatient-pending-table > table > tbody');
@@ -71,4 +83,40 @@ pharmacy.drawPendingOrders = function(tableData) {
   $('ul.dropdown-menu > li > a:contains("IV") > span.badge').html(countIV);
   $('ul.nav-tabs > li > a:contains("Inpatient") > span.badge').html(countUD + countIV);
 
-}; // ~pharmacy.drawPendingOrders
+};
+
+pharmacy.drawOutpatientPendingOrders = function(tableData) {
+  // Grab Table Body pointer (table by itself will malfunction)
+  let t = $('#outpatient-pending-table > table > tbody');
+
+  // Counters for updating the "badge" next to the tab
+  let count = 0;
+
+  // For each ward group or clinic
+  Object.keys(tableData).forEach(ien => {
+    t.append(`
+            <tr id=${ien}>
+            <td>${tableData[ien].name}</td>
+            <td>${tableData[ien].count}</td>
+            </tr>
+            `);
+    count += tableData[ien].count;
+  });
+  // Insert the counts into the badges
+  $('ul.nav-tabs > li > a:contains("Outpatient") > span.badge').html(count);
+
+  $('i.sortable').click(function() {
+    let dir = $(this).hasClass('fa-caret-down') ? 'forwards' : 'backwards';
+
+    t.find('tr:not(:first)').sort((a,b) => {
+      let columnIndex = $(this).closest('th').index();
+      let tda = $(a).find('td:eq(' + columnIndex +')').text();
+      let tdb = $(b).find('td:eq(' + columnIndex +')').text();
+      if (dir === 'backwards') return tda < tdb ? 1 : tda > tdb ? -1 : 0;
+      if (dir === 'forwards')  return tda > tdb ? 1 : tda < tdb ? -1 : 0;
+    }).appendTo(t);
+
+    if (dir === 'backwards') $(this).removeClass('fa-caret-up').addClass('fa-caret-down');
+    if (dir === 'forwards')  $(this).removeClass('fa-caret-down').addClass('fa-caret-up');
+  });
+};
