@@ -107,6 +107,8 @@ pharmacy.drawOutpatientPendingOrders = function(tableData) {
 
   $('i.sortable').click(function() {
     let dir = $(this).hasClass('fa-caret-down') ? 'forwards' : 'backwards';
+    if (dir === 'backwards') $(this).removeClass('fa-caret-up').addClass('fa-caret-down');
+    if (dir === 'forwards')  $(this).removeClass('fa-caret-down').addClass('fa-caret-up');
 
     t.find('tr:not(:first)').sort((a,b) => {
       let columnIndex = $(this).closest('th').index();
@@ -115,8 +117,5 @@ pharmacy.drawOutpatientPendingOrders = function(tableData) {
       if (dir === 'backwards') return tda < tdb ? 1 : tda > tdb ? -1 : 0;
       if (dir === 'forwards')  return tda > tdb ? 1 : tda < tdb ? -1 : 0;
     }).appendTo(t);
-
-    if (dir === 'backwards') $(this).removeClass('fa-caret-up').addClass('fa-caret-down');
-    if (dir === 'forwards')  $(this).removeClass('fa-caret-down').addClass('fa-caret-up');
   });
 };
