@@ -10,6 +10,7 @@ pharmacy.prep = function(EWD) {
 
 // Main set-up
 pharmacy.landingPage = function(EWD) {
+
   let params = {
     service: 'ewd-vista-pharmacy',
     name: 'landing.html',
@@ -18,6 +19,21 @@ pharmacy.landingPage = function(EWD) {
 
   EWD.getFragment(params, function() {
     $('.fileman-autocomplete').filemanAutocomplete();
+
+    // Checkbox - only my institution check event handler.
+    $('input:checkbox#chkonlyMyInstitution').change(function() {
+      let t = $('#outpatient-pending-table > table > tbody');
+      if ($('#chkonlyMyInstitution')[0].checked) {
+        // Hide institution column
+        t.find('tr > *:nth-child(2)').hide();
+        //TODO: This is too hackey. See if there's a way to save that info.
+        // Hide any data not from the current institution
+        let currentDivName = $('#user-division').text().split(': ')[1];
+        t.find('td:nth-of-type(2):not(:contains(' + currentDivName + '))').parent().hide();
+      }
+      else t.find(' * ').show();
+    });
+
 
     // Braces for let isolation
     {
@@ -82,7 +98,6 @@ pharmacy.drawInpatientPendingOrders = function(tableData) {
   $('ul.dropdown-menu > li > a:contains("UD") > span.badge').html(countUD);
   $('ul.dropdown-menu > li > a:contains("IV") > span.badge').html(countIV);
   $('ul.nav-tabs > li > a:contains("Inpatient") > span.badge').html(countUD + countIV);
-
 };
 
 pharmacy.drawOutpatientPendingOrders = function(tableData) {
@@ -97,25 +112,38 @@ pharmacy.drawOutpatientPendingOrders = function(tableData) {
     t.append(`
             <tr id=${ien}>
             <td>${tableData[ien].name}</td>
+            <td>${tableData[ien].institutionName}</td>
             <td>${tableData[ien].count}</td>
             </tr>
             `);
     count += tableData[ien].count;
   });
+
   // Insert the counts into the badges
   $('ul.nav-tabs > li > a:contains("Outpatient") > span.badge').html(count);
 
+  // Sorting logic
   $('i.sortable').click(function() {
     let dir = $(this).hasClass('fa-caret-down') ? 'forwards' : 'backwards';
+
     if (dir === 'backwards') $(this).removeClass('fa-caret-up').addClass('fa-caret-down');
     if (dir === 'forwards')  $(this).removeClass('fa-caret-down').addClass('fa-caret-up');
 
+    // Table sorting logic. Takes into account whether to sort lexically or numerically.
     t.find('tr:not(:first)').sort((a,b) => {
       let columnIndex = $(this).closest('th').index();
       let tda = $(a).find('td:eq(' + columnIndex +')').text();
       let tdb = $(b).find('td:eq(' + columnIndex +')').text();
-      if (dir === 'backwards') return tda < tdb ? 1 : tda > tdb ? -1 : 0;
-      if (dir === 'forwards')  return tda > tdb ? 1 : tda < tdb ? -1 : 0;
+
+      let isNumeric = !isNaN(tda);
+
+      if (dir === 'backwards' && !isNumeric) return tda       < tdb ? 1 : tda       > tdb ? -1 : 0;
+      if (dir === 'backwards' && isNumeric)  return tda - tdb < 0   ? 1 : tda - tdb > 0   ? -1 : 0;
+      if (dir === 'forwards'  && !isNumeric) return tda       > tdb ? 1 : tda       < tdb ? -1 : 0;
+      if (dir === 'forwards'  && isNumeric)  return tda - tdb > 0   ? 1 : tda - tdb < 0   ? -1 : 0;
     }).appendTo(t);
   });
+
+  // Make checkbox checked to invoke event and hide institution (default)
+  $('input:checkbox#chkonlyMyInstitution').prop( 'checked', true ).change();
 };

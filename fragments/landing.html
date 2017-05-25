@@ -12,6 +12,7 @@
 
   <!-- Still inside the main container -->
   <div class="alert alert-info" role="alert">Or select a pending order from below.</div>
+
   <!-- Tabs -->
   <ul class="nav nav-tabs" role="tablist">
     <li role="presentation" class="active"><a href="#outpatient-pending-table" aria-controls="outpatient-pending-table" role="tab" data-toggle="tab">Outpatient <span class="badge"></span></a></li>
@@ -28,9 +29,12 @@
   <!-- Tab Content -->
   <div class="tab-content">
     <div role="tabpanel" class="tab-pane active" id="outpatient-pending-table">
+      <p><label for="chkonlyMyInstitution">Include only my division's orders?</label>
+      <input type="checkbox" name="chkonlyMyInstitution" id="chkonlyMyInstitution" /></p>
       <table class="table">
         <tr>
           <th>Clinic Name&nbsp;<i class="fa fa-caret-up sortable" aria-hidden="true"></i></th>
+          <th>Institution&nbsp;<i class="fa fa-caret-up sortable" aria-------hidden="true"></i></th>
           <th>Count&nbsp;<i class="fa fa-caret-up sortable" aria-hidden="true"></i></th>
         </tr>
       </table>
