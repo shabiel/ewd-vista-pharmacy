@@ -6,3 +6,13 @@
 .fa-caret-down, .fa-caret-up {
   cursor: pointer;
 }
+
+.table-highlight {
+  cursor: pointer;
+  background: #FFFDF1;
+}
+
+.modal-dialog{
+  width: 90%;
+}
+

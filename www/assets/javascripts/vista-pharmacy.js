@@ -22,7 +22,7 @@ pharmacy.landingPage = function(EWD) {
 
     // Checkbox - only my institution check event handler.
     $('input:checkbox#chkonlyMyInstitution').change(function() {
-      let t = $('#outpatient-pending-table > table > tbody');
+      let t = $('#outpatient-pending-table > table');
       if ($('#chkonlyMyInstitution')[0].checked) {
         // Hide institution column
         t.find('tr > *:nth-child(2)').hide();
@@ -41,7 +41,7 @@ pharmacy.landingPage = function(EWD) {
         service: 'ewd-vista-pharmacy',
         type: 'inpatientOrdersSummary'
       };
-      EWD.send(params, (res) => pharmacy.drawInpatientPendingOrders(res.message));
+      EWD.send(params, (res) => pharmacy.drawInpatientPendingOrders(EWD, res.message));
     }
 
     {
@@ -49,12 +49,12 @@ pharmacy.landingPage = function(EWD) {
         service: 'ewd-vista-pharmacy',
         type: 'outpatientOrdersSummary'
       };
-      EWD.send(params, (res) => pharmacy.drawOutpatientPendingOrders(res.message));
+      EWD.send(params, (res) => pharmacy.drawOutpatientPendingOrders(EWD, res.message));
     }
   });
 }; // ~landingPage
 
-pharmacy.drawInpatientPendingOrders = function(tableData) {
+pharmacy.drawInpatientPendingOrders = function(EWD, tableData) {
 
   // Grab Table Body pointer (table by itself will malfunction)
   let t = $('#inpatient-pending-table > table > tbody');
@@ -100,7 +100,7 @@ pharmacy.drawInpatientPendingOrders = function(tableData) {
   $('ul.nav-tabs > li > a:contains("Inpatient") > span.badge').html(countUD + countIV);
 };
 
-pharmacy.drawOutpatientPendingOrders = function(tableData) {
+pharmacy.drawOutpatientPendingOrders = function(EWD, tableData) {
   // Grab Table Body pointer (table by itself will malfunction)
   let t = $('#outpatient-pending-table > table > tbody');
 
@@ -122,16 +122,81 @@ pharmacy.drawOutpatientPendingOrders = function(tableData) {
   // Insert the counts into the badges
   $('ul.nav-tabs > li > a:contains("Outpatient") > span.badge').html(count);
 
-  // Sorting logic
-  $('i.sortable').click(function() {
+  // Click logic for the table -- load modal window
+  t.find('tr').click(function() {
+    // NB: this is the tr that's clicked
+    //     this.id will give us our Hospital Location IEN
+    let hospitalLocationIEN = this.id;
+
+    let params = {
+      service: 'ewd-vista-pharmacy',
+      name: 'modal-table.html',
+      targetId: 'modal-window'
+    };
+    EWD.getFragment(params, function() {
+      let params = {
+        service: 'ewd-vista-pharmacy',
+        type: 'outpatientOrdersByClinic',
+        params: { hospitalLocationIEN: hospitalLocationIEN }
+      };
+      EWD.send(params, (res) => pharmacy.drawOutpatientPatientsTable(EWD, res.message));
+    });
+  });
+
+  let $table = t.closest('table');
+  pharmacy.addTableBehaviors($table);
+
+  // Make checkbox checked to invoke event and hide institution (default)
+  $('input:checkbox#chkonlyMyInstitution').prop( 'checked', true ).change();
+};
+
+pharmacy.drawOutpatientPatientsTable = function(EWD, drawData) {
+  let $thead = $('div.modal-body table thead tr');
+  drawData.header.forEach(eachHeader => $thead.append(`
+    <th>${eachHeader}&nbsp;<i class="fa fa-caret-up sortable" aria-hidden="true"></i></th>
+    `)
+  );
+
+  let $table = $('div.modal-body table');
+  let $tbody = $('div.modal-body table tbody');
+  let tableRow = '';
+  drawData.data.forEach(datum => {
+    tableRow += '<tr>';
+    datum.forEach(item => tableRow += `<td>${item}</td>`);
+    tableRow += '</tr>';
+  });
+
+  $tbody.append(tableRow);
+
+  $(document).on('keydown', function(event){
+    // Set up Esc key
+    if (event.keyCode === 27) {
+      $('#modal-window').modal('hide');
+    }
+  });
+
+  pharmacy.addTableBehaviors($table);
+
+  $('#modal-window').modal('show');
+
+};
+
+pharmacy.addTableBehaviors = function($table) {
+
+  // Add sorting behavior
+  $table.find('i.sortable').click(function() {
     let dir = $(this).hasClass('fa-caret-down') ? 'forwards' : 'backwards';
 
     if (dir === 'backwards') $(this).removeClass('fa-caret-up').addClass('fa-caret-down');
     if (dir === 'forwards')  $(this).removeClass('fa-caret-down').addClass('fa-caret-up');
 
     // Table sorting logic. Takes into account whether to sort lexically or numerically.
-    t.find('tr:not(:first)').sort((a,b) => {
+    let thisTable = $(this).closest('table');
+    thisTable.find('tbody tr').sort((a,b) => {
+      // Get column index of the clicked triangle
       let columnIndex = $(this).closest('th').index();
+
+      // Grab the values based on the columnIndex
       let tda = $(a).find('td:eq(' + columnIndex +')').text();
       let tdb = $(b).find('td:eq(' + columnIndex +')').text();
 
@@ -141,9 +206,16 @@ pharmacy.drawOutpatientPendingOrders = function(tableData) {
       if (dir === 'backwards' && isNumeric)  return tda - tdb < 0   ? 1 : tda - tdb > 0   ? -1 : 0;
       if (dir === 'forwards'  && !isNumeric) return tda       > tdb ? 1 : tda       < tdb ? -1 : 0;
       if (dir === 'forwards'  && isNumeric)  return tda - tdb > 0   ? 1 : tda - tdb < 0   ? -1 : 0;
-    }).appendTo(t);
+    }).appendTo(thisTable);
   });
 
-  // Make checkbox checked to invoke event and hide institution (default)
-  $('input:checkbox#chkonlyMyInstitution').prop( 'checked', true ).change();
+  // Add hover highlighting logic for table
+  $table.find('tbody tr').hover(
+    function () {
+      $(this).addClass('table-highlight');
+    },
+    function () {
+      $(this).removeClass('table-highlight');
+    }
+  );
 };
