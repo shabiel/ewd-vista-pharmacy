@@ -79,7 +79,7 @@ pharmacy.drawInpatientPendingOrders = function(EWD, tableData) {
 
       // Then each ^ piece after that as IV/UD/IV/UD
 
-      let itemArray = tableData[type][name].split('^');
+      let itemArray = tableData[type][name].toString().split('^');
       for (var itemIndex in itemArray)
       {
         // IVs are in position 0 and 2; UDs in 1 and 3
@@ -87,7 +87,7 @@ pharmacy.drawInpatientPendingOrders = function(EWD, tableData) {
         countIV += itemIndex % 2 ? 0 : parseInt(itemArray[itemIndex] || 0);
         countUD += itemIndex % 2 ? parseInt(itemArray[itemIndex] || 0) : 0;
         t.append(`
-        <td>${tableData[type][name].split('^')[itemIndex]}</td>
+        <td>${tableData[type][name].toString().split('^')[itemIndex]}</td>
         `);
       }
       t.append('</tr>');
