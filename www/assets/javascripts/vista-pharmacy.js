@@ -25,11 +25,11 @@ pharmacy.landingPage = function(EWD) {
       let t = $('#outpatient-pending-table > table');
       if ($('#chkonlyMyInstitution')[0].checked) {
         // Hide institution column
-        t.find('tr > *:nth-child(2)').hide();
+        t.find('tr > *:nth-child(3)').hide();
         //TODO: This is too hackey. See if there's a way to save that info.
         // Hide any data not from the current institution
         let currentDivName = $('#user-division').text().split(': ')[1];
-        t.find('td:nth-of-type(2):not(:contains(' + currentDivName + '))').parent().hide();
+        t.find('td:nth-of-type(3):not(:contains(' + currentDivName + '))').parent().hide();
       }
       else t.find(' * ').show();
     });
@@ -111,6 +111,7 @@ pharmacy.drawOutpatientPendingOrders = function(EWD, tableData) {
   Object.keys(tableData).forEach(ien => {
     t.append(`
             <tr id=${ien}>
+            <td>${tableData[ien].clinicSortGroups.length > 0 ? tableData[ien].clinicSortGroups.join(", ") : "None"}</td>
             <td>${tableData[ien].name}</td>
             <td>${tableData[ien].institutionName}</td>
             <td>${tableData[ien].count}</td>
