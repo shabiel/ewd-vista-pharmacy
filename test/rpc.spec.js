@@ -130,12 +130,11 @@ describe('Login', function() {
 
   describe('ordersSummaryDashboard', function(){
     it('should do something', function(){
-	test = instance.db.function({
-		  function:  'FMDIFF^XLFDT',
-		  	  arguments: ['$$NOW^XLFDT', '3000222.10172', 2] });
-	console.log(test);
-
-	  
+      test = instance.db.function({
+        function:  'FMDIFF^XLFDT',
+        arguments: ['$$NOW^XLFDT', '3000222.10172', 2] 
+      });
+      console.log(test);
     });
   });
 

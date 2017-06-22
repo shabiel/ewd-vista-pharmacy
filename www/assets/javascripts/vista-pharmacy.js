@@ -66,7 +66,7 @@ pharmacy.drawInpatientPendingOrders = function(EWD, tableData) {
   Object.keys(tableData).map((type) => {
     let typeName = type === 'C' ? 'Clinic' : 'Ward Group';
     t.append(
-    `<tr><th colspan="5">${typeName}</th></tr>`
+      `<tr><th colspan="5">${typeName}</th></tr>`
     );
 
     // For each clinic/ward
@@ -111,7 +111,7 @@ pharmacy.drawOutpatientPendingOrders = function(EWD, tableData) {
   Object.keys(tableData).forEach(ien => {
     t.append(`
             <tr id=${ien}>
-            <td>${tableData[ien].clinicSortGroups.length > 0 ? tableData[ien].clinicSortGroups.join(", ") : "None"}</td>
+            <td>${tableData[ien].clinicSortGroups.length > 0 ? tableData[ien].clinicSortGroups.join(', ') : 'None'}</td>
             <td>${tableData[ien].name}</td>
             <td>${tableData[ien].institutionName}</td>
             <td>${tableData[ien].earliestOrderDateTime}</td>
@@ -221,9 +221,9 @@ pharmacy.addTableBehaviors = function($table) {
   // Add hiding behavior
   $table.find('i.fa-eye-slash').click(function() {
     let columnIndex = $(this).closest('th').index();
-	$table.find('tr > *:nth-child(' + (columnIndex + 1) + ')').hide();
+    $table.find('tr > *:nth-child(' + (columnIndex + 1) + ')').hide();
 
-	// Now, see if one of the first three rows are visible:
+    // Now, see if one of the first three rows are visible:
   });
 
   // Add hover highlighting logic for table
