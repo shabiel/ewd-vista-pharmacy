@@ -32,6 +32,16 @@ pharmacy.landingPage = function(EWD) {
         t.find('td:nth-of-type(3):not(:contains(' + currentDivName + '))').parent().hide();
       }
       else t.find(' * ').show();
+
+      // Calculate total orders
+      // Get all visible non header rows and then the last child (count) column
+      let totalCount = 0;
+      t.find('tbody tr:not(:first):visible td:last-child').each(function() {
+        totalCount += parseInt($(this).text());
+      });
+
+      // Insert the counts into the badge
+      $('ul.nav-tabs > li > a:contains("Outpatient") > span.badge').html(totalCount);
     });
 
 
@@ -104,9 +114,6 @@ pharmacy.drawOutpatientPendingOrders = function(EWD, tableData) {
   // Grab Table Body pointer (table by itself will malfunction)
   let t = $('#outpatient-pending-table > table > tbody');
 
-  // Counters for updating the "badge" next to the tab
-  let count = 0;
-
   // For each ward group or clinic
   Object.keys(tableData).forEach(ien => {
     t.append(`
@@ -120,11 +127,7 @@ pharmacy.drawOutpatientPendingOrders = function(EWD, tableData) {
             <td>${tableData[ien].count}</td>
             </tr>
             `);
-    count += tableData[ien].count;
   });
-
-  // Insert the counts into the badges
-  $('ul.nav-tabs > li > a:contains("Outpatient") > span.badge').html(count);
 
   // Click logic for the table -- load modal window
   t.find('tr').click(function() {
@@ -151,12 +154,12 @@ pharmacy.drawOutpatientPendingOrders = function(EWD, tableData) {
   pharmacy.addTableBehaviors($table);
 
   $('#tableReset').click(function(){
-    $table.find(' * ').show();
-    $('input:checkbox#chkonlyMyInstitution').prop( 'checked', false );
+    $('input:checkbox#chkonlyMyInstitution').prop( 'checked', false ).change();
   });
 
   // Make checkbox checked to invoke event and hide institution (default)
   $('input:checkbox#chkonlyMyInstitution').prop( 'checked', true ).change();
+
 };
 
 pharmacy.drawOutpatientPatientsTable = function(EWD, drawData) {
@@ -222,8 +225,6 @@ pharmacy.addTableBehaviors = function($table) {
   $table.find('i.fa-eye-slash').click(function() {
     let columnIndex = $(this).closest('th').index();
     $table.find('tr > *:nth-child(' + (columnIndex + 1) + ')').hide();
-
-    // Now, see if one of the first three rows are visible:
   });
 
   // Add hover highlighting logic for table
