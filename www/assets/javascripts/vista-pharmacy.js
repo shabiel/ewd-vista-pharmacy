@@ -114,6 +114,9 @@ pharmacy.drawOutpatientPendingOrders = function(EWD, tableData) {
             <td>${tableData[ien].clinicSortGroups.length > 0 ? tableData[ien].clinicSortGroups.join(", ") : "None"}</td>
             <td>${tableData[ien].name}</td>
             <td>${tableData[ien].institutionName}</td>
+            <td>${tableData[ien].earliestOrderDateTime}</td>
+            <td>${tableData[ien].latestOrderDateTime}</td>
+            <td>${tableData[ien].flagged}</td>
             <td>${tableData[ien].count}</td>
             </tr>
             `);
@@ -146,6 +149,11 @@ pharmacy.drawOutpatientPendingOrders = function(EWD, tableData) {
 
   let $table = t.closest('table');
   pharmacy.addTableBehaviors($table);
+
+  $('#tableReset').click(function(){
+    $table.find(' * ').show();
+    $('input:checkbox#chkonlyMyInstitution').prop( 'checked', false );
+  });
 
   // Make checkbox checked to invoke event and hide institution (default)
   $('input:checkbox#chkonlyMyInstitution').prop( 'checked', true ).change();
@@ -208,6 +216,14 @@ pharmacy.addTableBehaviors = function($table) {
       if (dir === 'forwards'  && !isNumeric) return tda       > tdb ? 1 : tda       < tdb ? -1 : 0;
       if (dir === 'forwards'  && isNumeric)  return tda - tdb > 0   ? 1 : tda - tdb < 0   ? -1 : 0;
     }).appendTo(thisTable);
+  });
+
+  // Add hiding behavior
+  $table.find('i.fa-eye-slash').click(function() {
+    let columnIndex = $(this).closest('th').index();
+	$table.find('tr > *:nth-child(' + (columnIndex + 1) + ')').hide();
+
+	// Now, see if one of the first three rows are visible:
   });
 
   // Add hover highlighting logic for table

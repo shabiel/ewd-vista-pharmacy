@@ -9,12 +9,12 @@
 const assert = require('assert');
 
 // App requirements
-const DocumentStore = require('../../qewd/node_modules/ewd-qoper8-cache/node_modules/ewd-document-store');
-//const thisInterface = require('nodem'); GT.M
-const thisInterface = require('cache');
-const runRPC = require('../../ewd-vista/lib/runRPC');
-const sessions = require('../../qewd/node_modules/ewd-session/');
-const pharm = require('../../ewd-vista-pharmacy/');
+const DocumentStore = require('ewd-document-store');
+const thisInterface = require('nodem'); //GT.M
+//const thisInterface = require('cache');
+const runRPC = require('ewd-vista/lib/runRPC');
+const sessions = require('ewd-session');
+const pharm = require('ewd-vista-pharmacy');
 let instance = {};
 let session = '';
 
@@ -23,13 +23,13 @@ describe('Login', function() {
   before(function() {
     // Set up database connection
     // GTM:
-    /*
     instance.db = new thisInterface.Gtm();
     instance.db.open();
-    */
+    /*
     instance.db = new thisInterface.Cache();
     instance.db.open({path: '/usr/cachesys/mgr/', namespace: 'PANORAMA'});
 
+    */
     instance.documentStore = new DocumentStore(instance.db);
     console.log(instance.documentStore.db.version());
 
@@ -130,7 +130,12 @@ describe('Login', function() {
 
   describe('ordersSummaryDashboard', function(){
     it('should do something', function(){
-      pharm.handlers.ordersSummaryDashboard.call(instance, {}, session, undefined, undefined);
+	test = instance.db.function({
+		  function:  'FMDIFF^XLFDT',
+		  	  arguments: ['$$NOW^XLFDT', '3000222.10172', 2] });
+	console.log(test);
+
+	  
     });
   });
 
