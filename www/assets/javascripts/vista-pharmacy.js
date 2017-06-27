@@ -44,25 +44,60 @@ pharmacy.landingPage = function(EWD) {
       $('ul.nav-tabs > li > a:contains("Outpatient") > span.badge').html(totalCount);
     });
 
+    pharmacy.getInpatientPharmacyOrders(EWD);
+    pharmacy.getOutpatientPharmacyOrders(EWD);
 
-    // Braces for let isolation
-    {
+    $('#inpatient-refresh-info').off().on('click', function() {
+      $('#inpatient-refresh-info').addClass('fa-spin');
+      pharmacy.getInpatientPharmacyOrders(EWD);
+    });
+
+    $('#outpatient-refresh-info').off().on('click', function() {
+      $('#outpatient-refresh-info').addClass('fa-spin');
+      pharmacy.getOutpatientPharmacyOrders(EWD);
+    });
+
+    $('#processAll').off().on('click', function () {
       let params = {
         service: 'ewd-vista-pharmacy',
-        type: 'inpatientOrdersSummary'
+        name: 'modal-table.html',
+        targetId: 'modal-window'
       };
-      EWD.send(params, (res) => pharmacy.drawInpatientPendingOrders(EWD, res.message));
-    }
+      EWD.getFragment(params, function() {
+        let params = {
+          service: 'ewd-vista-pharmacy',
+          type: 'outpatientOrdersAll'
+        };
+        EWD.send(params, (res) => pharmacy.drawOutpatientPatientsTable(EWD, res.message));
+      }); //EWD.getFragment
+    }); //on.Click
 
-    {
-      let params = {
-        service: 'ewd-vista-pharmacy',
-        type: 'outpatientOrdersSummary'
-      };
-      EWD.send(params, (res) => pharmacy.drawOutpatientPendingOrders(EWD, res.message));
-    }
-  });
+  }); //EWD.getFragement
 }; // ~landingPage
+
+pharmacy.getInpatientPharmacyOrders = function(EWD) {
+  $('#inpatient-pending-table > table > tbody').html('');
+  let params = {
+    service: 'ewd-vista-pharmacy',
+    type: 'inpatientOrdersSummary'
+  };
+  EWD.send(params, (res) => {
+    pharmacy.drawInpatientPendingOrders(EWD, res.message);
+    $('#inpatient-refresh-info').removeClass('fa-spin');
+  });
+};
+
+pharmacy.getOutpatientPharmacyOrders = function(EWD) {
+  $('#outpatient-pending-table > table > tbody').html('');
+  let params = {
+    service: 'ewd-vista-pharmacy',
+    type: 'outpatientOrdersSummary'
+  };
+  EWD.send(params, (res) => {
+    pharmacy.drawOutpatientPendingOrders(EWD, res.message);
+    $('#outpatient-refresh-info').removeClass('fa-spin');
+  });
+};
 
 pharmacy.drawInpatientPendingOrders = function(EWD, tableData) {
 
@@ -114,13 +149,28 @@ pharmacy.drawOutpatientPendingOrders = function(EWD, tableData) {
   // Grab Table Body pointer (table by itself will malfunction)
   let t = $('#outpatient-pending-table > table > tbody');
 
+  console.log('foo');
+  // Convert Sort Groups into spans for each sort group
+  Object.keys(tableData).forEach(ien => {
+    tableData[ien].clinicSortGroupsSpans = '';
+    if (tableData[ien].clinicSortGroups.length > 0) {
+      for (clinicSortGroup of tableData[ien].clinicSortGroups) {
+        tableData[ien].clinicSortGroupsSpans = tableData[ien]
+          .clinicSortGroupsSpans
+          .concat(`<span id=${clinicSortGroup.ien}>${clinicSortGroup.name}</span>`);
+      }
+    }
+  });
   // For each ward group or clinic
   Object.keys(tableData).forEach(ien => {
     t.append(`
             <tr id=${ien}>
-            <td>${tableData[ien].clinicSortGroups.length > 0 ? tableData[ien].clinicSortGroups.join(', ') : 'None'}</td>
+            <td>${tableData[ien].clinicSortGroupsSpans}</td>
             <td>${tableData[ien].name}</td>
-            <td>${tableData[ien].institutionName}</td>
+            <td id=${tableData[ien].institutionIEN}>
+            ${tableData[ien].institutionName}&nbsp;
+            <span class="badge">${tableData[ien].institutionCount}</span>
+            </td>
             <td>${tableData[ien].earliestOrderDateTime}</td>
             <td>${tableData[ien].latestOrderDateTime}</td>
             <td>${tableData[ien].flagged}</td>
@@ -151,7 +201,7 @@ pharmacy.drawOutpatientPendingOrders = function(EWD, tableData) {
   });
 
   let $table = t.closest('table');
-  pharmacy.addTableBehaviors($table);
+  pharmacy.addTableBehaviors(EWD, $table);
 
   $('#tableReset').click(function(){
     $('input:checkbox#chkonlyMyInstitution').prop( 'checked', false ).change();
@@ -160,6 +210,67 @@ pharmacy.drawOutpatientPendingOrders = function(EWD, tableData) {
   // Make checkbox checked to invoke event and hide institution (default)
   $('input:checkbox#chkonlyMyInstitution').prop( 'checked', true ).change();
 
+  // Add clickable links, first, to institution
+  let $th = $table.find('th#institution');
+  let columnIndex = $th.index();
+  // Underline on hover
+  $table.find('tr > *:nth-child(' + (columnIndex + 1) + ')').hover(
+    function() { $(this).css('text-decoration', 'underline'); },
+    function() { $(this).css('text-decoration', 'none');      }
+  );
+  // Click
+  $table.find('tr > *:nth-child(' + (columnIndex + 1) + ')').click(function(e) {
+    // Don't let the click event shoot up to the row click
+    e.stopPropagation();
+
+    let institutionIEN = this.id;
+    let params = {
+      service: 'ewd-vista-pharmacy',
+      name: 'modal-table.html',
+      targetId: 'modal-window'
+    };
+
+    EWD.getFragment(params, function() {
+      let params = {
+        service: 'ewd-vista-pharmacy',
+        type: 'outpatientOrdersByInstitution',
+        params: { institutionIEN: institutionIEN  }
+      };
+      EWD.send(params, (res) => pharmacy.drawOutpatientPatientsTable(EWD, res.message));
+    });
+  });
+
+  // Add clickable links, second, to clinic sort group
+  $th = $table.find('th#sortGroups');
+  columnIndex = $th.index();
+
+  // Underline on hover
+  $table.find('tr > *:nth-child(' + (columnIndex + 1) + ') span').hover(
+    function() { $(this).css('text-decoration', 'underline'); },
+    function() { $(this).css('text-decoration', 'none');      }
+  );
+
+  // Click
+  $table.find('tr > *:nth-child(' + (columnIndex + 1) + ') span').click(function(e) {
+    // Don't let the click event shoot up to the row click
+    e.stopPropagation();
+
+    let clinicSortGroupIEN = this.id;
+    let params = {
+      service: 'ewd-vista-pharmacy',
+      name: 'modal-table.html',
+      targetId: 'modal-window'
+    };
+
+    EWD.getFragment(params, function() {
+      let params = {
+        service: 'ewd-vista-pharmacy',
+        type: 'outpatientOrdersByClinicSortGroup',
+        params: { clinicSortGroupIEN: clinicSortGroupIEN}
+      };
+      EWD.send(params, (res) => pharmacy.drawOutpatientPatientsTable(EWD, res.message));
+    });
+  });
 };
 
 pharmacy.drawOutpatientPatientsTable = function(EWD, drawData) {
@@ -180,20 +291,19 @@ pharmacy.drawOutpatientPatientsTable = function(EWD, drawData) {
 
   $tbody.append(tableRow);
 
-  $(document).on('keydown', function(event){
-    // Set up Esc key
-    if (event.keyCode === 27) {
-      $('#modal-window').modal('hide');
-    }
+  pharmacy.addTableBehaviors(EWD, $table);
+
+  $('#modal-window').modal({
+    backdrop: true,
+    keyboard: true,
+    focus: true,
+    show: true
   });
-
-  pharmacy.addTableBehaviors($table);
-
   $('#modal-window').modal('show');
 
 };
 
-pharmacy.addTableBehaviors = function($table) {
+pharmacy.addTableBehaviors = function(EWD, $table) {
 
   // Add sorting behavior
   $table.find('i.sortable').click(function() {
@@ -226,7 +336,7 @@ pharmacy.addTableBehaviors = function($table) {
     let columnIndex = $(this).closest('th').index();
     $table.find('tr > *:nth-child(' + (columnIndex + 1) + ')').hide();
   });
-
+  
   // Add hover highlighting logic for table
   $table.find('tbody tr').hover(
     function () {

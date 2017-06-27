@@ -3,16 +3,22 @@
   align-items: center;
 }
 
-.fa-caret-down, .fa-caret-up, .fa-eye-slash, #tableReset {
+.fa-caret-down, .fa-caret-up, .fa-eye-slash, #tableReset,
+#outpatient-refresh-info, #inpatient-refresh-info
+{
   cursor: pointer;
 }
 
-#tableReset {
+.floatRight {
   float: right;
 }
 
-.fa-flag {
+.flag-red {
   color: red;
+}
+
+.flag-blue {
+  color: blue;
 }
 
 .table-highlight {
