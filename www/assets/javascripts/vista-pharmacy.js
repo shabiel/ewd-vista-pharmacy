@@ -274,24 +274,81 @@ pharmacy.drawOutpatientPendingOrders = function(EWD, tableData) {
 };
 
 pharmacy.drawOutpatientPatientsTable = function(EWD, drawData) {
+  // NB: Data is returned in 4 arrays; the 3 arrays that contain
+  // patient data all have the same indexes. data[1] applies to 
+  // metaProviders[1].
   let $thead = $('div.modal-body table thead tr');
+  let $tbody = $('div.modal-body table tbody');
+  let $table = $('div.modal-body table');
+
   drawData.header.forEach(eachHeader => $thead.append(`
     <th>${eachHeader}&nbsp;<i class="fa fa-caret-up sortable" aria-hidden="true"></i></th>
     `)
   );
 
-  let $table = $('div.modal-body table');
-  let $tbody = $('div.modal-body table tbody');
+  // tableRow lets us add html to it before we put it on the page
   let tableRow = '';
-  drawData.data.forEach(datum => {
-    tableRow += '<tr>';
+  // combinedProviders and Classes add up the cumulative providers and
+  // classes for each patient for use in filtering.
+  let combinedProviders = {};
+  let combinedClasses = {};
+  drawData.data.forEach((datum, index) => {
+    let sortedMetaProviders = Object.values(drawData.metaProviders[index]).sort( (a,b) => a > b);
+    let sortedMetaVaDrugClasses = Object.keys(drawData.metaVaDrugClasses[index]).sort( (a,b) => a > b);
+    sortedMetaProviders.forEach(one => combinedProviders[one] = '');
+    sortedMetaVaDrugClasses.forEach(one => combinedClasses[one] = 
+        drawData.metaVaDrugClasses[index][one]);
+    // Datum 0 is the DFN. We add it then get rid of it.
+    tableRow += `<tr id="${datum[0]}"
+      data-providers=${JSON.stringify(sortedMetaProviders)}
+      data-classes=${JSON.stringify(sortedMetaVaDrugClasses)}>`;
+    datum.shift(); // Get rid of DFN
     datum.forEach(item => tableRow += `<td>${item}</td>`);
     tableRow += '</tr>';
   });
 
   $tbody.append(tableRow);
+  
+  // Sort the combined objects into an array by keys
+  let combinedProvidersArray = Object.keys(combinedProviders).sort((a,b)=>a>b);
+  let combinedVaClassesArray = Object.keys(combinedClasses).sort((a,b)=>a>b);
+
+  // Put the sorted objects into the drop down boxes on the page
+  $('#provider').empty();
+  $('#provider').append(new Option('', ''));
+  combinedProvidersArray.forEach(one => $('#provider').
+    append(new Option(one, one)));
+  $('#class').empty();
+  $('#class').append(new Option('', ''));
+  combinedVaClassesArray.forEach(one => $('#class').
+    append(new Option(one + ' - ' + combinedClasses[one], one)));
+
+  // Filter the table based on select of these
+  var changeFunction = function() {
+    $tbody.find(' * ').show();
+    let provider = $('#provider').val();
+    let vaclass    = $('#class').val();
+    $tbody.find('tr').each(function() {
+      provArray = $(this).data().providers;
+      classArray = $(this).data().classes;
+      if (vaclass !== '' && !classArray.includes(vaclass)) $(this).hide();
+      if (provider !== '' && !provArray.includes(provider)) $(this).hide();
+    });
+  };
+  $('#provider').off().change(changeFunction);
+  $('#class').off().change(changeFunction);
 
   pharmacy.addTableBehaviors(EWD, $table);
+  
+  let totalCount = 0;
+  let patientCount = 0;
+  $table.find('tr:not(:first) td:last-child').each(function() {
+    totalCount += parseInt($(this).text());
+    patientCount++;
+  });
+
+  $('#patientCount').html(patientCount);
+  $('#orderCount').html(totalCount);
 
   $('#modal-window').modal({
     backdrop: true,

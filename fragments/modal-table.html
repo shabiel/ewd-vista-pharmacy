@@ -2,10 +2,16 @@
   <div class="modal-content login">
     <div class="modal-header">
       <h3 class="modal-title">Patient List</h3>
+			<h4 class="modal-title">Patients <span class="badge" id="patientCount"></span>&nbsp;|&nbsp;Orders <span class="badge" id="orderCount"></span></h4>
     </div>
     
     <div class="modal-body">
       <legend>Select a Patient to Process</legend>
+      <label for="provider">Filter by Provider:</label>
+      <select id="provider"></select>
+      &nbsp;|&nbsp;
+      <label for="class">Filter by VA Drug Class</label>
+      <select id="class"></select>
       <table class="table">
         <thead><tr></tr></thead>
         <tbody></tbody>
