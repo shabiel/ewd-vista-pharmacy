@@ -6,12 +6,28 @@
     </div>
     
     <div class="modal-body">
-      <legend>Select a Patient to Process</legend>
+      <legend>Select a Patient to Process
+      <span class="floatRight">
+        <button type="button" class="btn btn-primary">Process Displayed</button>
+      </span>
+      </legend>
+      <div id="filters">
+        <span>Show Only</span>
+        <input type="checkbox" id="winOnly">Window/Inhouse</input> |
+        <input type="checkbox" id="mailOnly">Mail</input> |
+        <input type="checkbox" id="renewalsOnly">Renewals</input> |
+        <input type="checkbox" id="nonformOnly">Non-formulary</input> |
+        <input type="checkbox" id="cIIOnly">C-II Only</input> |
+        <input type="checkbox" id="cIIIVOnly">C-III to C-V Only</input> |
+        <a id="clearChecks">Clear Filters</a>
+      </div>
       <label for="provider">Filter by Provider:</label>
       <select id="provider"></select>
       &nbsp;|&nbsp;
       <label for="class">Filter by VA Drug Class</label>
       <select id="class"></select>
+      <label for="slider">Filter by Date:</label>
+      <div id="slider"></div>
       <table class="table">
         <thead><tr></tr></thead>
         <tbody></tbody>

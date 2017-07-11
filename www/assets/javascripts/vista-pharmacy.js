@@ -149,7 +149,6 @@ pharmacy.drawOutpatientPendingOrders = function(EWD, tableData) {
   // Grab Table Body pointer (table by itself will malfunction)
   let t = $('#outpatient-pending-table > table > tbody');
 
-  console.log('foo');
   // Convert Sort Groups into spans for each sort group
   Object.keys(tableData).forEach(ien => {
     tableData[ien].clinicSortGroupsSpans = '';
@@ -162,9 +161,9 @@ pharmacy.drawOutpatientPendingOrders = function(EWD, tableData) {
     }
   });
   // For each ward group or clinic
+  let row = '';
   Object.keys(tableData).forEach(ien => {
-    t.append(`
-            <tr id=${ien}>
+    row += `<tr id=${ien}>
             <td>${tableData[ien].clinicSortGroupsSpans}</td>
             <td>${tableData[ien].name}</td>
             <td id=${tableData[ien].institutionIEN}>
@@ -173,11 +172,17 @@ pharmacy.drawOutpatientPendingOrders = function(EWD, tableData) {
             </td>
             <td>${tableData[ien].earliestOrderDateTime}</td>
             <td>${tableData[ien].latestOrderDateTime}</td>
-            <td>${tableData[ien].flagged}</td>
-            <td>${tableData[ien].count}</td>
-            </tr>
-            `);
+            <td>${tableData[ien].flagged}</td>`;
+    row += '<td>';
+    Object.keys(tableData[ien].routing).forEach(pickup => {
+      row += `${pickup}: ${tableData[ien].routing[pickup]}<br />`;
+    });
+    row += '</td>';
+    row += `<td>${tableData[ien].count}</td>
+            </tr>`;
   });
+
+  t.append(row);
 
   // Click logic for the table -- load modal window
   t.find('tr').click(function() {
@@ -274,13 +279,14 @@ pharmacy.drawOutpatientPendingOrders = function(EWD, tableData) {
 };
 
 pharmacy.drawOutpatientPatientsTable = function(EWD, drawData) {
-  // NB: Data is returned in 4 arrays; the 3 arrays that contain
+  // NB: Data is returned in 5 arrays; the 4 arrays that contain
   // patient data all have the same indexes. data[1] applies to 
-  // metaProviders[1].
+  // metaProviders[1], renewals[1], nonFormulary[1] etc.
   let $thead = $('div.modal-body table thead tr');
   let $tbody = $('div.modal-body table tbody');
   let $table = $('div.modal-body table');
 
+  // Draw headers into $thead
   drawData.header.forEach(eachHeader => $thead.append(`
     <th>${eachHeader}&nbsp;<i class="fa fa-caret-up sortable" aria-hidden="true"></i></th>
     `)
@@ -288,10 +294,13 @@ pharmacy.drawOutpatientPatientsTable = function(EWD, drawData) {
 
   // tableRow lets us add html to it before we put it on the page
   let tableRow = '';
+
   // combinedProviders and Classes add up the cumulative providers and
   // classes for each patient for use in filtering.
   let combinedProviders = {};
   let combinedClasses = {};
+
+  // NB: This is the main drawing loop!
   drawData.data.forEach((datum, index) => {
     let sortedMetaProviders = Object.values(drawData.metaProviders[index]).sort( (a,b) => a > b);
     let sortedMetaVaDrugClasses = Object.keys(drawData.metaVaDrugClasses[index]).sort( (a,b) => a > b);
@@ -299,9 +308,16 @@ pharmacy.drawOutpatientPatientsTable = function(EWD, drawData) {
     sortedMetaVaDrugClasses.forEach(one => combinedClasses[one] = 
         drawData.metaVaDrugClasses[index][one]);
     // Datum 0 is the DFN. We add it then get rid of it.
-    tableRow += `<tr id="${datum[0]}"
+    // tr has data stuff we use for filtering.
+    tableRow += `<tr
+      id="${datum[0]}"
       data-providers=${JSON.stringify(sortedMetaProviders)}
-      data-classes=${JSON.stringify(sortedMetaVaDrugClasses)}>`;
+      data-classes=${JSON.stringify(sortedMetaVaDrugClasses)}
+      data-renewal=${drawData.renewals[index]}
+      data-nonformulary=${drawData.nonFormulary[index]}
+      data-earliestordertime="${Number(drawData.earliestOrdersTimes[index]).dateFromTimson()}"
+      data-latestordertime="${Number(drawData.latestOrdersTimes[index]).dateFromTimson()}"
+      >`;
     datum.shift(); // Get rid of DFN
     datum.forEach(item => tableRow += `<td>${item}</td>`);
     tableRow += '</tr>';
@@ -309,19 +325,38 @@ pharmacy.drawOutpatientPatientsTable = function(EWD, drawData) {
 
   $tbody.append(tableRow);
   
-  // Sort the combined objects into an array by keys
-  let combinedProvidersArray = Object.keys(combinedProviders).sort((a,b)=>a>b);
-  let combinedVaClassesArray = Object.keys(combinedClasses).sort((a,b)=>a>b);
+  console.log('foo');
+
+  // Get the arrays from the keys
+  let combinedProvidersArray = Object.keys(combinedProviders);
+  let combinedVaClassesArray = Object.keys(combinedClasses);
+
+  // Sort
+  combinedProvidersArray.sort();
+  combinedVaClassesArray.sort();
 
   // Put the sorted objects into the drop down boxes on the page
+  // Providers
   $('#provider').empty();
   $('#provider').append(new Option('', ''));
-  combinedProvidersArray.forEach(one => $('#provider').
-    append(new Option(one, one)));
+  combinedProvidersArray.forEach(one => $('#provider').append(new Option(one, one)));
+  // and then classes
   $('#class').empty();
   $('#class').append(new Option('', ''));
-  combinedVaClassesArray.forEach(one => $('#class').
-    append(new Option(one + ' - ' + combinedClasses[one], one)));
+  combinedVaClassesArray.forEach(one => $('#class').append(new Option(one + ' - ' + combinedClasses[one], one)));
+
+  // Count Updater function (function cuz has to be invoked multiple times)
+  var updateCounts = function() {
+    let totalCount = 0;
+    let patientCount = 0;
+    $table.find('tr:not(:first):visible td:last-child').each(function() {
+      totalCount += parseInt($(this).text());
+      patientCount++;
+    });
+
+    $('#patientCount').html(patientCount);
+    $('#orderCount').html(totalCount);
+  };
 
   // Filter the table based on select of these
   var changeFunction = function() {
@@ -334,21 +369,99 @@ pharmacy.drawOutpatientPatientsTable = function(EWD, drawData) {
       if (vaclass !== '' && !classArray.includes(vaclass)) $(this).hide();
       if (provider !== '' && !provArray.includes(provider)) $(this).hide();
     });
+    updateCounts();
   };
+
   $('#provider').off().change(changeFunction);
   $('#class').off().change(changeFunction);
 
-  pharmacy.addTableBehaviors(EWD, $table);
+  // == Checkboxes ==
+  // Clear checkboxes and reset dropdowns
+  $('a#clearChecks').off().click(function() {
+    $tbody.find(' * ').show();
+    $('#filters input:checkbox').prop('checked', false);
+    $('#provider').prop('selectedIndex', 0);
+    $('#class').prop('selectedIndex', 0);
+  });
   
-  let totalCount = 0;
-  let patientCount = 0;
-  $table.find('tr:not(:first) td:last-child').each(function() {
-    totalCount += parseInt($(this).text());
-    patientCount++;
+  // Window/Inhouse Checkbox
+  $('input:checkbox#winOnly').off().change(function() {
+    let isChecked = this.checked;
+    let columnIndex = $thead.find('th:contains("WINDOW")').index();
+    $tbody.find('tr').each(function() {
+      let winNum = $(this).find(`td:eq(${columnIndex})`).text();
+      winNum = parseInt(winNum);
+      if (isChecked && winNum === 0)  $(this).hide();
+      if (!isChecked && winNum === 0) $(this).show();
+    });
+    updateCounts();
   });
 
-  $('#patientCount').html(patientCount);
-  $('#orderCount').html(totalCount);
+  // Mail Only CheckBox
+  $('input:checkbox#mailOnly').off().change(function() {
+    let isChecked = this.checked;
+    let columnIndex = $thead.find('th:contains("MAIL")').index();
+    $tbody.find('tr').each(function() {
+      let mailNum = $(this).find(`td:eq(${columnIndex})`).text();
+      mailNum = parseInt(mailNum);
+      if (isChecked && mailNum === 0)  $(this).hide();
+      if (!isChecked && mailNum === 0) $(this).show();
+    });
+    updateCounts();
+  });
+
+  // Renewals Checkbox
+  $('input:checkbox#renewalsOnly').off().change(function() {
+    let isChecked = this.checked;
+    $tbody.find('tr').each(function() {
+      let renewal = $(this).data().renewal;
+      if (typeof renewal === 'string') renewal = renewal === 'true' ? true : false;
+      if (isChecked && !renewal) $(this).hide();
+      if (!isChecked && !renewal) $(this).show();
+    });
+    updateCounts();
+  });
+
+  // Nonformulary Checkbox
+  $('input:checkbox#nonformOnly').off().change(function() {
+    let isChecked = this.checked;
+    $tbody.find('tr').each(function() {
+      let nonformulary = $(this).data().nonformulary;
+      if (typeof nonformulary === 'string') nonformulary = nonformulary === 'true' ? true : false;
+      if (isChecked && !nonformulary) $(this).hide();
+      if (!isChecked && !nonformulary) $(this).show();
+    });
+    updateCounts();
+  });
+
+  // CII Checkbox
+  $('input:checkbox#cIIOnly').off().change(function() {
+    let isChecked = this.checked;
+    let columnIndex = $thead.find('th:contains("C II")').index();
+    $tbody.find('tr').each(function() {
+      let ciiNum = $(this).find(`td:eq(${columnIndex})`).text();
+      ciiNum = parseInt(ciiNum);
+      if (isChecked && ciiNum === 0)  $(this).hide();
+      if (!isChecked && ciiNum === 0) $(this).show();
+    });
+    updateCounts();
+  });
+  
+  // CIII-V Checkbox
+  $('input:checkbox#cIIIVOnly').off().change(function() {
+    let isChecked = this.checked;
+    let columnIndex = $thead.find('th:contains("C III-V")').index();
+    $tbody.find('tr').each(function() {
+      let cother = $(this).find(`td:eq(${columnIndex})`).text();
+      cother = parseInt(cother);
+      if (isChecked && cother === 0)  $(this).hide();
+      if (!isChecked && cother === 0) $(this).show();
+    });
+    updateCounts();
+  });
+  
+  // Adds sorting
+  pharmacy.addTableBehaviors(EWD, $table);
 
   $('#modal-window').modal({
     backdrop: true,
@@ -356,8 +469,23 @@ pharmacy.drawOutpatientPatientsTable = function(EWD, drawData) {
     focus: true,
     show: true
   });
-  $('#modal-window').modal('show');
+  
+  $('#modal-window').one('shown.bs.modal',function() {
+    // Update counts needs to be called at the end because it operates on
+    // visible rows only
+    updateCounts();
+    $.getScript('/ewd-vista/assets/javascripts/jQDateRangeSlider-min.js')
+      .done( () => {
+        $('<link>').appendTo('head').attr({
+          type: 'text/css',
+          rel:  'stylesheet',
+          href: '/ewd-vista/assets/stylesheets/classic.css',
+        });
+        $('#slider').dateRangeSlider();
+      });
+  });
 
+  $('#modal-window').modal('show');
 };
 
 pharmacy.addTableBehaviors = function(EWD, $table) {
