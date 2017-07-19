@@ -1,11 +1,7 @@
 var pharmacy = {};
 
-// Load CSS & set up nav
 pharmacy.prep = function(EWD) {
-  $('body').on('click', '#app-pharmacy', function() {
-    vista.switchApp();
-    pharmacy.landingPage(EWD);
-  });
+  pharmacy.landingPage(EWD);
 }; // ~prep
 
 // Main set-up
