@@ -20,6 +20,6 @@
     "clientModuleName": "pharmacy",
     "htmlName": "pharmacy",
     "sortOrder": "40",
-    "securityKeys": []
+    "securityKey": ""
   }
 }
