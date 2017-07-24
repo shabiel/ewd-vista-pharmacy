@@ -215,7 +215,7 @@ pharmacy.drawOutpatientPendingOrders = function(EWD, tableData) {
   let $th = $table.find('th#institution');
   let columnIndex = $th.index();
   // Underline on hover
-  $table.find('tr > *:nth-child(' + (columnIndex + 1) + ')').hover(
+  t.find('tr > *:nth-child(' + (columnIndex + 1) + ')').hover(
     function() { $(this).css('text-decoration', 'underline'); },
     function() { $(this).css('text-decoration', 'none');      }
   );
@@ -246,7 +246,7 @@ pharmacy.drawOutpatientPendingOrders = function(EWD, tableData) {
   columnIndex = $th.index();
 
   // Underline on hover
-  $table.find('tr > *:nth-child(' + (columnIndex + 1) + ') span').hover(
+  t.find('tr > *:nth-child(' + (columnIndex + 1) + ') span').hover(
     function() { $(this).css('text-decoration', 'underline'); },
     function() { $(this).css('text-decoration', 'none');      }
   );
@@ -321,8 +321,6 @@ pharmacy.drawOutpatientPatientsTable = function(EWD, drawData) {
 
   $tbody.append(tableRow);
   
-  console.log('foo');
-
   // Get the arrays from the keys
   let combinedProvidersArray = Object.keys(combinedProviders);
   let combinedVaClassesArray = Object.keys(combinedClasses);
@@ -354,6 +352,7 @@ pharmacy.drawOutpatientPatientsTable = function(EWD, drawData) {
     $('#orderCount').html(totalCount);
   };
 
+
   // Filter the table based on select of these
   var changeFunction = function() {
     $tbody.find(' * ').show();
@@ -378,6 +377,7 @@ pharmacy.drawOutpatientPatientsTable = function(EWD, drawData) {
     $('#filters input:checkbox').prop('checked', false);
     $('#provider').prop('selectedIndex', 0);
     $('#class').prop('selectedIndex', 0);
+    configureDateRange();
   });
   
   // Window/Inhouse Checkbox
@@ -466,20 +466,73 @@ pharmacy.drawOutpatientPatientsTable = function(EWD, drawData) {
     show: true
   });
   
+  // Date time range picker stuff
   $('#modal-window').one('shown.bs.modal',function() {
     // Update counts needs to be called at the end because it operates on
     // visible rows only
     updateCounts();
-    $.getScript('/ewd-vista/assets/javascripts/jQDateRangeSlider-min.js')
+    // TODO: Figure out how to manage dependency on moment.js
+    // & daterangepicker using npm.
+    $.getScript('/ewd-vista/assets/javascripts/moment.js')
       .done( () => {
-        $('<link>').appendTo('head').attr({
-          type: 'text/css',
-          rel:  'stylesheet',
-          href: '/ewd-vista/assets/stylesheets/classic.css',
-        });
-        $('#slider').dateRangeSlider();
+        $.getScript('/ewd-vista/assets/javascripts/daterangepicker.js')
+          .done( () => {
+            $('<link>').appendTo('head').attr({
+              type: 'text/css',
+              rel:  'stylesheet',
+              href: '/ewd-vista/assets/stylesheets/daterangepicker.css',
+            });
+
+            configureDateRange();
+          });
       });
   });
+
+  var configureDateRange = function() {
+    let startAndStop = dateRange();
+    $('input[name="daterange"]').daterangepicker({
+      startDate: startAndStop.minDate,
+      endDate: startAndStop.maxDate,
+      minDate: startAndStop.minDate,
+      maxDate: startAndStop.maxDate,
+      timePicker: true,
+      timePickerIncrement: 1,
+      timePickerSeconds: true,
+      locale: { format: 'YYYY/MM/DD hh:mm A' },
+    },
+    function(start, end, label) {
+      hideDatesNotInRange(start, end);
+    });
+  };
+
+  // Date Range finder
+  var dateRange = function() {
+    // https://stackoverflow.com/questions/11526504/minimum-and-maximum-date
+    let maxPossibleDate = new Date(8640000000000000);
+    let minPossibleDate = new Date(-8640000000000000);
+    
+    let earliestDate = maxPossibleDate;
+    let lastDate = minPossibleDate;
+    $tbody.find('tr').each(function() {
+      let startDate = new Date($(this).data().earliestordertime);
+      
+      if (earliestDate > startDate) earliestDate = startDate;
+      if (lastDate < startDate)   lastDate = startDate;
+    });
+
+    return {minDate: earliestDate, maxDate: lastDate};
+  };
+
+  var hideDatesNotInRange = function(start, end) {
+    $tbody.find(' * ').show();
+    $tbody.find('tr').each(function() {
+      let earlyDate = new Date($(this).data().earliestordertime);
+      if (earlyDate < start) $(this).hide();
+      if (earlyDate > end  ) $(this).hide();
+    });
+
+    updateCounts();
+  };
 
   $('#modal-window').modal('show');
 };

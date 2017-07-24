@@ -31,3 +31,9 @@
   width: 90%;
 }
 
+select#class, select#provider, select#drug {
+  width: 200px;
+}
+input#daterange {
+  width: 350px;
+}
