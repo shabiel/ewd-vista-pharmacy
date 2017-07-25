@@ -294,25 +294,29 @@ pharmacy.drawOutpatientPatientsTable = function(EWD, drawData) {
   // combinedProviders and Classes add up the cumulative providers and
   // classes for each patient for use in filtering.
   let combinedProviders = {};
+  let combinedDrugs = {};
   let combinedClasses = {};
 
   // NB: This is the main drawing loop!
   drawData.data.forEach((datum, index) => {
     let sortedMetaProviders = Object.values(drawData.metaProviders[index]).sort( (a,b) => a > b);
+    let sortedMetaDrugs = Object.values(drawData.metaDrugs[index]).sort();
     let sortedMetaVaDrugClasses = Object.keys(drawData.metaVaDrugClasses[index]).sort( (a,b) => a > b);
     sortedMetaProviders.forEach(one => combinedProviders[one] = '');
+    sortedMetaDrugs.forEach(one => combinedDrugs[one] = '');
     sortedMetaVaDrugClasses.forEach(one => combinedClasses[one] = 
         drawData.metaVaDrugClasses[index][one]);
     // Datum 0 is the DFN. We add it then get rid of it.
     // tr has data stuff we use for filtering.
     tableRow += `<tr
       id="${datum[0]}"
-      data-providers=${JSON.stringify(sortedMetaProviders)}
-      data-classes=${JSON.stringify(sortedMetaVaDrugClasses)}
-      data-renewal=${drawData.renewals[index]}
-      data-nonformulary=${drawData.nonFormulary[index]}
-      data-earliestordertime="${Number(drawData.earliestOrdersTimes[index]).dateFromTimson()}"
-      data-latestordertime="${Number(drawData.latestOrdersTimes[index]).dateFromTimson()}"
+      data-providers='${JSON.stringify(sortedMetaProviders)}'
+      data-classes='${JSON.stringify(sortedMetaVaDrugClasses)}'
+      data-drugs='${JSON.stringify(sortedMetaDrugs)}'
+      data-renewal='${drawData.renewals[index]}'
+      data-nonformulary='${drawData.nonFormulary[index]}'
+      data-earliestordertime='${Number(drawData.earliestOrdersTimes[index]).dateFromTimson()}'
+      data-latestordertime='${Number(drawData.latestOrdersTimes[index]).dateFromTimson()}'
       >`;
     datum.shift(); // Get rid of DFN
     datum.forEach(item => tableRow += `<td>${item}</td>`);
@@ -323,10 +327,12 @@ pharmacy.drawOutpatientPatientsTable = function(EWD, drawData) {
   
   // Get the arrays from the keys
   let combinedProvidersArray = Object.keys(combinedProviders);
+  let combinedDrugsArray     = Object.keys(combinedDrugs);
   let combinedVaClassesArray = Object.keys(combinedClasses);
 
   // Sort
   combinedProvidersArray.sort();
+  combinedDrugsArray.sort();
   combinedVaClassesArray.sort();
 
   // Put the sorted objects into the drop down boxes on the page
@@ -334,6 +340,10 @@ pharmacy.drawOutpatientPatientsTable = function(EWD, drawData) {
   $('#provider').empty();
   $('#provider').append(new Option('', ''));
   combinedProvidersArray.forEach(one => $('#provider').append(new Option(one, one)));
+  // Drugs
+  $('#drug').empty();
+  $('#drug').append(new Option('', ''));
+  combinedDrugsArray.forEach(one => $('#drug').append(new Option(one, one)));
   // and then classes
   $('#class').empty();
   $('#class').append(new Option('', ''));
@@ -352,22 +362,31 @@ pharmacy.drawOutpatientPatientsTable = function(EWD, drawData) {
     $('#orderCount').html(totalCount);
   };
 
+  // To show filters
+  $('h4 i.fa-caret-right').off().click(function(){
+    $(this).toggleClass('fa-caret-right fa-caret-down');
+    $('div#filters').slideToggle();
+  });
 
   // Filter the table based on select of these
   var changeFunction = function() {
     $tbody.find(' * ').show();
     let provider = $('#provider').val();
-    let vaclass    = $('#class').val();
+    let drug     = $('#drug').val();
+    let vaclass  = $('#class').val();
     $tbody.find('tr').each(function() {
       provArray = $(this).data().providers;
       classArray = $(this).data().classes;
+      drugArray = $(this).data().drugs;
       if (vaclass !== '' && !classArray.includes(vaclass)) $(this).hide();
       if (provider !== '' && !provArray.includes(provider)) $(this).hide();
+      if (drug    !== ''  && !drugArray.includes(drug)) $(this).hide();
     });
     updateCounts();
   };
 
   $('#provider').off().change(changeFunction);
+  $('#drug').off().change(changeFunction);
   $('#class').off().change(changeFunction);
 
   // == Checkboxes ==
@@ -376,6 +395,7 @@ pharmacy.drawOutpatientPatientsTable = function(EWD, drawData) {
     $tbody.find(' * ').show();
     $('#filters input:checkbox').prop('checked', false);
     $('#provider').prop('selectedIndex', 0);
+    $('#drug').prop('selectedIndex', 0);
     $('#class').prop('selectedIndex', 0);
     configureDateRange();
   });

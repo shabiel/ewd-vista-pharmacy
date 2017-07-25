@@ -37,3 +37,9 @@ select#class, select#provider, select#drug {
 input#daterange {
   width: 350px;
 }
+div.modal-body div#filters {
+  border: 1px solid gray;
+  border-radius: 5px;
+  padding: 10px;
+  margin: 6px;
+}
