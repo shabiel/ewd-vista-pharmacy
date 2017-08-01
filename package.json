@@ -1,7 +1,9 @@
 {
   "name": "ewd-vista-pharmacy",
-  "engines" : { "node" : ">=6" },
-  "version": "0.1.1",
+  "engines": {
+    "node": ">=6"
+  },
+  "version": "0.1.2",
   "description": "QEWD VistA: Pharmacy Prototyping Module",
   "main": "index.js",
   "author": "Sam Habiel",
