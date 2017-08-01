@@ -1,5 +1,6 @@
 {
   "name": "ewd-vista-pharmacy",
+  "engines" : { "node" : ">=6" },
   "version": "0.1.1",
   "description": "QEWD VistA: Pharmacy Prototyping Module",
   "main": "index.js",
@@ -14,10 +15,8 @@
     "eslint-plugin-json": ""
   },
   "ewdVista": {
-    "module": "ewd-vista-pharmacy",
     "parentModule": "ewd-vista",
     "name": "Pharmacy",
-    "clientModuleName": "pharmacy",
     "htmlName": "pharmacy",
     "sortOrder": "40",
     "securityKey": ""
