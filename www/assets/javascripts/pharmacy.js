@@ -553,6 +553,23 @@ pharmacy.drawOutpatientPatientsTable = function(EWD, drawData) {
 
     updateCounts();
   };
+  
+  // Clicking on a patient
+  $tbody.find('tr').click(function(e) {
+    let DFN = this.id;
+    let params = {
+      service: 'ewd-vista-pharmacy',
+      name: 'patient.html',
+      targetId: 'main-content'
+    };
+
+    EWD.getFragment(params, () => {
+      $('#modal-window').html('');
+      $('#modal-window').modal('hide');
+
+      pharmacy.populatePatientPage(EWD,DFN);
+    });
+  });
 
   $('#modal-window').modal('show');
 };
@@ -600,4 +617,22 @@ pharmacy.addTableBehaviors = function(EWD, $table) {
       $(this).removeClass('table-highlight');
     }
   );
+};
+
+
+pharmacy.populatePatientPage = function(EWD,DFN) {
+  let messageObj = {
+    service: 'ewd-vista-pharmacy',
+    type: 'getPatientDemographics',
+    params: { DFN: DFN },
+  };
+
+  EWD.send(messageObj, (res) =>  pharmacy.populatePatientPageDemographics(
+    res.message.data.items[0]));
+};
+
+pharmacy.populatePatientPageDemographics = function(demographics)
+{
+  $('.patient-info h2 #patientName').html(demographics.fullName);
+  $('.patient-info h2 #typeOfCare').html(demographics.inpatientLocation ? 'Inpatient' : 'Outpatient');
 };
