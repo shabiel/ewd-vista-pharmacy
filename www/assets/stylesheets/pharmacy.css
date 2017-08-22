@@ -468,6 +468,7 @@ div.modal-body div#filters {
 #patientInfoTabContent div {
   border: solid 1px #ccc;
   height: 300px;
+  overflow-y: auto;
 }
 
 .sidebar .tray-loader {

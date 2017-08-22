@@ -672,7 +672,7 @@ pharmacy.populatePatientPage = function(EWD,DFN) {
   };
 
   EWD.send(messageObj, (res) => {
-    $adr = $('#patientInfoTabContent #adr');
+    let $adr = $('#patientInfoTabContent #adr');
     if (!res.message.data) {
       $adr.html(`<strong>${res.message.status}</strong>`);
       return;
@@ -755,6 +755,38 @@ pharmacy.populatePatientPage = function(EWD,DFN) {
     if(!$ipList.find('li').length) {
       $ipList.append('<legend>No medications found</legend>');
     }
+  });
+
+  // Vitals
+  // Inpatient
+  messageObj = {
+    service: 'ewd-vista-pharmacy',
+    type: 'getLatestVitals',
+    params: { DFN: DFN },
+  };
+  EWD.send(messageObj, (res) => {
+    let $vitals = $('#patientInfoTabContent #vitals');
+    if (!res.message.data.length) {
+      $vitals.html('<strong>No vitals found</strong>');
+      return;
+    }
+    $vitals.html('<table class="table"><thead></thead><tbody></tbody></table>');
+    $thead = $vitals.find('table thead');
+    $tbody = $vitals.find('table tbody');
+
+    let theading = '<tr>';
+    for (let h of res.message.headers) theading += `<th>${h}</th>`;
+    theading += '</tr>';
+    $thead.html(theading);
+
+    res.message.data.forEach( (datum) =>
+    {
+      let row = '<tr id="${datum[0]}">';
+      datum.shift();
+      datum.forEach( (cell) => row += `<td>${cell}</td>`);
+      row += '</tr>';
+      $tbody.append(row);
+    });
   });
 
 };
