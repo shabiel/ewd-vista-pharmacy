@@ -621,18 +621,73 @@ pharmacy.addTableBehaviors = function(EWD, $table) {
 
 
 pharmacy.populatePatientPage = function(EWD,DFN) {
-  let messageObj = {
+
+  // Demographics
+  let messageObj;
+  messageObj = {
     service: 'ewd-vista-pharmacy',
     type: 'getPatientDemographics',
     params: { DFN: DFN },
   };
 
-  EWD.send(messageObj, (res) =>  pharmacy.populatePatientPageDemographics(
-    res.message.data.items[0]));
+  EWD.send(messageObj, (res) => {
+    let demographics = res.message;
+    $('.patient-info h2 #patientName').html(demographics.name);
+    $('.patient-info h2 #typeOfCare').html(demographics.episodeType);
+    $('.patient-info p  #dob').html(demographics.DOB);
+    $('.patient-info p  #age').html(demographics.age);
+    $('.patient-info p  #primary-id').html(demographics.ID);
+    $('.patient-info p  #sex').html(demographics.sex);
+    if (demographics.episodeType == 'Inpatient') {
+      $('.patient-info #room-bed-div #room-bed').html(demographics.bed);
+    }
+    else {
+      $('.patient-info #room-bed-div').hide();
+    }
+  });
+
+  // Allergies
+  messageObj = {
+    service: 'ewd-vista-pharmacy',
+    type: 'getPatientAllergies',
+    params: { DFN: DFN },
+  };
+
+  EWD.send(messageObj, (res) => {
+    $adr = $('#patientInfoTabContent #adr');
+    if (!res.message.data) {
+      $adr.html(`<strong>${res.message.status}</strong>`);
+      return;
+    }
+    
+    $adr.html('<table class="table"><thead></thead><tbody></tbody></table>');
+    $thead = $adr.find('table thead');
+    $tbody = $adr.find('table tbody');
+
+    let theading = '<tr>';
+    for (let h of res.message.headers) theading += `<th>${h}</th>`;
+    theading += '</tr>';
+    $thead.html(theading);
+    console.log('foo');
+
+    res.message.data.forEach( (datum) =>
+    {
+      let row = '<tr id="${datum[0]}">';
+      datum.shift();
+      datum.forEach( (cell) => row += `<td>${cell}</td>`);
+      row += '</tr>';
+      $tbody.append(row);
+    });
+  });
+
+
+  messageObj = {
+    service: 'ewd-vista-pharmacy',
+    type: 'getOutpatientMedications',
+    params: { DFN: DFN },
+  };
+
+  EWD.send(messageObj, (res) => console.log(res));
+
 };
 
-pharmacy.populatePatientPageDemographics = function(demographics)
-{
-  $('.patient-info h2 #patientName').html(demographics.fullName);
-  $('.patient-info h2 #typeOfCare').html(demographics.inpatientLocation ? 'Inpatient' : 'Outpatient');
-};

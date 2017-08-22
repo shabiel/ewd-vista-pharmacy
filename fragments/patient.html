@@ -15,17 +15,20 @@
             <span id="typeOfCare" class="small"></span>
           </h2>
           <p>
-          <strong aria-hidden="true">DOB: </strong>
-          <span class="sr-only">Patient's date of birth</span>
-          <span data-instanceid="patientDemographic-patientInfo-dob">08/01/1970</span> 
-          (<span data-description="patients-age">47</span><span aria-hidden="true">y</span><span class="sr-only">years old</span>)
-          <br>
-          <strong aria-hidden="true">SSN: </strong>
-          <span class="sr-only">Social Security Number</span>000-00-0001
-          <br>
-          <strong>Gender:</strong> Male 
-          <br><strong>Room-Bed:</strong> 100-A 
+            <strong aria-hidden="true">DOB: </strong>
+            <span class="sr-only">Patient's date of birth</span>
+            <span id="dob"></span> 
+            (<span id="age"></span><span aria-hidden="true">y</span><span class="sr-only">years old</span>)
+            <br>
+            <strong aria-hidden="true">PID: </strong>
+            <span class="sr-only">Patient Primary ID</span>
+            <span id="primary-id"></span>
+            <br>
+            <strong>Sex: </strong><span id="sex"></span>
           </p>
+          <div id="room-bed-div">
+            <strong>Room-Bed: </strong><span id="room-bed"></span>
+          </div>
         </div>
         <div id="patient-header-demographic-details">
           <div class="sidebar">
@@ -226,7 +229,6 @@
     </div>
     <div id="patientInfoTabContent" class="tab-content">
       <div role="tabpanel" class="tab-pane active" id="adr">
-        <p>Lorem ipsum delora</p>
       </div>
       <div role="tabpanel" class="tab-pane" id="labs">
         <p>Lorem ipsum delora</p>
