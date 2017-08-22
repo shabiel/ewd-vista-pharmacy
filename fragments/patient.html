@@ -25,6 +25,27 @@
             <span id="primary-id"></span>
             <br>
             <strong>Sex: </strong><span id="sex"></span>
+            <br>
+
+            <strong aria-hidden="true">Ht: </strong>
+            <span class="sr-only">Height</span>
+            <span id="ht"></span>
+            <br>
+
+            <strong aria-hidden="true">Wt: </strong>
+            <span class="sr-only">Weight</span>
+            <span id="wt"></span>
+            <br>
+
+            <strong aria-hidden="true">CrCl: </strong>
+            <span class="sr-only">Creatinine Clearance</span>
+            <span id="crcl"></span>
+            <br>
+
+            <strong aria-hidden="true">BSA: </strong>
+            <span class="sr-only">Body Surface Area</span>
+            <span id="bsa"></span>
+            <br>
           </p>
           <div id="room-bed-div">
             <strong>Room-Bed: </strong><span id="room-bed"></span>
@@ -247,31 +268,21 @@
       </div>
     </div>
     <div class="container-fluid" id="medicationList">
-      <div class="col-sm-3">
+      <div class="col-sm-3" id="inpatient">
         <h4>Inpatient</h4>
         <ul>
-          <li>Amiodarone 200mg BID PO</li>
-          <li>Benzapril 5mg Daily PO</li>
-          <li>Dofetilide 250mcg BID PO</li>
         </ul>
       </div>
-      <div class="col-sm-3">
+      <div class="col-sm-3" id="outpatient">
         <h4>Outpatient</h4>
-        <ul>
-          <li>Amiodarone 200mg BID PO</li>
-          <li>Benzapril 5mg Daily PO</li>
-          <li>Dofetilide 250mcg BID PO</li>
-        </ul>
+        <ul></ul>
       </div>
-      <div class="col-sm-3">
+      <div class="col-sm-3" id="outside">
         <h4>Outside Medications</h4>
         <ul>
-          <li>Amiodarone 200mg BID PO</li>
-          <li>Benzapril 5mg Daily PO</li>
-          <li>Dofetilide 250mcg BID PO</li>
         </ul>
       </div>
-      <div class="col-sm-3">
+      <div class="col-sm-3" id="pmp">
         <h4>State PMP</h4>
         <ul>
           <li>Amiodarone 200mg BID PO</li>

@@ -440,6 +440,7 @@ div.modal-body div#filters {
 {
   padding-left: 5px;
   padding-right: 5px;
+  overflow-y: auto;
 }
 #medicationList div h4
 {
@@ -454,6 +455,14 @@ div.modal-body div#filters {
   padding: 0px 5px 0px 5px;
   border: solid 1px #ccc;
   height: 300px;
+}
+
+#medicationList div ul legend
+{
+  font-size: inherit;
+  font-weight: bolder;
+  text-align: center;
+  margin-bottom: 0;
 }
 
 #patientInfoTabContent div {
@@ -665,3 +674,4 @@ div.modal-body div#filters {
     overflow: hidden;
     width: 0px !important
 }
+

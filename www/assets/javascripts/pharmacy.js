@@ -16,6 +16,20 @@ pharmacy.landingPage = function(EWD) {
   EWD.getFragment(params, function() {
     $('.fileman-autocomplete').filemanAutocomplete();
 
+    // When a patient is selected!
+    $('.fileman-autocomplete').on('filemanautocompleteselect', function(event, ui) {
+      let DFN = ui.item.ien;
+      let params = {
+        service: 'ewd-vista-pharmacy',
+        name: 'patient.html',
+        targetId: 'main-content'
+      };
+
+      EWD.getFragment(params, () => {
+        pharmacy.populatePatientPage(EWD,DFN);
+      });
+    });
+
     // Checkbox - only my institution check event handler.
     $('input:checkbox#chkonlyMyInstitution').change(function() {
       let t = $('#outpatient-pending-table > table');
@@ -638,6 +652,10 @@ pharmacy.populatePatientPage = function(EWD,DFN) {
     $('.patient-info p  #age').html(demographics.age);
     $('.patient-info p  #primary-id').html(demographics.ID);
     $('.patient-info p  #sex').html(demographics.sex);
+    $('.patient-info p  #ht').html(demographics.height);
+    $('.patient-info p  #wt').html(demographics.weight);
+    $('.patient-info p  #crcl').html(demographics.crcl);
+    $('.patient-info p  #bsa').html(demographics.BSA);
     if (demographics.episodeType == 'Inpatient') {
       $('.patient-info #room-bed-div #room-bed').html(demographics.bed);
     }
@@ -681,13 +699,63 @@ pharmacy.populatePatientPage = function(EWD,DFN) {
   });
 
 
+  // Outpatient and non-VA meds
   messageObj = {
     service: 'ewd-vista-pharmacy',
     type: 'getOutpatientMedications',
     params: { DFN: DFN },
   };
 
-  EWD.send(messageObj, (res) => console.log(res));
+  EWD.send(messageObj, (res) => {
+    let $opList = $('#medicationList div#outpatient ul');
+    let $nvList = $('#medicationList div#outside ul');
+
+    Object.keys(res.message).forEach((key) => {
+      let legendhtml= '<legend>' + key + '</legend>';
+      if (key !== 'ZNONVA') {
+        $opList.append(legendhtml);
+      }
+      res.message[key].forEach((item) => {
+        let itemhtml = '<li>' + item + '</li>';
+        if (key === 'ZNONVA') {
+          $nvList.append(itemhtml);
+        }
+        else {
+          $opList.append(itemhtml);
+        }
+      });
+    });
+
+    if(!$opList.find('li').length) {
+      $opList.append('<legend>No medications found</legend>');
+    }
+    if(!$nvList.find('li').length) {
+      $nvList.append('<legend>No medications found</legend>');
+    }
+  });
+
+  // Inpatient
+  messageObj = {
+    service: 'ewd-vista-pharmacy',
+    type: 'getInpatientMedications',
+    params: { DFN: DFN },
+  };
+
+  EWD.send(messageObj, (res) => {
+    let $ipList = $('#medicationList div#inpatient ul');
+    Object.keys(res.message).forEach((key) => {
+      let legendhtml= '<legend>' + key + '</legend>';
+      $ipList.append(legendhtml);
+      res.message[key].forEach((item) => {
+        let itemhtml = '<li>' + item + '</li>';
+        $ipList.append(itemhtml);
+      });
+    });
+
+    if(!$ipList.find('li').length) {
+      $ipList.append('<legend>No medications found</legend>');
+    }
+  });
 
 };
 
