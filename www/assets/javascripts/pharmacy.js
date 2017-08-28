@@ -25,7 +25,7 @@ pharmacy.landingPage = function(EWD) {
         targetId: 'main-content'
       };
 
-      EWD.getFragment(params, () => {
+      EWD.getFragment(params, function() {
         pharmacy.populatePatientPage(EWD,DFN);
       });
     });
@@ -47,7 +47,7 @@ pharmacy.landingPage = function(EWD) {
       // Get all visible non header rows and then the last child (count) column
       let totalCount = 0;
       t.find('tbody tr:not(:first):visible td:last-child').each(function() {
-        totalCount += parseInt($(this).text());
+        totalCount += +$(this).text();
       });
 
       // Insert the counts into the badge
@@ -78,7 +78,7 @@ pharmacy.landingPage = function(EWD) {
           service: 'ewd-vista-pharmacy',
           type: 'outpatientOrdersAll'
         };
-        EWD.send(params, (res) => pharmacy.drawOutpatientPatientsTable(EWD, res.message));
+        EWD.send(params, function(res) {pharmacy.drawOutpatientPatientsTable(EWD, res.message);});
       }); //EWD.getFragment
     }); //on.Click
 
@@ -91,7 +91,7 @@ pharmacy.getInpatientPharmacyOrders = function(EWD) {
     service: 'ewd-vista-pharmacy',
     type: 'inpatientOrdersSummary'
   };
-  EWD.send(params, (res) => {
+  EWD.send(params, function(res) {
     pharmacy.drawInpatientPendingOrders(EWD, res.message);
     $('#inpatient-refresh-info').removeClass('fa-spin');
   });
@@ -103,7 +103,7 @@ pharmacy.getOutpatientPharmacyOrders = function(EWD) {
     service: 'ewd-vista-pharmacy',
     type: 'outpatientOrdersSummary'
   };
-  EWD.send(params, (res) => {
+  EWD.send(params, function(res)  {
     pharmacy.drawOutpatientPendingOrders(EWD, res.message);
     $('#outpatient-refresh-info').removeClass('fa-spin');
   });
@@ -118,19 +118,17 @@ pharmacy.drawInpatientPendingOrders = function(EWD, tableData) {
   let countIV = 0, countUD = 0;
 
   // For each ward group or clinic
-  Object.keys(tableData).map((type) => {
+  Object.keys(tableData).map(function(type) {
     let typeName = type === 'C' ? 'Clinic' : 'Ward Group';
     t.append(
-      `<tr><th colspan="5">${typeName}</th></tr>`
+      '<tr><th colspan="5">' + typeName + '</th></tr>'
     );
 
     // For each clinic/ward
-    Object.keys(tableData[type]).map((name) => {
+    Object.keys(tableData[type]).map(function(name) {
       //Add the name in the first cell
       t.append('<tr>');
-      t.append(`
-        <td>${name}</td>
-      `);
+      t.append('<td>' + name + '</td>');
 
       // Then each ^ piece after that as IV/UD/IV/UD
 
@@ -141,9 +139,7 @@ pharmacy.drawInpatientPendingOrders = function(EWD, tableData) {
         // NB: || 0 is to change empty strings to zero.
         countIV += itemIndex % 2 ? 0 : parseInt(itemArray[itemIndex] || 0);
         countUD += itemIndex % 2 ? parseInt(itemArray[itemIndex] || 0) : 0;
-        t.append(`
-        <td>${tableData[type][name].toString().split('^')[itemIndex]}</td>
-        `);
+        t.append('<td>' + tableData[type][name].toString().split('^')[itemIndex] + '</td>');
       }
       t.append('</tr>');
     });
@@ -160,19 +156,19 @@ pharmacy.drawOutpatientPendingOrders = function(EWD, tableData) {
   let t = $('#outpatient-pending-table > table > tbody');
 
   // Convert Sort Groups into spans for each sort group
-  Object.keys(tableData).forEach(ien => {
+  Object.keys(tableData).forEach(function(ien) {
     tableData[ien].clinicSortGroupsSpans = '';
     if (tableData[ien].clinicSortGroups.length > 0) {
       for (clinicSortGroup of tableData[ien].clinicSortGroups) {
         tableData[ien].clinicSortGroupsSpans = tableData[ien]
           .clinicSortGroupsSpans
-          .concat(`<span id=${clinicSortGroup.ien}>${clinicSortGroup.name}</span>`);
+          .concat('<span id=' + clinicSortGroup.ien + '>' + clinicSortGroup.name + '</span>');
       }
     }
   });
   // For each ward group or clinic
   let row = '';
-  Object.keys(tableData).forEach(ien => {
+  Object.keys(tableData).forEach(function(ien) {
     row += `<tr id=${ien}>
             <td>${tableData[ien].clinicSortGroupsSpans}</td>
             <td>${tableData[ien].name}</td>
@@ -184,7 +180,7 @@ pharmacy.drawOutpatientPendingOrders = function(EWD, tableData) {
             <td>${tableData[ien].latestOrderDateTime}</td>
             <td>${tableData[ien].flagged}</td>`;
     row += '<td>';
-    Object.keys(tableData[ien].routing).forEach(pickup => {
+    Object.keys(tableData[ien].routing).forEach(function(pickup) {
       row += `${pickup}: ${tableData[ien].routing[pickup]}<br />`;
     });
     row += '</td>';
@@ -211,7 +207,7 @@ pharmacy.drawOutpatientPendingOrders = function(EWD, tableData) {
         type: 'outpatientOrdersByClinic',
         params: { hospitalLocationIEN: hospitalLocationIEN }
       };
-      EWD.send(params, (res) => pharmacy.drawOutpatientPatientsTable(EWD, res.message));
+      EWD.send(params, function(res) {pharmacy.drawOutpatientPatientsTable(EWD, res.message);});
     });
   });
 
@@ -251,7 +247,7 @@ pharmacy.drawOutpatientPendingOrders = function(EWD, tableData) {
         type: 'outpatientOrdersByInstitution',
         params: { institutionIEN: institutionIEN  }
       };
-      EWD.send(params, (res) => pharmacy.drawOutpatientPatientsTable(EWD, res.message));
+      EWD.send(params, function(res) {pharmacy.drawOutpatientPatientsTable(EWD, res.message);});
     });
   });
 
@@ -283,7 +279,7 @@ pharmacy.drawOutpatientPendingOrders = function(EWD, tableData) {
         type: 'outpatientOrdersByClinicSortGroup',
         params: { clinicSortGroupIEN: clinicSortGroupIEN}
       };
-      EWD.send(params, (res) => pharmacy.drawOutpatientPatientsTable(EWD, res.message));
+      EWD.send(params, function(res) {pharmacy.drawOutpatientPatientsTable(EWD, res.message);});
     });
   });
 };
@@ -297,9 +293,10 @@ pharmacy.drawOutpatientPatientsTable = function(EWD, drawData) {
   let $table = $('div.modal-body table');
 
   // Draw headers into $thead
-  drawData.header.forEach(eachHeader => $thead.append(`
+  drawData.header.forEach(function(eachHeader) {$thead.append(`
     <th>${eachHeader}&nbsp;<i class="fa fa-caret-up sortable" aria-hidden="true"></i></th>
-    `)
+    `);
+  }
   );
 
   // tableRow lets us add html to it before we put it on the page
@@ -312,14 +309,13 @@ pharmacy.drawOutpatientPatientsTable = function(EWD, drawData) {
   let combinedClasses = {};
 
   // NB: This is the main drawing loop!
-  drawData.data.forEach((datum, index) => {
-    let sortedMetaProviders = Object.values(drawData.metaProviders[index]).sort( (a,b) => a > b);
+  drawData.data.forEach(function(datum, index) {
+    let sortedMetaProviders = Object.values(drawData.metaProviders[index]).sort();
     let sortedMetaDrugs = Object.values(drawData.metaDrugs[index]).sort();
-    let sortedMetaVaDrugClasses = Object.keys(drawData.metaVaDrugClasses[index]).sort( (a,b) => a > b);
-    sortedMetaProviders.forEach(one => combinedProviders[one] = '');
-    sortedMetaDrugs.forEach(one => combinedDrugs[one] = '');
-    sortedMetaVaDrugClasses.forEach(one => combinedClasses[one] = 
-        drawData.metaVaDrugClasses[index][one]);
+    let sortedMetaVaDrugClasses = Object.keys(drawData.metaVaDrugClasses[index]).sort();
+    sortedMetaProviders.forEach(function(one) {combinedProviders[one] = '';});
+    sortedMetaDrugs.forEach(function(one) {combinedDrugs[one] = '';});
+    sortedMetaVaDrugClasses.forEach(function(one) {combinedClasses[one] = drawData.metaVaDrugClasses[index][one];});
     // Datum 0 is the DFN. We add it then get rid of it.
     // tr has data stuff we use for filtering.
     tableRow += `<tr
@@ -333,7 +329,7 @@ pharmacy.drawOutpatientPatientsTable = function(EWD, drawData) {
       data-latestordertime='${Number(drawData.latestOrdersTimes[index]).dateFromTimson()}'
       >`;
     datum.shift(); // Get rid of DFN
-    datum.forEach(item => tableRow += `<td>${item}</td>`);
+    datum.forEach(function(item) {tableRow += `<td>${item}</td>`;});
     tableRow += '</tr>';
   });
 
@@ -353,15 +349,15 @@ pharmacy.drawOutpatientPatientsTable = function(EWD, drawData) {
   // Providers
   $('#provider').empty();
   $('#provider').append(new Option('', ''));
-  combinedProvidersArray.forEach(one => $('#provider').append(new Option(one, one)));
+  combinedProvidersArray.forEach(function(one) {$('#provider').append(new Option(one, one));});
   // Drugs
   $('#drug').empty();
   $('#drug').append(new Option('', ''));
-  combinedDrugsArray.forEach(one => $('#drug').append(new Option(one, one)));
+  combinedDrugsArray.forEach(function(one) {$('#drug').append(new Option(one, one));});
   // and then classes
   $('#class').empty();
   $('#class').append(new Option('', ''));
-  combinedVaClassesArray.forEach(one => $('#class').append(new Option(one + ' - ' + combinedClasses[one], one)));
+  combinedVaClassesArray.forEach(function(one) {$('#class').append(new Option(one + ' - ' + combinedClasses[one], one));});
 
   // Count Updater function (function cuz has to be invoked multiple times)
   var updateCounts = function() {
@@ -419,7 +415,7 @@ pharmacy.drawOutpatientPatientsTable = function(EWD, drawData) {
     let isChecked = this.checked;
     let columnIndex = $thead.find('th:contains("WINDOW")').index();
     $tbody.find('tr').each(function() {
-      let winNum = $(this).find(`td:eq(${columnIndex})`).text();
+      let winNum = $(this).find('td:eq(' + columnIndex + ')').text();
       winNum = parseInt(winNum);
       if (isChecked && winNum === 0)  $(this).hide();
       if (!isChecked && winNum === 0) $(this).show();
@@ -432,7 +428,7 @@ pharmacy.drawOutpatientPatientsTable = function(EWD, drawData) {
     let isChecked = this.checked;
     let columnIndex = $thead.find('th:contains("MAIL")').index();
     $tbody.find('tr').each(function() {
-      let mailNum = $(this).find(`td:eq(${columnIndex})`).text();
+      let mailNum = $(this).find('td:eq(' + columnIndex + ')').text();
       mailNum = parseInt(mailNum);
       if (isChecked && mailNum === 0)  $(this).hide();
       if (!isChecked && mailNum === 0) $(this).show();
@@ -469,7 +465,7 @@ pharmacy.drawOutpatientPatientsTable = function(EWD, drawData) {
     let isChecked = this.checked;
     let columnIndex = $thead.find('th:contains("C II")').index();
     $tbody.find('tr').each(function() {
-      let ciiNum = $(this).find(`td:eq(${columnIndex})`).text();
+      let ciiNum = $(this).find('td:eq(' + columnIndex + ')').text();
       ciiNum = parseInt(ciiNum);
       if (isChecked && ciiNum === 0)  $(this).hide();
       if (!isChecked && ciiNum === 0) $(this).show();
@@ -482,7 +478,7 @@ pharmacy.drawOutpatientPatientsTable = function(EWD, drawData) {
     let isChecked = this.checked;
     let columnIndex = $thead.find('th:contains("C III-V")').index();
     $tbody.find('tr').each(function() {
-      let cother = $(this).find(`td:eq(${columnIndex})`).text();
+      let cother = $(this).find('td:eq(' + columnIndex + ')').text();
       cother = parseInt(cother);
       if (isChecked && cother === 0)  $(this).hide();
       if (!isChecked && cother === 0) $(this).show();
@@ -508,9 +504,9 @@ pharmacy.drawOutpatientPatientsTable = function(EWD, drawData) {
     // TODO: Figure out how to manage dependency on moment.js
     // & daterangepicker using npm.
     $.getScript('/ewd-vista/assets/javascripts/moment.js')
-      .done( () => {
+      .done( function() {
         $.getScript('/ewd-vista/assets/javascripts/daterangepicker.js')
-          .done( () => {
+          .done( function() {
             $('<link>').appendTo('head').attr({
               type: 'text/css',
               rel:  'stylesheet',
@@ -577,7 +573,7 @@ pharmacy.drawOutpatientPatientsTable = function(EWD, drawData) {
       targetId: 'main-content'
     };
 
-    EWD.getFragment(params, () => {
+    EWD.getFragment(params, function() {
       $('#modal-window').html('');
       $('#modal-window').modal('hide');
 
@@ -599,9 +595,10 @@ pharmacy.addTableBehaviors = function(EWD, $table) {
 
     // Table sorting logic. Takes into account whether to sort lexically or numerically.
     let thisTable = $(this).closest('table');
-    thisTable.find('tbody tr').sort((a,b) => {
+    let that = this;
+    thisTable.find('tbody tr').sort(function(a,b) {
       // Get column index of the clicked triangle
-      let columnIndex = $(this).closest('th').index();
+      let columnIndex = $(that).closest('th').index();
 
       // Grab the values based on the columnIndex
       let tda = $(a).find('td:eq(' + columnIndex +')').text();
@@ -644,7 +641,7 @@ pharmacy.populatePatientPage = function(EWD,DFN) {
     params: { DFN: DFN },
   };
 
-  EWD.send(messageObj, (res) => {
+  EWD.send(messageObj, function(res) {
     let demographics = res.message;
     $('.patient-info h2 #patientName').html(demographics.name);
     $('.patient-info h2 #typeOfCare').html(demographics.episodeType);
@@ -671,10 +668,10 @@ pharmacy.populatePatientPage = function(EWD,DFN) {
     params: { DFN: DFN },
   };
 
-  EWD.send(messageObj, (res) => {
+  EWD.send(messageObj, function(res) {
     let $adr = $('#patientInfoTabContent #adr');
     if (!res.message.data) {
-      $adr.html(`<strong>${res.message.status}</strong>`);
+      $adr.html('<strong>' + res.message.status + '</strong>');
       return;
     }
     
@@ -683,16 +680,16 @@ pharmacy.populatePatientPage = function(EWD,DFN) {
     $tbody = $adr.find('table tbody');
 
     let theading = '<tr>';
-    for (let h of res.message.headers) theading += `<th>${h}</th>`;
+    for (let h of res.message.headers) theading += '<th>' + h + '</th>';
     theading += '</tr>';
     $thead.html(theading);
     console.log('foo');
 
-    res.message.data.forEach( (datum) =>
+    res.message.data.forEach( function(datum)
     {
-      let row = '<tr id="${datum[0]}">';
+      let row = '<tr id="' + datum[0] + '">';
       datum.shift();
-      datum.forEach( (cell) => row += `<td>${cell}</td>`);
+      datum.forEach( function(cell) { row += '<td>' + cell + '</td>'; });
       row += '</tr>';
       $tbody.append(row);
     });
@@ -706,16 +703,16 @@ pharmacy.populatePatientPage = function(EWD,DFN) {
     params: { DFN: DFN },
   };
 
-  EWD.send(messageObj, (res) => {
+  EWD.send(messageObj, function(res) {
     let $opList = $('#medicationList div#outpatient ul');
     let $nvList = $('#medicationList div#outside ul');
 
-    Object.keys(res.message).forEach((key) => {
+    Object.keys(res.message).forEach(function(key) {
       let legendhtml= '<legend>' + key + '</legend>';
       if (key !== 'ZNONVA') {
         $opList.append(legendhtml);
       }
-      res.message[key].forEach((item) => {
+      res.message[key].forEach(function(item) {
         let itemhtml = '<li>' + item + '</li>';
         if (key === 'ZNONVA') {
           $nvList.append(itemhtml);
@@ -741,12 +738,12 @@ pharmacy.populatePatientPage = function(EWD,DFN) {
     params: { DFN: DFN },
   };
 
-  EWD.send(messageObj, (res) => {
+  EWD.send(messageObj, function(res) {
     let $ipList = $('#medicationList div#inpatient ul');
-    Object.keys(res.message).forEach((key) => {
+    Object.keys(res.message).forEach(function(key) {
       let legendhtml= '<legend>' + key + '</legend>';
       $ipList.append(legendhtml);
-      res.message[key].forEach((item) => {
+      res.message[key].forEach(function(item) {
         let itemhtml = '<li>' + item + '</li>';
         $ipList.append(itemhtml);
       });
@@ -764,7 +761,7 @@ pharmacy.populatePatientPage = function(EWD,DFN) {
     type: 'getLatestVitals',
     params: { DFN: DFN },
   };
-  EWD.send(messageObj, (res) => {
+  EWD.send(messageObj, function(res) {
     let $vitals = $('#patientInfoTabContent #vitals');
     if (!res.message.data.length) {
       $vitals.html('<strong>No vitals found</strong>');
@@ -775,19 +772,19 @@ pharmacy.populatePatientPage = function(EWD,DFN) {
     $tbody = $vitals.find('table tbody');
 
     let theading = '<tr>';
-    for (let h of res.message.headers) theading += `<th>${h}</th>`;
+    for (let h of res.message.headers) theading += '<th>' + h + '</th>';
     theading += '</tr>';
     $thead.html(theading);
+    console.log('foo');
 
-    res.message.data.forEach( (datum) =>
+    res.message.data.forEach(function(datum) 
     {
-      let row = '<tr id="${datum[0]}">';
+      let row = '<tr id="' + datum[0] + '">';
       datum.shift();
-      datum.forEach( (cell) => row += `<td>${cell}</td>`);
+      datum.forEach(function(cell) {row += '<td>' + cell + '</td>';});
       row += '</tr>';
       $tbody.append(row);
     });
   });
-
 };
 
