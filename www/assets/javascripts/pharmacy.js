@@ -486,13 +486,6 @@ pharmacy.drawOutpatientPatientsTable = function(EWD, drawData) {
   // Adds sorting
   pharmacy.addTableBehaviors(EWD, $table);
 
-  $('#modal-window').modal({
-    backdrop: true,
-    keyboard: true,
-    focus: true,
-    show: true
-  });
-  
   // Date time range picker stuff
   $('#modal-window').one('shown.bs.modal',function() {
     // Update counts needs to be called at the end because it operates on
@@ -560,22 +553,50 @@ pharmacy.drawOutpatientPatientsTable = function(EWD, drawData) {
 
     updateCounts();
   };
-  
-  // Clicking on a patient
+  // <-- End date range stuff
+
+  // Clicking on a patient handler
   $tbody.find('tr').click(function(e) {
-    let DFN = this.id;
-    let params = {
-      service: 'ewd-vista-pharmacy',
-      name: 'patient.html',
-      targetId: 'main-content'
-    };
+    pharmacy.displayPatientDivByDFN(EWD, this.id);
+  });
 
-    EWD.getFragment(params, function() {
-      $('#modal-window').html('');
-      $('#modal-window').modal('hide');
-
-      pharmacy.populatePatientPage(EWD,DFN);
+  // Process Displayed click handler
+  $('button#procDisplayed').click(function(e) {
+    let nameIndex = $thead.find('th:contains("Name")').index();
+    let DOBIndex  = $thead.find('th:contains("DOB")').index();
+    // take over the footer and make it into a carousel
+    let $footer = $('footer');
+    $footer.html('');
+    $tbody.find('tr:visible').each(function(index) {
+      let item = '<div id="' + this.id + '">';
+      item += '<strong>';
+      item += $(this).children().eq(nameIndex).text();
+      item += '</strong><br />';
+      item += $(this).children().eq(DOBIndex).text();
+      item += '</div>';
+      $footer.append(item);
     });
+
+    $('footer div').click(function(e) {
+      // Make only the clicked one white!
+      $('footer div').removeAttr('style');
+      $(this).css('background-color', 'white');
+      $(this).css('color', 'black');
+      pharmacy.displayPatientDivByDFN(EWD, this.id);
+    });
+
+    // Click the first one!
+    $('footer div').eq(0).trigger('click');
+  });
+
+
+  
+  // Modal show stuff
+  $('#modal-window').modal({
+    backdrop: true,
+    keyboard: true,
+    focus: true,
+    show: true
   });
 
   $('#modal-window').modal('show');
@@ -627,6 +648,20 @@ pharmacy.addTableBehaviors = function(EWD, $table) {
   );
 };
 
+pharmacy.displayPatientDivByDFN = function(EWD,DFN) {
+  let params = {
+    service: 'ewd-vista-pharmacy',
+    name: 'patient.html',
+    targetId: 'main-content'
+  };
+
+  EWD.getFragment(params, function() {
+    $('#modal-window').html('');
+    $('#modal-window').modal('hide');
+
+    pharmacy.populatePatientPage(EWD,DFN);
+  });
+};
 
 pharmacy.populatePatientPage = function(EWD,DFN) {
 

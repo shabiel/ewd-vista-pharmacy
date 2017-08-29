@@ -51,7 +51,7 @@ div.modal-body div#filters {
     background: #fff;
     border-left: none;
     border-right: 1px solid #ccc;
-    min-height: 710px;
+    /* min-height: 710px; */
     width: 160px;
     z-index: 3;
     padding-left: 0;
@@ -673,6 +673,22 @@ div.modal-body div#filters {
 
 .sidebar:not(.collapse.in)>.sidebar-tray {
     overflow: hidden;
-    width: 0px !important
+    width: 0px !important;
+}
+
+footer {
+  text-align: center;
+  white-space: nowrap;
+  overflow-x: auto;
+}
+
+footer div {
+  display: inline-block;
+  padding: 10px;
+  cursor: pointer;
+}
+
+footer div:nth-child(odd) {
+  background-color: #C31300;
 }
 
