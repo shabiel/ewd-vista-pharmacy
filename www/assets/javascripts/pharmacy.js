@@ -159,33 +159,32 @@ pharmacy.drawOutpatientPendingOrders = function(EWD, tableData) {
   Object.keys(tableData).forEach(function(ien) {
     tableData[ien].clinicSortGroupsSpans = '';
     if (tableData[ien].clinicSortGroups.length > 0) {
-      for (clinicSortGroup of tableData[ien].clinicSortGroups) {
-        tableData[ien].clinicSortGroupsSpans = tableData[ien]
-          .clinicSortGroupsSpans
-          .concat('<span id=' + clinicSortGroup.ien + '>' + clinicSortGroup.name + '</span>');
+      for (let clinicSortGroupIndex in tableData[ien].clinicSortGroups) {
+        let clinicSortGroup = tableData[ien].clinicSortGroups[clinicSortGroupIndex];
+        tableData[ien].clinicSortGroupsSpans += '<span id=' + clinicSortGroup.ien + '>' + clinicSortGroup.name + '</span>';
       }
     }
   });
   // For each ward group or clinic
   let row = '';
   Object.keys(tableData).forEach(function(ien) {
-    row += `<tr id=${ien}>
-            <td>${tableData[ien].clinicSortGroupsSpans}</td>
-            <td>${tableData[ien].name}</td>
-            <td id=${tableData[ien].institutionIEN}>
-            ${tableData[ien].institutionName}&nbsp;
-            <span class="badge">${tableData[ien].institutionCount}</span>
-            </td>
-            <td>${tableData[ien].earliestOrderDateTime}</td>
-            <td>${tableData[ien].latestOrderDateTime}</td>
-            <td>${tableData[ien].flagged}</td>`;
+    row += '<tr id=' + ien + '>' +
+           '<td>' + tableData[ien].clinicSortGroupsSpans + '</td>' +
+           '<td>' + tableData[ien].name + '</td>' +
+           '<td id=' + tableData[ien].institutionIEN + '>' +
+           tableData[ien].institutionName + '&nbsp;' +
+           '<span class="badge">' + tableData[ien].institutionCount + '</span>' +
+           '</td>' +
+           '<td>' + tableData[ien].earliestOrderDateTime + '</td>' +
+           '<td>' + tableData[ien].latestOrderDateTime + '</td>' +
+           '<td>' + tableData[ien].flagged + '</td>';
     row += '<td>';
     Object.keys(tableData[ien].routing).forEach(function(pickup) {
-      row += `${pickup}: ${tableData[ien].routing[pickup]}<br />`;
+      row += pickup + ': ' + tableData[ien].routing[pickup] + '<br />';
     });
     row += '</td>';
-    row += `<td>${tableData[ien].count}</td>
-            </tr>`;
+    row += '<td>' + tableData[ien].count + '</td>' +
+           '</tr>';
   });
 
   t.append(row);
@@ -293,9 +292,8 @@ pharmacy.drawOutpatientPatientsTable = function(EWD, drawData) {
   let $table = $('div.modal-body table');
 
   // Draw headers into $thead
-  drawData.header.forEach(function(eachHeader) {$thead.append(`
-    <th>${eachHeader}&nbsp;<i class="fa fa-caret-up sortable" aria-hidden="true"></i></th>
-    `);
+  drawData.header.forEach(function(eachHeader) {$thead.append('<th>' + 
+        eachHeader + '&nbsp;<i class="fa fa-caret-up sortable" aria-hidden="true"></i></th>');
   }
   );
 
@@ -310,26 +308,25 @@ pharmacy.drawOutpatientPatientsTable = function(EWD, drawData) {
 
   // NB: This is the main drawing loop!
   drawData.data.forEach(function(datum, index) {
-    let sortedMetaProviders = Object.values(drawData.metaProviders[index]).sort();
-    let sortedMetaDrugs = Object.values(drawData.metaDrugs[index]).sort();
+    let sortedMetaProviders = Object.keys(drawData.metaProviders[index]).map(function(key) { return drawData.metaProviders[index][key]; }).sort();
+    let sortedMetaDrugs = Object.keys(drawData.metaDrugs[index]).map(function(key) { return drawData.metaDrugs[index][key]; }).sort();
     let sortedMetaVaDrugClasses = Object.keys(drawData.metaVaDrugClasses[index]).sort();
     sortedMetaProviders.forEach(function(one) {combinedProviders[one] = '';});
     sortedMetaDrugs.forEach(function(one) {combinedDrugs[one] = '';});
     sortedMetaVaDrugClasses.forEach(function(one) {combinedClasses[one] = drawData.metaVaDrugClasses[index][one];});
     // Datum 0 is the DFN. We add it then get rid of it.
     // tr has data stuff we use for filtering.
-    tableRow += `<tr
-      id="${datum[0]}"
-      data-providers='${JSON.stringify(sortedMetaProviders)}'
-      data-classes='${JSON.stringify(sortedMetaVaDrugClasses)}'
-      data-drugs='${JSON.stringify(sortedMetaDrugs)}'
-      data-renewal='${drawData.renewals[index]}'
-      data-nonformulary='${drawData.nonFormulary[index]}'
-      data-earliestordertime='${Number(drawData.earliestOrdersTimes[index]).dateFromTimson()}'
-      data-latestordertime='${Number(drawData.latestOrdersTimes[index]).dateFromTimson()}'
-      >`;
+    tableRow += '<tr id="' + datum[0] +'" ';
+    tableRow += 'data-providers=\'' + JSON.stringify(sortedMetaProviders) + '\' ';
+    tableRow += 'data-classes=\'' + JSON.stringify(sortedMetaVaDrugClasses) + '\' ';
+    tableRow += 'data-drugs=\'' + JSON.stringify(sortedMetaDrugs) + '\' ';
+    tableRow += 'data-renewals=\'' + drawData.renewals[index] + '\' ';
+    tableRow += 'data-nonformulary=\'' + drawData.nonFormulary[index] + '\' ';
+    tableRow += 'data-earliestordertime=\'' + Number(drawData.earliestOrdersTimes[index]).dateFromTimson() + '\' ';
+    tableRow += 'data-latestordertime=\'' + Number(drawData.latestOrdersTimes[index]).dateFromTimson() + '\' ';
+    tableRow += '>';
     datum.shift(); // Get rid of DFN
-    datum.forEach(function(item) {tableRow += `<td>${item}</td>`;});
+    datum.forEach(function(item) {tableRow += '<td>' + item + '</td>';});
     tableRow += '</tr>';
   });
 
@@ -680,7 +677,7 @@ pharmacy.populatePatientPage = function(EWD,DFN) {
     $tbody = $adr.find('table tbody');
 
     let theading = '<tr>';
-    for (let h of res.message.headers) theading += '<th>' + h + '</th>';
+    for (let h in res.message.headers) theading += '<th>' + res.message.headers[h] + '</th>';
     theading += '</tr>';
     $thead.html(theading);
     console.log('foo');
@@ -772,7 +769,7 @@ pharmacy.populatePatientPage = function(EWD,DFN) {
     $tbody = $vitals.find('table tbody');
 
     let theading = '<tr>';
-    for (let h of res.message.headers) theading += '<th>' + h + '</th>';
+    for (let h in res.message.headers) theading += '<th>' + res.message.headers[h] + '</th>';
     theading += '</tr>';
     $thead.html(theading);
     console.log('foo');
