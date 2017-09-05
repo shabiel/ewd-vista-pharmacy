@@ -291,6 +291,9 @@ pharmacy.drawOutpatientPatientsTable = function(EWD, drawData) {
   let $tbody = $('div.modal-body table tbody');
   let $table = $('div.modal-body table');
 
+  // Add checkbox into $thead (for select all)
+  $thead.append('<th><input type="checkbox" /></th>');
+
   // Draw headers into $thead
   drawData.header.forEach(function(eachHeader) {$thead.append('<th>' + 
         eachHeader + '&nbsp;<i class="fa fa-caret-up sortable" aria-hidden="true"></i></th>');
@@ -308,12 +311,14 @@ pharmacy.drawOutpatientPatientsTable = function(EWD, drawData) {
 
   // NB: This is the main drawing loop!
   drawData.data.forEach(function(datum, index) {
+    // Get dropdown data and message into format for dropdowns (inc sorting)
     let sortedMetaProviders = Object.keys(drawData.metaProviders[index]).map(function(key) { return drawData.metaProviders[index][key]; }).sort();
     let sortedMetaDrugs = Object.keys(drawData.metaDrugs[index]).map(function(key) { return drawData.metaDrugs[index][key]; }).sort();
     let sortedMetaVaDrugClasses = Object.keys(drawData.metaVaDrugClasses[index]).sort();
     sortedMetaProviders.forEach(function(one) {combinedProviders[one] = '';});
     sortedMetaDrugs.forEach(function(one) {combinedDrugs[one] = '';});
     sortedMetaVaDrugClasses.forEach(function(one) {combinedClasses[one] = drawData.metaVaDrugClasses[index][one];});
+
     // Datum 0 is the DFN. We add it then get rid of it.
     // tr has data stuff we use for filtering.
     tableRow += '<tr id="' + datum[0] +'" ';
@@ -326,6 +331,11 @@ pharmacy.drawOutpatientPatientsTable = function(EWD, drawData) {
     tableRow += 'data-latestordertime=\'' + Number(drawData.latestOrdersTimes[index]).dateFromTimson() + '\' ';
     tableRow += '>';
     datum.shift(); // Get rid of DFN
+
+    // Add checkbox into table first row
+    tableRow += '<td><input type="checkbox" /></td>';
+
+    // Add items into table
     datum.forEach(function(item) {tableRow += '<td>' + item + '</td>';});
     tableRow += '</tr>';
   });
@@ -556,40 +566,69 @@ pharmacy.drawOutpatientPatientsTable = function(EWD, drawData) {
   // <-- End date range stuff
 
   // Clicking on a patient handler
-  $tbody.find('tr').click(function(e) {
-    pharmacy.displayPatientDivByDFN(EWD, this.id);
+  // Not first child is to prevent clicking the checkbox from processing
+  // patient!
+  $tbody.find('tr td:not(:first-child)').click(function(e) {
+    let DFN = this.parentElement.id;
+    pharmacy.displayPatientDivByDFN(EWD, DFN);
   });
+
+  let $footer = $('footer');
+  $footer.html('');
 
   // Process Displayed click handler
   $('button#procDisplayed').click(function(e) {
-    let nameIndex = $thead.find('th:contains("Name")').index();
-    let DOBIndex  = $thead.find('th:contains("DOB")').index();
     // take over the footer and make it into a carousel
-    let $footer = $('footer');
-    $footer.html('');
     $tbody.find('tr:visible').each(function(index) {
-      let item = '<div id="' + this.id + '">';
-      item += '<strong>';
-      item += $(this).children().eq(nameIndex).text();
-      item += '</strong><br />';
-      item += $(this).children().eq(DOBIndex).text();
-      item += '</div>';
-      $footer.append(item);
+      pharmacy.footerAdd(this, $thead);
     });
-
-    $('footer div').click(function(e) {
-      // Make only the clicked one white!
-      $('footer div').removeAttr('style');
-      $(this).css('background-color', 'white');
-      $(this).css('color', 'black');
-      pharmacy.displayPatientDivByDFN(EWD, this.id);
-    });
-
-    // Click the first one!
-    $('footer div').eq(0).trigger('click');
+    pharmacy.footerShared(EWD, $thead);
   });
 
+  // Process Selected click handler
+  $('button#procSelected').click(function(e) {
+    // take over the footer and make it into a carousel
+    $tbody.find('tr:visible td input:checked').each(function(index) {
+      row = $(this).parent().parent()[0];
+      pharmacy.footerAdd(row, $thead);
+    });
 
+    pharmacy.footerShared(EWD, $thead);
+  });
+
+  // Patient Checkbox stuff!
+  // Top checkbox checks all other checkboxes
+  $thead.find('th input:checkbox').off().change(function(e) {
+    let chkState;
+    if ($(this).is(':checked')) chkState = true;
+    else chkState = false;
+    $tbody.find('tr td input:checkbox').prop('checked', chkState);
+  });
+
+  // Table checkboxes - Handle Shift
+  $tbody.find('tr td input:checkbox').off().click(function(e) {
+    // Don't do anything if being unchecked.
+    if (!$(this).is(':checked')) return;
+
+    // If shift key isn't pressed, do not anything extra
+    if (!e.shiftKey) return;
+
+    // if shift key pressed, find adjacent ones and highlight if another
+    // one is already highlighted.
+    let myIndex = $(this).parent().parent().index();
+
+    // List of rows
+    let rows = $tbody.find('tr:visible');
+
+    // Search from me going to the top.
+    for (let i = myIndex - 1; i > -1; i--) {
+      if (rows.eq(i).find('td input:checkbox')[0].checked) {
+        // Found one. Check all the intervening boxes.
+        $tbody.find('tr:visible').slice(i, myIndex).find('td input:checkbox').prop('checked', true);
+        break;
+      }
+    }
+  });
   
   // Modal show stuff
   $('#modal-window').modal({
@@ -646,6 +685,33 @@ pharmacy.addTableBehaviors = function(EWD, $table) {
       $(this).removeClass('table-highlight');
     }
   );
+};
+
+pharmacy.footerAdd = function(row, $thead) {
+  let nameIndex = $thead.find('th:contains("Name")').index();
+  let DOBIndex  = $thead.find('th:contains("DOB")').index();
+
+  let $footer = $('footer');
+  let item = '<div id="' + row.id + '">';
+  item += '<strong>';
+  item += $(row).children().eq(nameIndex).text();
+  item += '</strong><br />';
+  item += $(row).children().eq(DOBIndex).text();
+  item += '</div>';
+  $footer.append(item);
+};
+
+pharmacy.footerShared = function(EWD, $thead) {
+  $('footer div').click(function(e) {
+    // Make only the clicked one white!
+    $('footer div').removeAttr('style');
+    $(this).css('background-color', 'white');
+    $(this).css('color', 'black');
+    pharmacy.displayPatientDivByDFN(EWD, this.id);
+  });
+
+  // Click the first one!
+  $('footer div').eq(0).trigger('click');
 };
 
 pharmacy.displayPatientDivByDFN = function(EWD,DFN) {
