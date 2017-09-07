@@ -18,16 +18,14 @@ pharmacy.landingPage = function(EWD) {
 
     // When a patient is selected!
     $('.fileman-autocomplete').on('filemanautocompleteselect', function(event, ui) {
-      let DFN = ui.item.ien;
-      let params = {
-        service: 'ewd-vista-pharmacy',
-        name: 'patient.html',
-        targetId: 'main-content'
-      };
+      let dfn = ui.item.ien;
+      let name = ui.item.name;
+      let dob = ui.item.dateofbirth;
 
-      EWD.getFragment(params, function() {
-        pharmacy.populatePatientPage(EWD,DFN);
-      });
+      pharmacy.footerAddCancel();
+      pharmacy.footerAdd(null,null,{dfn: dfn, name: name, dob: dob});
+
+      pharmacy.footerSharedAndGo(EWD);
     });
 
     // Checkbox - only my institution check event handler.
@@ -577,21 +575,25 @@ pharmacy.drawOutpatientPatientsTable = function(EWD, drawData) {
     row = this.parentElement;
     pharmacy.footerAddCancel();
     pharmacy.footerAdd(row, $thead);
-    pharmacy.footerSharedAndGo(EWD, $thead);
+    pharmacy.footerSharedAndGo(EWD);
   });
 
   // Process Displayed click handler
   $('button#procDisplayed').click(function(e) {
+    // If no rows, do nothing.
+    if (!$tbody.find('tr:visible').length) return;
     // take over the footer and make it into a carousel
     pharmacy.footerAddCancel();
     $tbody.find('tr:visible').each(function(index) {
       pharmacy.footerAdd(this, $thead);
     });
-    pharmacy.footerSharedAndGo(EWD, $thead);
+    pharmacy.footerSharedAndGo(EWD);
   });
 
   // Process Selected click handler
   $('button#procSelected').click(function(e) {
+    // If nothing selected, do nothing.
+    if (!$tbody.find('tr:visible td input:checked').length) return;
     // take over the footer and make it into a carousel
     pharmacy.footerAddCancel();
     $tbody.find('tr:visible td input:checked').each(function(index) {
@@ -599,7 +601,7 @@ pharmacy.drawOutpatientPatientsTable = function(EWD, drawData) {
       pharmacy.footerAdd(row, $thead);
     });
 
-    pharmacy.footerSharedAndGo(EWD, $thead);
+    pharmacy.footerSharedAndGo(EWD);
   });
 
   // Patient Checkbox stuff!
@@ -702,21 +704,33 @@ pharmacy.footerAddCancel = function() {
   $footer.append(item);
 };
 
-pharmacy.footerAdd = function(row, $thead) {
-  let nameIndex = $thead.find('th:contains("Name")').index();
-  let DOBIndex  = $thead.find('th:contains("DOB")').index();
+pharmacy.footerAdd = function(row, $thead, patient) {
+  
+  let dfn, dob, name;
+  if (patient) {
+    dfn = patient.dfn;
+    dob = patient.dob;
+    name = patient.name;
+  }
+  if ($thead) {
+    dfn = row.id;
+    let nameIndex = $thead.find('th:contains("Name")').index();
+    let DOBIndex  = $thead.find('th:contains("DOB")').index();
+    name = $(row).children().eq(nameIndex).text();
+    dob  = $(row).children().eq(DOBIndex).text();
+  }
 
   let $footer = $('footer');
-  let item = '<div id="' + row.id + '">';
+  let item = '<div id="' + dfn + '">';
   item += '<strong>';
-  item += $(row).children().eq(nameIndex).text();
+  item += name;
   item += '</strong><br />';
-  item += $(row).children().eq(DOBIndex).text();
+  item += dob;
   item += '</div>';
   $footer.append(item);
 };
 
-pharmacy.footerSharedAndGo = function(EWD, $thead) {
+pharmacy.footerSharedAndGo = function(EWD) {
   $('footer div').click(function(e) {
     // id = 0 means that we can to cancel (it's the big X)
     // == to coerce into number
