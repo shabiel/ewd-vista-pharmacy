@@ -566,15 +566,18 @@ pharmacy.drawOutpatientPatientsTable = function(EWD, drawData) {
   // <-- End date range stuff
 
   // Clicking on a patient handler
+  // Make sure footer is empty.
+  let $footer = $('footer');
+  $footer.html('');
+
+  // Handle single patient click
   // Not first child is to prevent clicking the checkbox from processing
   // patient!
   $tbody.find('tr td:not(:first-child)').click(function(e) {
-    let DFN = this.parentElement.id;
-    pharmacy.displayPatientDivByDFN(EWD, DFN);
+    row = this.parentElement;
+    pharmacy.footerAdd(row, $thead);
+    pharmacy.footerSharedAndGo(EWD, $thead);
   });
-
-  let $footer = $('footer');
-  $footer.html('');
 
   // Process Displayed click handler
   $('button#procDisplayed').click(function(e) {
@@ -582,7 +585,7 @@ pharmacy.drawOutpatientPatientsTable = function(EWD, drawData) {
     $tbody.find('tr:visible').each(function(index) {
       pharmacy.footerAdd(this, $thead);
     });
-    pharmacy.footerShared(EWD, $thead);
+    pharmacy.footerSharedAndGo(EWD, $thead);
   });
 
   // Process Selected click handler
@@ -593,11 +596,11 @@ pharmacy.drawOutpatientPatientsTable = function(EWD, drawData) {
       pharmacy.footerAdd(row, $thead);
     });
 
-    pharmacy.footerShared(EWD, $thead);
+    pharmacy.footerSharedAndGo(EWD, $thead);
   });
 
   // Patient Checkbox stuff!
-  // Top checkbox checks all other checkboxes
+  // Top checkbox checks/unchecks all other checkboxes
   $thead.find('th input:checkbox').off().change(function(e) {
     let chkState;
     if ($(this).is(':checked')) chkState = true;
@@ -605,7 +608,7 @@ pharmacy.drawOutpatientPatientsTable = function(EWD, drawData) {
     $tbody.find('tr td input:checkbox').prop('checked', chkState);
   });
 
-  // Table checkboxes - Handle Shift
+  // Table checkboxes - Handle Shift (range select)
   $tbody.find('tr td input:checkbox').off().click(function(e) {
     // Don't do anything if being unchecked.
     if (!$(this).is(':checked')) return;
@@ -629,6 +632,7 @@ pharmacy.drawOutpatientPatientsTable = function(EWD, drawData) {
       }
     }
   });
+  // <-- End Patient selection stuff
   
   // Modal show stuff
   $('#modal-window').modal({
@@ -701,7 +705,7 @@ pharmacy.footerAdd = function(row, $thead) {
   $footer.append(item);
 };
 
-pharmacy.footerShared = function(EWD, $thead) {
+pharmacy.footerSharedAndGo = function(EWD, $thead) {
   $('footer div').click(function(e) {
     // Make only the clicked one white!
     $('footer div').removeAttr('style');
@@ -886,3 +890,18 @@ pharmacy.populatePatientPage = function(EWD,DFN) {
   });
 };
 
+/*
+  Copyright 2017 Sam Habiel, Pharm.D.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
