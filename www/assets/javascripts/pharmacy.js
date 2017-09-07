@@ -575,6 +575,7 @@ pharmacy.drawOutpatientPatientsTable = function(EWD, drawData) {
   // patient!
   $tbody.find('tr td:not(:first-child)').click(function(e) {
     row = this.parentElement;
+    pharmacy.footerAddCancel();
     pharmacy.footerAdd(row, $thead);
     pharmacy.footerSharedAndGo(EWD, $thead);
   });
@@ -582,6 +583,7 @@ pharmacy.drawOutpatientPatientsTable = function(EWD, drawData) {
   // Process Displayed click handler
   $('button#procDisplayed').click(function(e) {
     // take over the footer and make it into a carousel
+    pharmacy.footerAddCancel();
     $tbody.find('tr:visible').each(function(index) {
       pharmacy.footerAdd(this, $thead);
     });
@@ -591,6 +593,7 @@ pharmacy.drawOutpatientPatientsTable = function(EWD, drawData) {
   // Process Selected click handler
   $('button#procSelected').click(function(e) {
     // take over the footer and make it into a carousel
+    pharmacy.footerAddCancel();
     $tbody.find('tr:visible td input:checked').each(function(index) {
       row = $(this).parent().parent()[0];
       pharmacy.footerAdd(row, $thead);
@@ -691,6 +694,14 @@ pharmacy.addTableBehaviors = function(EWD, $table) {
   );
 };
 
+pharmacy.footerAddCancel = function() {
+  let $footer = $('footer');
+  let item = '<div id="0">';
+  item += '<i class="fa fa-times-circle fa-3x" aria-hidden="true"></i>';
+  item += '</div>';
+  $footer.append(item);
+};
+
 pharmacy.footerAdd = function(row, $thead) {
   let nameIndex = $thead.find('th:contains("Name")').index();
   let DOBIndex  = $thead.find('th:contains("DOB")').index();
@@ -707,6 +718,14 @@ pharmacy.footerAdd = function(row, $thead) {
 
 pharmacy.footerSharedAndGo = function(EWD, $thead) {
   $('footer div').click(function(e) {
+    // id = 0 means that we can to cancel (it's the big X)
+    // == to coerce into number
+    if (this.id == 0) {
+      vista.switchApp('pharmacy');
+      pharmacy.prep(EWD);
+      return;
+    }
+
     // Make only the clicked one white!
     $('footer div').removeAttr('style');
     $(this).css('background-color', 'white');
@@ -714,8 +733,8 @@ pharmacy.footerSharedAndGo = function(EWD, $thead) {
     pharmacy.displayPatientDivByDFN(EWD, this.id);
   });
 
-  // Click the first one!
-  $('footer div').eq(0).trigger('click');
+  // Click the first one! eq(1) cuz 0 is the cancel (big X)
+  $('footer div').eq(1).trigger('click');
 };
 
 pharmacy.displayPatientDivByDFN = function(EWD,DFN) {

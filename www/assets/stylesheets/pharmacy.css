@@ -692,3 +692,6 @@ footer div:nth-child(odd) {
   background-color: #C31300;
 }
 
+footer div:first-child {
+  background-color: inherit !important;
+}
