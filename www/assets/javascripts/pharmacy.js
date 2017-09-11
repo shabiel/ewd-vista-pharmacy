@@ -916,12 +916,55 @@ pharmacy.populatePatientPage = function(EWD,DFN) {
     {
       let row = '<tr id="' + datum[0] + '">';
       datum.shift();
-      datum.forEach(function(cell) {row += '<td>' + cell + '</td>';});
+      datum.forEach(function(cell, index) {
+        let str;
+        if (res.message.dataTypes[index] === 'date') {
+          str = new Date(cell).toLocaleString();
+        }
+        else str = cell;
+        row += '<td>' + str + '</td>';
+      });
       row += '</tr>';
       $tbody.append(row);
     });
   });
+
+  // VA Information
+  // Eligibility & disabilities
+  // Outside Meds change to Non-VA meds
+  messageObj = {
+    service: 'ewd-vista',
+    type: 'agencyIsVA'
+  };
+  EWD.send(messageObj, function(res) {
+    if (res.message) {// Yes, this is a VA system
+      // Change outside meds to Non-VA Meds
+      $('div#medicationList div#outside h4').html('Non-VA Meds');
+
+      // Get Patient Data
+      messageObj = {
+        service: 'ewd-vista-pharmacy',
+        type: 'getPatientVAInfo',
+        params: { DFN: DFN }
+      };
+      EWD.send(messageObj, function(res) {
+        let eligibility = res.message.eligibility;
+        if (eligibility.type) $('.patient-info h2 #eligibility-type')
+          .html(eligibility.type);
+        if (eligibility.scPercentage) $('.patient-info h2 #eligibility-percentage').html('SC%: ' + eligibility.scPercentage + '%');
+
+        let rxStatus = res.message.rxStatus;
+        $('.patient-info p  #rx-status').html(rxStatus);
+      });
+    }
+    else { // No
+      $('.patient-info p  .rx-status-caption').hide();
+    }
+
+  });
+
 };
+
 
 /*
   Copyright 2017 Sam Habiel, Pharm.D.
