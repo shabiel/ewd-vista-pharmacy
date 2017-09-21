@@ -282,6 +282,9 @@ pharmacy.drawOutpatientPendingOrders = function(EWD, tableData) {
 };
 
 pharmacy.drawOutpatientPatientsTable = function(EWD, drawData) {
+  // Make this a large modal
+  $('div.modal-dialog').addClass('modal-lg').removeClass('modal-sm');
+
   // NB: Data is returned in 5 arrays; the 4 arrays that contain
   // patient data all have the same indexes. data[1] applies to 
   // metaProviders[1], renewals[1], nonFormulary[1] etc.
@@ -759,7 +762,6 @@ pharmacy.displayPatientDivByDFN = function(EWD,DFN) {
   };
 
   EWD.getFragment(params, function() {
-    $('#modal-window').html('');
     $('#modal-window').modal('hide');
 
     pharmacy.populatePatientPage(EWD,DFN);
@@ -828,6 +830,50 @@ pharmacy.populatePatientPage = function(EWD,DFN) {
       row += '</tr>';
       $tbody.append(row);
     });
+
+    // Add hover highlighting logic for table
+    $tbody.find('tr').hover(
+      function () {
+        $(this).addClass('table-highlight');
+      },
+      function () {
+        $(this).removeClass('table-highlight');
+      }
+    );
+
+    // Click logic for the table -- load modal window for allergy details
+    $tbody.find('tr').click(function() {
+      // NB: this is the tr that's clicked
+      //     this.id will give us the allergy IEN
+      let adrIEN = this.id;
+
+      let params = {
+        service: 'ewd-vista-pharmacy',
+        type: 'adrDetailsByIEN',
+        params: { adrIEN: adrIEN }
+      };
+      EWD.send(params, function(res) {
+        let toAppend = '';
+        for (let i = 0 ; i < res.message.length; i++) {
+          toAppend += res.message[i] + '<br />';
+        }
+        $('#modal-window .modal-content .modal-header').html('<h3 class="modal-title">Allergy Details</h3>');
+        $('#modal-window .modal-content .modal-body').html('<pre></pre>');
+        $('#modal-window .modal-content .modal-footer').html('');
+
+        $('#modal-window .modal-content .modal-body pre').html(toAppend);
+        $('div.modal-dialog').removeClass('modal-lg').removeClass('modal-sm');
+        $('#modal-window').modal({
+          backdrop: true,
+          keyboard: true,
+          focus: true,
+          show: true
+        });
+
+        $('#modal-window').modal('show');
+      });
+    });
+
   });
 
 
@@ -875,17 +921,26 @@ pharmacy.populatePatientPage = function(EWD,DFN) {
 
   EWD.send(messageObj, function(res) {
     let $ipList = $('#medicationList div#inpatient ul');
+    let $clList = $('#medicationList div#clinic ul');
     Object.keys(res.message).forEach(function(key) {
-      let legendhtml= '<legend>' + key + '</legend>';
-      $ipList.append(legendhtml);
-      res.message[key].forEach(function(item) {
-        let itemhtml = '<li>' + item + '</li>';
-        $ipList.append(itemhtml);
+      let $target = res.message[key].clinicName ? $clList : $ipList;
+      let legendhtml= '<legend>' + res.message[key].orderTypeText + '</legend>';
+      $target.append(legendhtml);
+      Object.keys(res.message[key].medicationData).forEach(function(subtype) {
+        let legendhtml= '<legend>' + subtype + '</legend>';
+        $target.append(legendhtml);
+        res.message[key].medicationData[subtype].forEach(function(item) {
+          let itemhtml = '<li>' + item + '</li>';
+          $target.append(itemhtml);
+        });
       });
     });
 
     if(!$ipList.find('li').length) {
       $ipList.append('<legend>No medications found</legend>');
+    }
+    if(!$clList.find('li').length) {
+      $clList.append('<legend>No medications found</legend>');
     }
   });
 
@@ -948,6 +1003,7 @@ pharmacy.populatePatientPage = function(EWD,DFN) {
         params: { DFN: DFN }
       };
       EWD.send(messageObj, function(res) {
+        // Eligibility
         let eligibility = res.message.eligibility;
         if (eligibility.type) $('.patient-info h2 #eligibility-type')
           .html(eligibility.type);
@@ -955,12 +1011,44 @@ pharmacy.populatePatientPage = function(EWD,DFN) {
 
         let rxStatus = res.message.rxStatus;
         $('.patient-info p  #rx-status').html(rxStatus);
+
+        // Disabilities
+        $('div#patientInfoTablist ul').append('<li role="presentation"><a href="#disabilities" aria-controls="disabilities" role="tab" data-toggle="tab">Disabilities</a></li>');
+
+        $('div#patientInfoTabContent').append('<div role="tabpanel" class="tab-pane" id="disabilities"></div>');
+
+        if (res.message.ratedDisabilities.data.length) {
+          var $disabilities = $('div#patientInfoTabContent div#disabilities');
+          $disabilities.html('<table class="table"><thead></thead><tbody></tbody></table>');
+          $thead = $disabilities.find('table thead');
+          $tbody = $disabilities.find('table tbody');
+
+          let theading = '<tr>';
+          for (let h in res.message.ratedDisabilities.headers) theading += '<th>' + res.message.ratedDisabilities.headers[h] + '</th>';
+          theading += '</tr>';
+          $thead.html(theading);
+          console.log('foo');
+
+          res.message.ratedDisabilities.data.forEach(function(datum) 
+          {
+            let row = '<tr id="' + datum[0] + '">';
+            datum.shift();
+            datum.forEach(function(cell, index) {
+              row += '<td>' + cell + '</td>';
+            });
+            row += '</tr>';
+            $tbody.append(row);
+          });
+        }
+        else {
+          $('div#patientInfoTabContent div#disabilities').append('<p>No Disabilities found</p>');
+        }
+
       });
     }
-    else { // No
+    else { // No, this is not a VA system
       $('.patient-info p  .rx-status-caption').hide();
     }
-
   });
 
 };
