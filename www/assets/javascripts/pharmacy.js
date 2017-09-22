@@ -920,12 +920,18 @@ pharmacy.populatePatientPage = function(EWD,DFN) {
   };
 
   EWD.send(messageObj, function(res) {
-    let $ipList = $('#medicationList div#inpatient ul');
-    let $clList = $('#medicationList div#clinic ul');
+    let $ipList = $('#medicationList div#inpatient ul'); // Inpatient order
+    let $clList = $('#medicationList div#clinic ul');    // or clinic order
+    let first = true; // Just a tiny thing to help us insert hrs in the right place
     Object.keys(res.message).forEach(function(key) {
       let $target = res.message[key].clinicName ? $clList : $ipList;
+
+      if (!first) $target.append('<hr style="border-color: black; border-style: dashed;" />');
+      first = false;
+
       let legendhtml= '<legend>' + res.message[key].orderTypeText + '</legend>';
       $target.append(legendhtml);
+      
       Object.keys(res.message[key].medicationData).forEach(function(subtype) {
         let legendhtml= '<legend>' + subtype + '</legend>';
         $target.append(legendhtml);
