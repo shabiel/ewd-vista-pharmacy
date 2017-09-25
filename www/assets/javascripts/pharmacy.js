@@ -922,25 +922,41 @@ pharmacy.populatePatientPage = function(EWD,DFN) {
   EWD.send(messageObj, function(res) {
     let $ipList = $('#medicationList div#inpatient ul'); // Inpatient order
     let $clList = $('#medicationList div#clinic ul');    // or clinic order
-    let first = true; // Just a tiny thing to help us insert hrs in the right place
-    Object.keys(res.message).forEach(function(key) {
-      let $target = res.message[key].clinicName ? $clList : $ipList;
 
-      if (!first) $target.append('<hr style="border-color: black; border-style: dashed;" />');
-      first = false;
+    let first = {};
+    first['clinic'] = true;
+    first['ip'] = true;
 
-      let legendhtml= '<legend>' + res.message[key].orderTypeText + '</legend>';
-      $target.append(legendhtml);
+    // Order of presentation per routine PSJLMHED
+    let orderKeys = ['A', 'B', 'BD', 'CA', 'CC', 'CD', 'CB', 'Cz', 'DF', 'O'];
+
+    orderKeys.forEach(function(key) {
+
+      if (!res.message[key]) return;
+
+      let html = '';
+      let whereToAppend = res.message[key].clinicName ? 'clinic' : 'ip';
+      let $target = whereToAppend === 'clinic' ? $clList : $ipList;
+
+      if (!first[whereToAppend]) html += '<hr style="border-color: black; border-style: dashed;" />';
+      first[whereToAppend] = false;
+
+      let legendText = res.message[key].clinicName ? res.message[key].clinicName + '/' + res.message[key].orderTypeText : res.message[key].orderTypeText;
+      let legendhtml= '<legend>' + legendText + '</legend>';
+      html += legendhtml;
       
       Object.keys(res.message[key].medicationData).forEach(function(subtype) {
         let legendhtml= '<legend>' + subtype + '</legend>';
-        $target.append(legendhtml);
+        html += legendhtml;
         res.message[key].medicationData[subtype].forEach(function(item) {
           let itemhtml = '<li>' + item + '</li>';
-          $target.append(itemhtml);
+          html += itemhtml;
         });
       });
+
+      $target.append(html);
     });
+
 
     if(!$ipList.find('li').length) {
       $ipList.append('<legend>No medications found</legend>');
@@ -987,6 +1003,127 @@ pharmacy.populatePatientPage = function(EWD,DFN) {
       });
       row += '</tr>';
       $tbody.append(row);
+    });
+  });
+
+  // Labs
+  messageObj = {
+    service: 'ewd-vista-pharmacy',
+    type: 'getLatestLabs',
+    params: { DFN: DFN }
+  };
+  EWD.send(messageObj, function(res) {
+    let $labs = $('#patientInfoTabContent #labs');
+    if (!res.message.data.length) {
+      $labs.html('<strong>No labs found</strong>');
+      return;
+    }
+    $labs.html('<table class="table"><thead></thead><tbody></tbody></table>');
+    $thead = $labs.find('table thead');
+    $tbody = $labs.find('table tbody');
+
+    let theading = '<tr>';
+    for (let h in res.message.headers) theading += '<th>' + res.message.headers[h] + '</th>';
+    theading += '</tr>';
+    $thead.html(theading);
+    console.log('foo');
+
+    res.message.data.forEach(function(datum) 
+    {
+      let row = '<tr id="' + datum[0] + '">';
+      datum.shift();
+      datum.forEach(function(cell, index) {
+        let str;
+        if (res.message.dataTypes[index] === 'date') {
+          str = new Date(cell).toLocaleString();
+        }
+        else str = cell;
+        row += '<td>' + str + '</td>';
+      });
+      row += '</tr>';
+      $tbody.append(row);
+    });
+  });
+
+  // Notes
+  messageObj = {
+    service: 'ewd-vista-pharmacy',
+    type: 'getLatestNotes',
+    params: { DFN: DFN }
+  };
+  EWD.send(messageObj, function(res) {
+    let $notes = $('#patientInfoTabContent #notes');
+    if (!res.message.data.length) {
+      $notes.html('<strong>No notes found</strong>');
+      return;
+    }
+    $notes.html('<table class="table"><thead></thead><tbody></tbody></table>');
+    $thead = $notes.find('table thead');
+    $tbody = $notes.find('table tbody');
+
+    let theading = '<tr>';
+    for (let h in res.message.headers) theading += '<th>' + res.message.headers[h] + '</th>';
+    theading += '</tr>';
+    $thead.html(theading);
+    console.log('foo');
+
+    res.message.data.forEach(function(datum) 
+    {
+      let row = '<tr id="' + datum[0] + '">';
+      datum.shift();
+      datum.forEach(function(cell, index) {
+        let str;
+        if (res.message.dataTypes[index] === 'date') {
+          str = new Date(cell).toLocaleString();
+        }
+        else str = cell;
+        row += '<td>' + str + '</td>';
+      });
+      row += '</tr>';
+      $tbody.append(row);
+    });
+
+    // Add hover highlighting logic for table
+    $tbody.find('tr').hover(
+      function () {
+        $(this).addClass('table-highlight');
+      },
+      function () {
+        $(this).removeClass('table-highlight');
+      }
+    );
+
+    // Click logic for the table -- load modal window for allergy details
+    $tbody.find('tr').click(function() {
+      // NB: this is the tr that's clicked
+      //     this.id will give us the allergy IEN
+      let noteIEN = this.id;
+
+      let params = {
+        service: 'ewd-vista-pharmacy',
+        type: 'getNoteText',
+        params: { noteIEN: noteIEN }
+      };
+      EWD.send(params, function(res) {
+        let toAppend = '';
+        for (let i = 0 ; i < res.message.length; i++) {
+          toAppend += res.message[i] + '<br />';
+        }
+        $('#modal-window .modal-content .modal-header').html('<h3 class="modal-title">Note Text</h3>');
+        $('#modal-window .modal-content .modal-body').html('<pre></pre>');
+        $('#modal-window .modal-content .modal-footer').html('');
+
+        $('#modal-window .modal-content .modal-body pre').html(toAppend);
+        $('div.modal-dialog').addClass('modal-lg').removeClass('modal-sm');
+        $('#modal-window').modal({
+          backdrop: true,
+          keyboard: true,
+          focus: true,
+          show: true
+        });
+
+        $('#modal-window').modal('show');
+      });
     });
   });
 
