@@ -798,7 +798,7 @@ pharmacy.populatePatientPage = function(EWD,DFN) {
     }
   });
 
-  // Allergies
+  // Allergies/ADRs
   messageObj = {
     service: 'ewd-vista-pharmacy',
     type: 'getPatientAllergies',
@@ -807,11 +807,15 @@ pharmacy.populatePatientPage = function(EWD,DFN) {
 
   EWD.send(messageObj, function(res) {
     let $adr = $('#patientInfoTabContent #adr');
-    if (!res.message.data) {
+    let $badge = $('div#patientInfoTablist ul li a[href="#adr"] span.badge');
+    if (!res.message.data) { // We get an extra item here unlike the others
       $adr.html('<strong>' + res.message.status + '</strong>');
+      $badge.html('0');
       return;
     }
     
+    $badge.html(res.message.data.length);
+
     $adr.html('<table class="table"><thead></thead><tbody></tbody></table>');
     $thead = $adr.find('table thead');
     $tbody = $adr.find('table tbody');
@@ -820,7 +824,6 @@ pharmacy.populatePatientPage = function(EWD,DFN) {
     for (let h in res.message.headers) theading += '<th>' + res.message.headers[h] + '</th>';
     theading += '</tr>';
     $thead.html(theading);
-    console.log('foo');
 
     res.message.data.forEach( function(datum)
     {
@@ -967,7 +970,6 @@ pharmacy.populatePatientPage = function(EWD,DFN) {
   });
 
   // Vitals
-  // Inpatient
   messageObj = {
     service: 'ewd-vista-pharmacy',
     type: 'getLatestVitals',
@@ -975,10 +977,16 @@ pharmacy.populatePatientPage = function(EWD,DFN) {
   };
   EWD.send(messageObj, function(res) {
     let $vitals = $('#patientInfoTabContent #vitals');
+    let $badge = $('div#patientInfoTablist ul li a[href="#vitals"] span.badge');
+
     if (!res.message.data.length) {
       $vitals.html('<strong>No vitals found</strong>');
+      $badge.html('0');
       return;
     }
+
+    $badge.html(res.message.data.length);
+
     $vitals.html('<table class="table"><thead></thead><tbody></tbody></table>');
     $thead = $vitals.find('table thead');
     $tbody = $vitals.find('table tbody');
@@ -1014,10 +1022,16 @@ pharmacy.populatePatientPage = function(EWD,DFN) {
   };
   EWD.send(messageObj, function(res) {
     let $labs = $('#patientInfoTabContent #labs');
+    let $badge = $('div#patientInfoTablist ul li a[href="#labs"] span.badge');
+
     if (!res.message.data.length) {
       $labs.html('<strong>No labs found</strong>');
+      $badge.html('0');
       return;
     }
+
+    $badge.html(res.message.data.length);
+
     $labs.html('<table class="table"><thead></thead><tbody></tbody></table>');
     $thead = $labs.find('table thead');
     $tbody = $labs.find('table tbody');
@@ -1053,10 +1067,15 @@ pharmacy.populatePatientPage = function(EWD,DFN) {
   };
   EWD.send(messageObj, function(res) {
     let $notes = $('#patientInfoTabContent #notes');
+    let $badge = $('div#patientInfoTablist ul li a[href="#notes"] span.badge');
     if (!res.message.data.length) {
       $notes.html('<strong>No notes found</strong>');
+      $badge.html('0');
       return;
     }
+
+    $badge.html(res.message.data.length);
+
     $notes.html('<table class="table"><thead></thead><tbody></tbody></table>');
     $thead = $notes.find('table thead');
     $tbody = $notes.find('table tbody');
@@ -1065,7 +1084,6 @@ pharmacy.populatePatientPage = function(EWD,DFN) {
     for (let h in res.message.headers) theading += '<th>' + res.message.headers[h] + '</th>';
     theading += '</tr>';
     $thead.html(theading);
-    console.log('foo');
 
     res.message.data.forEach(function(datum) 
     {
@@ -1127,6 +1145,137 @@ pharmacy.populatePatientPage = function(EWD,DFN) {
     });
   });
 
+  // Consults
+  messageObj = {
+    service: 'ewd-vista-pharmacy',
+    type: 'getConsults',
+    params: { DFN: DFN }
+  };
+  EWD.send(messageObj, function(res) {
+    let $consults = $('#patientInfoTabContent #consults');
+    let $badge = $('div#patientInfoTablist ul li a[href="#consults"] span.badge');
+
+    if (!res.message.data.length) {
+      $consults.html('<strong>No consults found</strong>');
+      $badge.html('0');
+      return;
+    }
+
+    $badge.html(res.message.data.length);
+
+    $consults.html('<table class="table"><thead></thead><tbody></tbody></table>');
+    $thead = $consults.find('table thead');
+    $tbody = $consults.find('table tbody');
+
+    let theading = '<tr>';
+    for (let h in res.message.headers) theading += '<th>' + res.message.headers[h] + '</th>';
+    theading += '</tr>';
+    $thead.html(theading);
+    console.log('foo');
+
+    res.message.data.forEach(function(datum) 
+    {
+      let row = '<tr id="' + datum[0] + '">';
+      datum.shift();
+      datum.forEach(function(cell, index) {
+        let str;
+        if (res.message.dataTypes[index] === 'date') {
+          str = new Date(cell).toLocaleString();
+        }
+        else str = cell;
+        row += '<td>' + str + '</td>';
+      });
+      row += '</tr>';
+      $tbody.append(row);
+    });
+
+    // Add hover highlighting logic for table
+    $tbody.find('tr').hover(
+      function () {
+        $(this).addClass('table-highlight');
+      },
+      function () {
+        $(this).removeClass('table-highlight');
+      }
+    );
+
+    // Click logic for the table -- load modal window for allergy details
+    $tbody.find('tr').click(function() {
+      // NB: this is the tr that's clicked
+      //     this.id will give us the allergy IEN
+      let consultIEN = this.id;
+
+      let params = {
+        service: 'ewd-vista-pharmacy',
+        type: 'getConsultText',
+        params: { consultIEN: consultIEN }
+      };
+      EWD.send(params, function(res) {
+        let toAppend = '';
+        for (let i = 0 ; i < res.message.length; i++) {
+          toAppend += res.message[i] + '<br />';
+        }
+        $('#modal-window .modal-content .modal-header').html('<h3 class="modal-title">Consult Text</h3>');
+        $('#modal-window .modal-content .modal-body').html('<pre></pre>');
+        $('#modal-window .modal-content .modal-footer').html('');
+
+        $('#modal-window .modal-content .modal-body pre').html(toAppend);
+        $('div.modal-dialog').addClass('modal-lg').removeClass('modal-sm');
+        $('#modal-window').modal({
+          backdrop: true,
+          keyboard: true,
+          focus: true,
+          show: true
+        });
+
+        $('#modal-window').modal('show');
+      });
+    });
+  });
+
+  // Immunizations
+  messageObj = {
+    service: 'ewd-vista-pharmacy',
+    type: 'getImmunizations',
+    params: { DFN: DFN },
+  };
+  EWD.send(messageObj, function(res) {
+    let $imm = $('#patientInfoTabContent #immunizations');
+    let $badge = $('div#patientInfoTablist ul li a[href="#immunizations"] span.badge');
+    if (!res.message.data.length) {
+      $imm.html('<strong>No immunizations found</strong>');
+      $badge.html('0');
+      return;
+    }
+
+    $badge.html(res.message.data.length);
+
+    $imm.html('<table class="table"><thead></thead><tbody></tbody></table>');
+    $thead = $imm.find('table thead');
+    $tbody = $imm.find('table tbody');
+
+    let theading = '<tr>';
+    for (let h in res.message.headers) theading += '<th>' + res.message.headers[h] + '</th>';
+    theading += '</tr>';
+    $thead.html(theading);
+
+    res.message.data.forEach(function(datum) 
+    {
+      let row = '<tr id="' + datum[0] + '">';
+      datum.shift();
+      datum.forEach(function(cell, index) {
+        let str;
+        if (res.message.dataTypes[index] === 'date') {
+          str = new Date(cell).toLocaleString();
+        }
+        else str = cell;
+        row += '<td>' + str + '</td>';
+      });
+      row += '</tr>';
+      $tbody.append(row);
+    });
+  });
+
   // VA Information
   // Eligibility & disabilities
   // Outside Meds change to Non-VA meds
@@ -1156,12 +1305,16 @@ pharmacy.populatePatientPage = function(EWD,DFN) {
         $('.patient-info p  #rx-status').html(rxStatus);
 
         // Disabilities
-        $('div#patientInfoTablist ul').append('<li role="presentation"><a href="#disabilities" aria-controls="disabilities" role="tab" data-toggle="tab">Disabilities</a></li>');
+        $('div#patientInfoTablist ul').append('<li role="presentation"><a href="#disabilities" aria-controls="disabilities" role="tab" data-toggle="tab">Disabilities&nbsp;<span class="badge"></span></a></li>');
 
         $('div#patientInfoTabContent').append('<div role="tabpanel" class="tab-pane" id="disabilities"></div>');
 
+        let $badge = $('div#patientInfoTablist ul li a[href="#disabilities"] span.badge');
+        $badge.html(res.message.ratedDisabilities.data.length);
+
         if (res.message.ratedDisabilities.data.length) {
           var $disabilities = $('div#patientInfoTabContent div#disabilities');
+
           $disabilities.html('<table class="table"><thead></thead><tbody></tbody></table>');
           $thead = $disabilities.find('table thead');
           $tbody = $disabilities.find('table tbody');
