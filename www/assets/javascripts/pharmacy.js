@@ -808,8 +808,11 @@ pharmacy.populatePatientPage = function(EWD,DFN) {
   EWD.send(messageObj, function(res) {
     let $adr = $('#patientInfoTabContent #adr');
     let $badge = $('div#patientInfoTablist ul li a[href="#adr"] span.badge');
+    let $adrBanner = $('div#adr-banner');
     if (!res.message.data) { // We get an extra item here unlike the others
-      $adr.html('<strong>' + res.message.status + '</strong>');
+      let str = '<span><strong>' + res.message.status + '</strong></span>';
+      $adr.html(str);
+      $adrBanner.html(str);
       $badge.html('0');
       return;
     }
@@ -827,9 +830,11 @@ pharmacy.populatePatientPage = function(EWD,DFN) {
 
     res.message.data.forEach( function(datum)
     {
-      let row = '<tr id="' + datum[0] + '">';
+      let id = datum[0];
       datum.shift();
+      let row = '<tr id="' + id + '">';
       datum.forEach( function(cell) { row += '<td>' + cell + '</td>'; });
+      $adrBanner.append('<span id="' + id + '">' + datum[0] + '</span>');
       row += '</tr>';
       $tbody.append(row);
     });
@@ -845,7 +850,7 @@ pharmacy.populatePatientPage = function(EWD,DFN) {
     );
 
     // Click logic for the table -- load modal window for allergy details
-    $tbody.find('tr').click(function() {
+    var fAllergyDetail = function() {
       // NB: this is the tr that's clicked
       //     this.id will give us the allergy IEN
       let adrIEN = this.id;
@@ -875,8 +880,10 @@ pharmacy.populatePatientPage = function(EWD,DFN) {
 
         $('#modal-window').modal('show');
       });
-    });
+    };
 
+    $tbody.find('tr').click(fAllergyDetail);
+    $adrBanner.find('span:not(:first)').click(fAllergyDetail);
   });
 
 

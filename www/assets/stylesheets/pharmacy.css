@@ -450,7 +450,7 @@ div.modal-body div#filters {
   margin: 0;
   padding: 0px 5px 0px 5px;
   border: solid 1px #ccc;
-  height: 300px;
+  height: 290px;
 }
 
 #medicationList div ul legend
@@ -463,8 +463,21 @@ div.modal-body div#filters {
 
 #patientInfoTabContent div {
   border: solid 1px #ccc;
-  height: 300px;
+  height: 290px;
   overflow-y: auto;
+}
+
+#adr-banner {
+  margin: 0;
+}
+
+#adr-banner span:not(:first-child) {
+  padding: 0px 5px;
+  margin: 0px 2px;
+  border-radius: 5px;
+  color: white;
+  background-color: red;
+  cursor: pointer;
 }
 
 .sidebar .tray-loader {
