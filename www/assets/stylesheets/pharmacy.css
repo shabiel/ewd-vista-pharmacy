@@ -588,8 +588,14 @@ div.modal-body div#filters {
     background-color: #fff
 }
 
+.sidebar .sidebar-tray .panel {
+  width: 363px;
+  height: 600px;
+}
+
 .sidebar .sidebar-tray .panel .panel-body {
-    background-color: #DCE4EF
+    background-color: #DCE4EF;
+    height: 94%;
 }
 
 .sidebar .sidebar-tray .panel .panel-body.action-list-container {
