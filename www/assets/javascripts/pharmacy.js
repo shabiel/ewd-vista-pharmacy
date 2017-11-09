@@ -796,7 +796,114 @@ pharmacy.populatePatientPage = function(EWD,DFN) {
     else {
       $('.patient-info #room-bed-div').hide();
     }
-  });
+
+    let $phone = $('div#patient-header-demographic-details div#pt-header-pt-phone');
+    $phone.find('#home').html(demographics.contact.homePhone ? demographics.contact.homePhone : 'No record found');
+    $phone.find('#cell').html(demographics.contact.cellPhone ? demographics.contact.cellPhone : 'No record found');
+    $phone.find('#work').html(demographics.contact.workPhone ? demographics.contact.workPhone : 'No record found');
+    $phone.find('#email').html(demographics.contact.email ? demographics.contact.email : 'No record found');
+
+    let $address = $('div#patient-header-demographic-details div#pt-header-pt-address');
+    let $homeAddress = $address.find('dt#home').next();
+    if (demographics.address.street1) {
+      $homeAddress.html('<p>' + demographics.address.street1 + '</p>');
+      if (demographics.address.street2) $homeAddress.append('<p>' + 
+          demographics.address.street2 + '</p>');
+      if (demographics.address.street3) $homeAddress.append('<p>' + 
+          demographics.address.street3 + '</p>');
+      if (demographics.address.city && demographics.address.state) {
+        $homeAddress.append('<p>' + demographics.address.city + ', ' +
+            demographics.address.state + ' ' + demographics.address.postal +
+            '</p>');
+      }
+      else {
+        $homeAddress.append('<p>City and State not found</p>');
+      }
+      if (demographics.address.country) {
+        $homeAddress.append('<p>' + demographics.address.country + '</p>');
+      }
+
+      if (demographics.address.badAddressDes) {
+        $homeAddress.append('<p><strong>BAD ADDRESS INDICATOR:' + 
+            demographics.address.badAddressDes + '</strong></p>');
+      }
+
+      let $temporaryAddress = $address.find('dt#temporary').next();
+      if (demographics.address.tempStart) {
+        $temporaryAddress.append('<p>Above address is temporary</p>');
+        let startDate = Number(demographics.address.tempStart).dateFromTimson().toLocaleDateString();
+        let endDate;
+        if (demographics.address.tempEnd) {
+          endDate = Number(demographics.address.tempEnd).dateFromTimson().toLocaleDateString();
+        }
+        else {
+          endDate = 'No end date';
+        }
+
+        $temporaryAddress.append('<p>From: ' + startDate + '</p>');
+        $temporaryAddress.append('<p>To: ' + endDate + '</p>');
+      }
+    }
+    else {
+      $homeAddress.html('<p>No record found</p>');
+    }
+    // "mailStatusCode":0,"mailStatusText":"REGULAR MAIL","mailStatusExpiration":""
+    let $mail = $('div#patient-header-demographic-details div#pt-header-op-pharmacy dt#mail').next();
+    $mail.append('<p>' + demographics.mailInfo.mailStatusText + '</p>')
+      .css('text-transform', 'capitalize');
+    if (demographics.mailInfo.mailStatusExpiration) {
+      $mail.append('<p>Expires: ' + 
+        Number(demographics.mailInfo.mailStatusExpiration).dateFromTimson().
+          toLocaleDateString() + '</p>');
+    }
+
+    messageObj = {
+      service: 'ewd-vista',
+      type: 'agencyIsVA'
+    };
+    EWD.send(messageObj, function(res) {
+      if (res.message) {// Yes, this is a VA system
+        // Change outside meds to Non-VA Meds
+        $('div#medicationList div#outside h4').html('Non-VA Meds');
+
+        // Get VA Data
+        messageObj = {
+          service: 'ewd-vista-pharmacy',
+          type: 'getPatientVAInfo',
+          params: { DFN: DFN }
+        };
+        EWD.send(messageObj, function(res) {
+          // Eligibility
+          let eligibility = res.message.eligibility;
+          if (eligibility.type) $('.patient-info h2 #eligibility-type')
+            .html(eligibility.type);
+          if (eligibility.scPercentage) $('.patient-info h2 #eligibility-percentage').html('SC%: ' + eligibility.scPercentage + '%');
+
+          let rxStatus = res.message.rxStatus;
+          $('.patient-info p  #rx-status').html(rxStatus);
+
+          // Disabilities
+          var $disabilities = $('div#patient-header-demographic-details div#pt-header-disabilities');
+          if (res.message.ratedDisabilities.data.length) {
+            res.message.ratedDisabilities.data.forEach(function(datum){
+              datum.shift(); // get rid of ien
+              // 0 -> name; 1 -> disability percentage; 2 -> SC true or false
+              let str = datum[0] + ' (' + datum[1] + '%) ' + (datum[2] ? 'SC' : 'NSC');
+              $disabilities.append('<p>' + str + '</p>');
+            });
+          }
+          else {
+            $disabilities.append('<p>No Disabilities found</p>');
+          }
+
+        });
+      }
+      else { // No, this is not a VA system
+        $('.patient-info p  .rx-status-caption').hide();
+        $('div#patient-header-demographic-details div#pt-header-disabilities').hide();
+      }
+    }); //end AgencyIsVA
+  }); //end  getPatientDemographics
 
   // Allergies/ADRs
   messageObj = {
@@ -812,7 +919,7 @@ pharmacy.populatePatientPage = function(EWD,DFN) {
     if (!res.message.data) { // We get an extra item here unlike the others
       let str = '<span><strong>' + res.message.status + '</strong></span>';
       $adr.html(str);
-      $adrBanner.html(str);
+      $adrBanner.html('Allergies/ADRs: ' + str);
       $badge.html('0');
       return;
     }
@@ -1282,78 +1389,6 @@ pharmacy.populatePatientPage = function(EWD,DFN) {
       $tbody.append(row);
     });
   });
-
-  // VA Information
-  // Eligibility & disabilities
-  // Outside Meds change to Non-VA meds
-  messageObj = {
-    service: 'ewd-vista',
-    type: 'agencyIsVA'
-  };
-  EWD.send(messageObj, function(res) {
-    if (res.message) {// Yes, this is a VA system
-      // Change outside meds to Non-VA Meds
-      $('div#medicationList div#outside h4').html('Non-VA Meds');
-
-      // Get Patient Data
-      messageObj = {
-        service: 'ewd-vista-pharmacy',
-        type: 'getPatientVAInfo',
-        params: { DFN: DFN }
-      };
-      EWD.send(messageObj, function(res) {
-        // Eligibility
-        let eligibility = res.message.eligibility;
-        if (eligibility.type) $('.patient-info h2 #eligibility-type')
-          .html(eligibility.type);
-        if (eligibility.scPercentage) $('.patient-info h2 #eligibility-percentage').html('SC%: ' + eligibility.scPercentage + '%');
-
-        let rxStatus = res.message.rxStatus;
-        $('.patient-info p  #rx-status').html(rxStatus);
-
-        // Disabilities
-        $('div#patientInfoTablist ul').append('<li role="presentation"><a href="#disabilities" aria-controls="disabilities" role="tab" data-toggle="tab">Disabilities&nbsp;<span class="badge"></span></a></li>');
-
-        $('div#patientInfoTabContent').append('<div role="tabpanel" class="tab-pane" id="disabilities"></div>');
-
-        let $badge = $('div#patientInfoTablist ul li a[href="#disabilities"] span.badge');
-        $badge.html(res.message.ratedDisabilities.data.length);
-
-        if (res.message.ratedDisabilities.data.length) {
-          var $disabilities = $('div#patientInfoTabContent div#disabilities');
-
-          $disabilities.html('<table class="table"><thead></thead><tbody></tbody></table>');
-          $thead = $disabilities.find('table thead');
-          $tbody = $disabilities.find('table tbody');
-
-          let theading = '<tr>';
-          for (let h in res.message.ratedDisabilities.headers) theading += '<th>' + res.message.ratedDisabilities.headers[h] + '</th>';
-          theading += '</tr>';
-          $thead.html(theading);
-          console.log('foo');
-
-          res.message.ratedDisabilities.data.forEach(function(datum) 
-          {
-            let row = '<tr id="' + datum[0] + '">';
-            datum.shift();
-            datum.forEach(function(cell, index) {
-              row += '<td>' + cell + '</td>';
-            });
-            row += '</tr>';
-            $tbody.append(row);
-          });
-        }
-        else {
-          $('div#patientInfoTabContent div#disabilities').append('<p>No Disabilities found</p>');
-        }
-
-      });
-    }
-    else { // No, this is not a VA system
-      $('.patient-info p  .rx-status-caption').hide();
-    }
-  });
-
 };
 
 
