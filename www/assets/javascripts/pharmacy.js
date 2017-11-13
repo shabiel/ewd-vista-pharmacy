@@ -857,6 +857,45 @@ pharmacy.populatePatientPage = function(EWD,DFN) {
           toLocaleDateString() + '</p>');
     }
 
+    let $safetyCap = $('div#patient-header-demographic-details div#pt-header-op-pharmacy dt#safety').next(); 
+    $safetyCap.html(demographics.safetyCapStatus);
+
+    // vista can return yes/no or nothing. If nothing, it means no.
+    let $bDialysisPatient = $('div#patient-header-demographic-details div#pt-header-op-pharmacy dt#dialysis').next();
+    $bDialysisPatient.html(demographics.bDialysisPatient ? demographics.bDialysisPatient : 'NO');
+
+    let $outpatientNarrative = $('div#patient-header-demographic-details div#pt-header-op-pharmacy dt#narrative').next();
+    $outpatientNarrative.html(demographics.outpatientNarrative ? 
+      demographics.outpatientNarrative : 'No Record Found');
+
+    let $primaryCareAppointmentLabel = $('div#patient-header-demographic-details div#pt-header-op-pharmacy dt#primaryCareAppointment');
+    if (demographics.primaryCareAppointment) {
+      $primaryCareAppointmentLabel.next().html(demographics.primaryCareAppointment);
+    }
+    else {
+      $primaryCareAppointmentLabel.hide().next().hide();
+    }
+
+    let $pendingClinicAppointmentsLabel = $('div#patient-header-demographic-details div#pt-header-op-pharmacy dt#pendingClinicAppointments');
+    if (demographics.pendingClinicAppointments.length) {
+      let appointments = [];
+      for (let i=0; i < demographics.pendingClinicAppointments.length; i++) {
+        let appointment = demographics.pendingClinicAppointments[i];
+        let clinic = appointment.clinic;
+        let date = Number(appointment.date).dateFromTimson().toLocaleString();
+        let days = appointment.days;
+        let bCancelled = appointment.bCancelled;
+        let string = '<dd class="left-padding-xs">' + date + '  ' + clinic + 
+          ( bCancelled ? ' *** Cancelled ***' : ' (' + days + ' days)') + 
+          '</dd>';
+        appointments.push(string);
+      }
+      $pendingClinicAppointmentsLabel.after(appointments);
+    }
+    else {
+      $pendingClinicAppointmentsLabel.after('<dd class="left-padding-xs">No appointments found</dd>');
+    }
+
     messageObj = {
       service: 'ewd-vista',
       type: 'agencyIsVA'
