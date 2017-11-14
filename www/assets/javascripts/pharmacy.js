@@ -896,6 +896,92 @@ pharmacy.populatePatientPage = function(EWD,DFN) {
       $pendingClinicAppointmentsLabel.after('<dd class="left-padding-xs">No appointments found</dd>');
     }
 
+    // Inpatient Information now
+    let $ipContainer = $('div#patient-header-demographic-details div#pt-header-ip-pharmacy');
+
+    let $admissionDateLabel = $ipContainer.find('dt#admissionDate');
+    let $admissionDateTag   = $admissionDateLabel.next();
+
+    let $dischargeDateLabel = $ipContainer.find('dt#dischargeDate');
+    let $dischargeDateTag   = $dischargeDateLabel.next();
+
+    let $transferDateLabel  = $ipContainer.find('dt#transferDate');
+    let $transferDateTag    = $transferDateLabel.next();
+
+    let $diagnosisTag       = $ipContainer.find('dt#dx').next();
+
+    let $narrativeTag       = $ipContainer.find('dt#narrative').next();
+
+    let $IMOLabel           = $ipContainer.find('dt#IMO');
+
+    // "inpatientInfo":{
+    //   "admissionDate":"3140624.160558",
+    //   "admissionDiagnosis":"PNEUMONIA",
+    //   "dischargeDate":"3140625.113729",
+    //   "transferDate":"",
+    //   "narrative":"TESTING INPATIENT NARRATIVE",
+    //   "encounters":[]
+    // }
+
+    let inpatientInfo = demographics.inpatientInfo;
+    // Sometimes the discharge date comes as zero from VistA -- Make
+    // sure that that's properly interpreted as a boolean in JS.
+    inpatientInfo.dischargeDate = +inpatientInfo.dischargeDate;
+    // Admitted and Discharged
+    if (inpatientInfo.dischargeDate && inpatientInfo.admissionDate) {
+      $admissionDateLabel.html('Last Admission Date');
+      $admissionDateTag.html(Number(inpatientInfo.admissionDate).dateFromTimson().toLocaleString());
+      $dischargeDateTag.html(Number(inpatientInfo.dischargeDate).dateFromTimson().toLocaleString());
+      $transferDateLabel.html('Last Transfer Date');
+      $diagnosisTag.html('Not currently admitted');
+    }
+    // Admitted and not discharged (inpatient)
+    if (!inpatientInfo.dischargeDate && inpatientInfo.admissionDate) {
+      $admissionDateTag.html(Number(inpatientInfo.admissionDate).dateFromTimson().toLocaleString());
+      $dischargeDateTag.html('Currently admitted');
+      $diagnosisTag.html(inpatientInfo.admissionDiagnosis);
+    }
+    // Never admitted before
+    if (!inpatientInfo.dischargeDate && !inpatientInfo.admissionDate) {
+      $diagnosisTag.html('Not currently admitted');
+      $admissionDateTag.html('Never admitted');
+      $dischargeDateTag.html('Never admitted');
+    }
+
+    inpatientInfo.transferDate ? $transferDateTag.html(Number(inpatientInfo.transferDate).dateFromTimson().toLocaleString()) : $transferDateTag.html('No transfer found');
+
+    inpatientInfo.narrative ? $narrativeTag.html(inpatientInfo.narrative) : $narrativeTag.html('No record found');
+
+    // IMO clinics
+    if (demographics.pendingClinicAppointments.length) {
+      let appointments = [];
+      for (let i=0; i < demographics.pendingClinicAppointments.length; i++) {
+        let appointment = demographics.pendingClinicAppointments[i];
+        // IMO clinics only.
+        if (!appointment.bIMOOkay) continue;
+        let clinic = appointment.clinic;
+        let date = Number(appointment.date).dateFromTimson().toLocaleString();
+        let days = appointment.days;
+        let bCancelled = appointment.bCancelled;
+        let string = '<dd class="left-padding-xs">' + date + '  ' + clinic + 
+          ( bCancelled ? ' *** Cancelled ***' : ' (' + days + ' days)') + 
+          '</dd>';
+        appointments.push(string);
+      }
+      $IMOLabel.after(appointments);
+    }
+
+    // TODO: NOT TESTED!
+    if (inpatientInfo.encounters.length) {
+      $IMOLabel.parent().append(inpatientInfo.encounters);
+    }
+
+    if (!demographics.pendingClinicAppointments.length && 
+        !inpatientInfo.encounters.length) {
+      $IMOLabel.hide();
+    }
+
+    // VA information
     messageObj = {
       service: 'ewd-vista',
       type: 'agencyIsVA'
