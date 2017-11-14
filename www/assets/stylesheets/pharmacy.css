@@ -461,17 +461,24 @@ div.modal-body div#filters {
   margin-bottom: 0;
 }
 
+span#addADR {
+  font-weight: bold;
+  cursor: pointer;
+  background-color: gray;
+  color: white;
+}
+
 #patientInfoTabContent div {
   border: solid 1px #ccc;
   height: 290px;
   overflow-y: auto;
 }
 
-#adr-banner {
+.adr-banner {
   margin: 0;
 }
 
-#adr-banner span:not(:first-child) {
+.adr-banner span:not(:first-child) {
   padding: 0px 5px;
   margin: 0px 2px;
   border-radius: 5px;

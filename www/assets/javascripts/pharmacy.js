@@ -1030,94 +1030,8 @@ pharmacy.populatePatientPage = function(EWD,DFN) {
     }); //end AgencyIsVA
   }); //end  getPatientDemographics
 
-  // Allergies/ADRs
-  messageObj = {
-    service: 'ewd-vista-pharmacy',
-    type: 'getPatientAllergies',
-    params: { DFN: DFN },
-  };
-
-  EWD.send(messageObj, function(res) {
-    let $adr = $('#patientInfoTabContent #adr');
-    let $badge = $('div#patientInfoTablist ul li a[href="#adr"] span.badge');
-    let $adrBanner = $('div#adr-banner');
-    if (!res.message.data) { // We get an extra item here unlike the others
-      let str = '<span><strong>' + res.message.status + '</strong></span>';
-      $adr.html(str);
-      $adrBanner.html('Allergies/ADRs: ' + str);
-      $badge.html('0');
-      return;
-    }
-    
-    $badge.html(res.message.data.length);
-
-    $adr.html('<table class="table"><thead></thead><tbody></tbody></table>');
-    $thead = $adr.find('table thead');
-    $tbody = $adr.find('table tbody');
-
-    let theading = '<tr>';
-    for (let h in res.message.headers) theading += '<th>' + res.message.headers[h] + '</th>';
-    theading += '</tr>';
-    $thead.html(theading);
-
-    res.message.data.forEach( function(datum)
-    {
-      let id = datum[0];
-      datum.shift();
-      let row = '<tr id="' + id + '">';
-      datum.forEach( function(cell) { row += '<td>' + cell + '</td>'; });
-      $adrBanner.append('<span id="' + id + '">' + datum[0] + '</span>');
-      row += '</tr>';
-      $tbody.append(row);
-    });
-
-    // Add hover highlighting logic for table
-    $tbody.find('tr').hover(
-      function () {
-        $(this).addClass('table-highlight');
-      },
-      function () {
-        $(this).removeClass('table-highlight');
-      }
-    );
-
-    // Click logic for the table -- load modal window for allergy details
-    var fAllergyDetail = function() {
-      // NB: this is the tr that's clicked
-      //     this.id will give us the allergy IEN
-      let adrIEN = this.id;
-
-      let params = {
-        service: 'ewd-vista-pharmacy',
-        type: 'adrDetailsByIEN',
-        params: { adrIEN: adrIEN }
-      };
-      EWD.send(params, function(res) {
-        let toAppend = '';
-        for (let i = 0 ; i < res.message.length; i++) {
-          toAppend += res.message[i] + '<br />';
-        }
-        $('#modal-window .modal-content .modal-header').html('<h3 class="modal-title">Allergy Details</h3>');
-        $('#modal-window .modal-content .modal-body').html('<pre></pre>');
-        $('#modal-window .modal-content .modal-footer').html('');
-
-        $('#modal-window .modal-content .modal-body pre').html(toAppend);
-        $('div.modal-dialog').removeClass('modal-lg').removeClass('modal-sm');
-        $('#modal-window').modal({
-          backdrop: true,
-          keyboard: true,
-          focus: true,
-          show: true
-        });
-
-        $('#modal-window').modal('show');
-      });
-    };
-
-    $tbody.find('tr').click(fAllergyDetail);
-    $adrBanner.find('span:not(:first)').click(fAllergyDetail);
-  });
-
+  // ADRs
+  pharmacy.populatePatientADRs(EWD, DFN);
 
   // Outpatient and non-VA meds
   messageObj = {
@@ -1514,8 +1428,176 @@ pharmacy.populatePatientPage = function(EWD,DFN) {
       $tbody.append(row);
     });
   });
+
+  /////////////////////////////
+  // Write logic now         //
+  /////////////////////////////
+
+  //Allergies/ADR first
+  $('div#patientInfoTablist span#addADR').off().click(function() {
+    let params = {
+      service: 'ewd-vista-pharmacy',
+      name: 'adr.html',
+      targetId: 'modal-window'
+    };
+    EWD.getFragment(params, function() {
+      // Allergies/ADRs
+      let messageObj = {
+        service: 'ewd-vista-pharmacy',
+        type: 'getPatientAllergies',
+        params: { DFN: DFN }
+      };
+      EWD.send(messageObj, function(res) {
+        let $chkNKA = $('div.modal-dialog div.modal-body input#nka');
+        if (res.message.data) { // Patient already has allergies
+          let $mydiv = $chkNKA.parent(); // get parent div
+          $mydiv.html('<div class="adr-banner"></div>');
+          $banner = $mydiv.find('div.adr-banner');
+          $banner.html('<span>Current Allergies/ADRs:</span>'); // put this instead
+          res.message.data.forEach( function(datum) {
+            let id = datum[0];
+            datum.shift();
+            $banner.append('<span id="' + id + '">' + datum[0] + '</span>');
+          });
+        }
+
+        if (res.message.statusCode === 'NKA') {
+          $chkNKA.prop('checked', 'checked');
+          $chkNKA.prop('disabled', 'disabled');
+        }
+
+        //TODO: Create event to tell the other contorls to refresh.
+        EWD.off('vista.adr.update');
+        EWD.on('vista.adr.update', pharmacy.handleChangeADREvent);
+        $chkNKA.change(function() {
+          if ($chkNKA[0].checked) {
+            let messageObj = {
+              service: 'ewd-vista-pharmacy',
+              type: 'markPatientAllergies',
+              params: { 
+                DFN: DFN,
+                isNKA: true
+              }
+            };
+            EWD.send(messageObj, function(res) {
+              if (!res.error) {
+                $('#modal-window').modal('hide');
+                EWD.emit('vista.adr.update', { EWD: EWD, DFN: DFN });
+              }
+            });
+          }
+        });
+
+        $('div.modal-dialog').removeClass('modal-lg')
+          .removeClass('modal-sm');
+
+        $('#modal-window').modal({
+          backdrop: true,
+          keyboard: true,
+          focus: true,
+          show: true
+        });
+
+        $('#modal-window').modal('show');
+      });
+    });
+  });
 };
 
+pharmacy.populatePatientADRs = function(EWD, DFN) {
+  // Allergies/ADRs
+  let messageObj = {
+    service: 'ewd-vista-pharmacy',
+    type: 'getPatientAllergies',
+    params: { DFN: DFN },
+  };
+
+  EWD.send(messageObj, function(res) {
+    let $adr = $('#patientInfoTabContent #adr');
+    let $badge = $('div#patientInfoTablist ul li a[href="#adr"] span.badge');
+    let $adrBanner = $('div.adr-banner');
+    $adr.html('');
+    $adrBanner.html('<strong>Allergies/ADRs: </strong>');
+    if (!res.message.data) { // We get an extra item here unlike the others
+      let str = '<strong>' + res.message.status + '</strong>';
+      $adr.html(str);
+      $adrBanner.append(str);
+      $badge.html('0');
+      return;
+    }
+    
+    $badge.html(res.message.data.length);
+
+    $adr.html('<table class="table"><thead></thead><tbody></tbody></table>');
+    $thead = $adr.find('table thead');
+    $tbody = $adr.find('table tbody');
+
+    let theading = '<tr>';
+    for (let h in res.message.headers) theading += '<th>' + res.message.headers[h] + '</th>';
+    theading += '</tr>';
+    $thead.html(theading);
+
+    res.message.data.forEach( function(datum) {
+      let id = datum[0];
+      datum.shift();
+      let row = '<tr id="' + id + '">';
+      datum.forEach( function(cell) { row += '<td>' + cell + '</td>'; });
+      $adrBanner.append('<span id="' + id + '">' + datum[0] + '</span>');
+      row += '</tr>';
+      $tbody.append(row);
+    });
+
+    // Add hover highlighting logic for table
+    $tbody.find('tr').hover(
+      function () {
+        $(this).addClass('table-highlight');
+      },
+      function () {
+        $(this).removeClass('table-highlight');
+      }
+    );
+
+    // Click logic for the table -- load modal window for allergy details
+    var fAllergyDetail = function() {
+      // NB: this is the tr that's clicked
+      //     this.id will give us the allergy IEN
+      let adrIEN = this.id;
+
+      let params = {
+        service: 'ewd-vista-pharmacy',
+        type: 'adrDetailsByIEN',
+        params: { adrIEN: adrIEN }
+      };
+      EWD.send(params, function(res) {
+        let toAppend = '';
+        for (let i = 0 ; i < res.message.length; i++) {
+          toAppend += res.message[i] + '<br />';
+        }
+        $('#modal-window .modal-content .modal-header').html('<h3 class="modal-title">Allergy Details</h3>');
+        $('#modal-window .modal-content .modal-body').html('<pre></pre>');
+        $('#modal-window .modal-content .modal-footer').html('');
+
+        $('#modal-window .modal-content .modal-body pre').html(toAppend);
+        $('div.modal-dialog').removeClass('modal-lg').removeClass('modal-sm');
+        $('#modal-window').modal({
+          backdrop: true,
+          keyboard: true,
+          focus: true,
+          show: true
+        });
+
+        $('#modal-window').modal('show');
+      });
+    };
+
+    $tbody.find('tr').click(fAllergyDetail);
+    $adrBanner.find('span:not(:first)').click(fAllergyDetail);
+  });
+};
+
+pharmacy.handleChangeADREvent = function(eventData) {
+  pharmacy.populatePatientADRs(eventData.EWD, eventData.DFN);
+};
 
 /*
   Copyright 2017 Sam Habiel, Pharm.D.
