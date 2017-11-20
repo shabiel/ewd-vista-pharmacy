@@ -3,13 +3,81 @@
     <div class="modal-header">
       <h3 class="modal-title">Enter an Allergy or Adverse Reaction</h3>
     </div>
-
     <div class="modal-body">
       <div class="text-center">
         <input type="checkbox" id="nka">&nbsp;No known allergies or adverse reactions</input>
       </div>
       <hr />
-      <p>boo</p>
+      <form class="form-horizontal">
+        <div class="form-group">
+          <label for="reactant" class="col-sm-2 control-label input-md">Reactant</label>
+          <div class="col-sm-10">
+            <input class="input-md" id="reactant" type="text" placeholder="Type at least 3 letters" style="width: 100%"></input>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="col-sm-2 control-label">Reaction Type</label>
+          <div class="col-sm-10">
+            <label for="allergic" class="radio-inline">
+              <input name="reactionType" id="allergic" value="allergic" type="radio">Allergic
+            </label>
+            <label for="pharm" class="radio-inline">
+              <input name="reactionType" id="pharm" value="pharm" type="radio">Pharmacologic
+            </label>
+            <label for="unknown" class="radio-inline">
+              <input name="reactionType" id="unknown" value="unknown" type="radio" checked>Unknown
+            </label>
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="col-sm-6">
+            <label class="control-label">Available Signs &amp; Symptoms</label>
+            <select class="form-control" size="8" id="availableSS">
+            </select>
+          </div>
+          <div class="col-sm-6">
+            <label class="control-label">Selected Signs &amp; Symptoms</label>
+            <select class="form-control" size="8" id="selectedSS">
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="comments" class="control-label">Comments</label>
+          <textarea class="form-control" rows="2" id="comments"></textarea>
+        </div>
+        <div class="col-sm-4 form-inline">
+          <div class="form-group">
+            <label for="chkObserved">Reaction Observed?</label>
+            <input class="form-control" type="checkbox" id="chkObserved">
+          </div>
+        </div>
+        <div class="col-sm-8" style="display: none">
+          <div class="form-group">
+            <div class="col-sm-4">
+              <label for="obsDate">Observation Date</label>
+            </div>
+            <div class="col-sm-8">
+              <input class="form-control" type="text" id="obsDate">
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="col-sm-4">
+              <label>Severity</label>
+            </div>
+            <div class="col-sm-8">
+              <label for="severe" class="radio-inline">
+                <input name="reactionSeverity" id="severe" value="severe" type="radio">Severe
+              </label>
+              <label for="moderate" class="radio-inline">
+                <input name="reactionSeverity" id="moderate" value="moderate" type="radio">Moderate
+              </label>
+              <label for="mild" class="radio-inline">
+                <input name="reactionSeverity" id="mild" value="mild" type="radio" checked>Mild
+              </label>
+            </div>
+          </div>
+        </div>
+      </form>
     </div>
     <div class="modal-footer">
     </div>

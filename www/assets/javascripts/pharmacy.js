@@ -1466,7 +1466,6 @@ pharmacy.populatePatientPage = function(EWD,DFN) {
           $chkNKA.prop('disabled', 'disabled');
         }
 
-        //TODO: Create event to tell the other contorls to refresh.
         EWD.off('vista.adr.update');
         EWD.on('vista.adr.update', pharmacy.handleChangeADREvent);
         $chkNKA.change(function() {
@@ -1487,6 +1486,72 @@ pharmacy.populatePatientPage = function(EWD,DFN) {
             });
           }
         });
+
+        let messageObj = {
+          service: 'ewd-vista-pharmacy',
+          type: 'getAllergyDialogData'
+        };
+
+        let $availableSS = $('div.modal-body form select#availableSS');
+        let $selectedSS = $('div.modal-body form select#selectedSS');
+        EWD.send(messageObj, function(res) {
+          let topTenSS = res.message.topTenSS;
+          let allSS    = res.message.allSS;
+          topTenSS.forEach(function(item) {
+            $availableSS[0].options.add(new Option(item.name, item.ien));
+          });
+          $availableSS[0].options.add(new Option('---------', 0));
+          allSS.forEach(function(item) {
+            $availableSS[0].options.add(new Option(item.name, item.ien));
+          });
+        });
+
+        let loadMoreSymptomsTimedFunction = null;
+        $availableSS.scroll(function() {
+          let selectTag = $(this);
+          let lastOption = selectTag.find('option:last');
+          let s = selectTag.position().top + selectTag.height();
+          let o = lastOption.height() + lastOption.position().top - 20;
+
+          // next 2 lines to prevent us from responding to multiple events
+          // https://stackoverflow.com/questions/12119107/prevent-javascript-function-from-firing-multiple-times
+          // Fire repeated event every 200ms.
+          clearTimeout(loadMoreSymptomsTimedFunction);
+          loadMoreSymptomsTimedFunction = setTimeout(function() {
+            if (o < s) {
+              let messageObj = {
+                service: 'ewd-vista-pharmacy',
+                type: 'getAllergySignsSymptomsContinued',
+                params: { from: lastOption[0].text }
+              };
+              EWD.send(messageObj, function(res) {
+                let allSS = res.message;
+                allSS.forEach(function(item) {
+                  $availableSS[0].options.add(new Option(item.name, item.ien));
+                });
+              });
+            }
+          }, 200);
+        });
+
+        $availableSS.change(function() {
+          let selection = this.item(this.selectedIndex);
+          if (selection.value == 0) return; // don't process the ---- line
+          // Next two lines to prevent adding item twice
+          let found = false;
+          $selectedSS.find('option').each(function() {
+            if (this.value === selection.value) {
+              found = true;
+              return false;
+            }
+          });
+          if (!found) $selectedSS[0].add(new Option(selection.text, selection.value));
+        });
+
+        $selectedSS.change(function() {
+          this.remove(this.selectedIndex);
+        });
+
 
         $('div.modal-dialog').removeClass('modal-lg')
           .removeClass('modal-sm');
