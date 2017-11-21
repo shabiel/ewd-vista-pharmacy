@@ -1434,7 +1434,7 @@ pharmacy.populatePatientPage = function(EWD,DFN) {
   /////////////////////////////
 
   //Allergies/ADR first
-  $('div#patientInfoTablist span#addADR').off().click(function() {
+  $('div#patientInfoTablist i#addADR').off().click(function() {
     let params = {
       service: 'ewd-vista-pharmacy',
       name: 'adr.html',
@@ -1487,20 +1487,62 @@ pharmacy.populatePatientPage = function(EWD,DFN) {
           }
         });
 
+        let $reactant = $('div.modal-body form input#reactant');
+        let $availableSS = $('div.modal-body form select#availableSS');
+        let $selectedSS = $('div.modal-body form select#selectedSS');
+        let $obsInfoDiv =  $('div.modal-body form div#obsInfo');
+        let $chkObserved = $('div.modal-body form input#chkObserved');
+        let $txtSSSearch = $('div.modal-body form input#txtSSSearch');
+
+        let categories = [];
+        $reactant.autocomplete({
+          source: function (req, resp) {
+            if (req.term.length >= 3) {
+              let messageObj = {
+                service: 'ewd-vista-pharmacy',
+                type: 'searchforAllergens',
+                params: { from: req.term }
+              };
+              EWD.send(messageObj, function(res) {
+                categories = res.message.categories;
+                resp(res.message.allergens);
+              });
+            }
+          },
+          open: function() {
+            // NB: This is necessary b/c the modal z-index is 1050
+            $(this).autocomplete('widget').css('z-index', 1100);
+          }
+        });
+
+        $reactant.autocomplete('instance')._renderItem=function(ul,item){
+          console.log(item);
+          item.value = item.ien;
+          let itemCategory = categories[item.category];
+          item.label = itemCategory + '&nbsp; - &nbsp;' + item.name;
+          return $('<li>')
+            .append(item.label)
+            .appendTo(ul);
+        };
+
+        $chkObserved.change(function() {
+          this.checked ? $obsInfoDiv.show() : $obsInfoDiv.hide();
+        });
+
+        
+
         let messageObj = {
           service: 'ewd-vista-pharmacy',
           type: 'getAllergyDialogData'
         };
 
-        let $availableSS = $('div.modal-body form select#availableSS');
-        let $selectedSS = $('div.modal-body form select#selectedSS');
         EWD.send(messageObj, function(res) {
           let topTenSS = res.message.topTenSS;
           let allSS    = res.message.allSS;
           topTenSS.forEach(function(item) {
             $availableSS[0].options.add(new Option(item.name, item.ien));
           });
-          $availableSS[0].options.add(new Option('---------', 0));
+          $availableSS[0].options.add(new Option('-----------', 0));
           allSS.forEach(function(item) {
             $availableSS[0].options.add(new Option(item.name, item.ien));
           });
@@ -1552,6 +1594,30 @@ pharmacy.populatePatientPage = function(EWD,DFN) {
           this.remove(this.selectedIndex);
         });
 
+
+        $txtSSSearch.on('input', function() {
+          if (this.value === '') return;
+          let messageObj = {
+            service: 'ewd-vista-pharmacy',
+            type: 'getAllergySignsSymptomsContinued',
+            params: { from: this.value.toUpperCase() }
+          };
+          EWD.send(messageObj, function(res) {
+            $availableSS.empty();
+            let allSS = res.message;
+            allSS.forEach(function(item) {
+              $availableSS[0].options.add(new Option(item.name, item.ien));
+            });
+          });
+        });
+
+        let $obsDate = $('div.modal-body form input#obsDate');
+        $obsDate.datepicker();
+
+        let $cancelButton = $('div.modal-footer button#cancel-button');
+        $cancelButton.click(function() {
+          $('#modal-window').modal('hide');
+        });
 
         $('div.modal-dialog').removeClass('modal-lg')
           .removeClass('modal-sm');
@@ -1656,7 +1722,7 @@ pharmacy.populatePatientADRs = function(EWD, DFN) {
     };
 
     $tbody.find('tr').click(fAllergyDetail);
-    $adrBanner.find('span:not(:first)').click(fAllergyDetail);
+    $adrBanner.find('span').click(fAllergyDetail);
   });
 };
 

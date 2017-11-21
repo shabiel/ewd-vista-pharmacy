@@ -32,12 +32,13 @@
         <div class="form-group">
           <div class="col-sm-6">
             <label class="control-label">Available Signs &amp; Symptoms</label>
+            <input type="text" class="form-control" id="txtSSSearch" placeholder="Search" />
             <select class="form-control" size="8" id="availableSS">
             </select>
           </div>
           <div class="col-sm-6">
             <label class="control-label">Selected Signs &amp; Symptoms</label>
-            <select class="form-control" size="8" id="selectedSS">
+            <select class="form-control" size="10" id="selectedSS">
             </select>
           </div>
         </div>
@@ -51,7 +52,7 @@
             <input class="form-control" type="checkbox" id="chkObserved">
           </div>
         </div>
-        <div class="col-sm-8" style="display: none">
+        <div class="col-sm-8" id="obsInfo" style="display: none">
           <div class="form-group">
             <div class="col-sm-4">
               <label for="obsDate">Observation Date</label>
@@ -80,6 +81,8 @@
       </form>
     </div>
     <div class="modal-footer">
+      <button id="ok-button" class="btn btn-success" disabled>OK</button>
+      <button id="cancel-button" class="btn btn-danger">Cancel</button>
     </div>
   </div>
 </div>
