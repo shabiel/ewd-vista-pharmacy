@@ -771,6 +771,38 @@ pharmacy.displayPatientDivByDFN = function(EWD,DFN) {
 pharmacy.populatePatientPage = function(EWD,DFN) {
 
   // Demographics
+  pharmacy.displayPatientDemographics(EWD, DFN);
+
+  // ADRs
+  pharmacy.populatePatientADRs(EWD, DFN);
+
+  // Outpatient and non-VA meds
+  // & Inpatient Meds
+  pharmacy.displayMedications(EWD, DFN);
+
+  // Vitals
+  pharmacy.displayVitals(EWD, DFN);
+
+  // Labs
+  pharmacy.displayLabs(EWD, DFN);
+
+  // Notes
+  pharmacy.displayNotes(EWD, DFN);
+
+  // Consults
+  pharmacy.displayConsults(EWD, DFN);
+
+  // Immunizations
+  pharmacy.displayImmunizations(EWD, DFN);
+
+  /////////////////////////////
+  // Write logic now         //
+  /////////////////////////////
+
+  pharmacy.wireUpAddAllADRForm(EWD, DFN);
+};
+
+pharmacy.displayPatientDemographics = function(EWD, DFN) {
   let messageObj;
   messageObj = {
     service: 'ewd-vista-pharmacy',
@@ -1029,12 +1061,10 @@ pharmacy.populatePatientPage = function(EWD,DFN) {
       }
     }); //end AgencyIsVA
   }); //end  getPatientDemographics
+};
 
-  // ADRs
-  pharmacy.populatePatientADRs(EWD, DFN);
-
-  // Outpatient and non-VA meds
-  messageObj = {
+pharmacy.displayMedications= function (EWD, DFN) {
+  let messageObj = {
     service: 'ewd-vista-pharmacy',
     type: 'getOutpatientMedications',
     params: { DFN: DFN },
@@ -1121,9 +1151,10 @@ pharmacy.populatePatientPage = function(EWD,DFN) {
       $clList.append('<legend>No medications found</legend>');
     }
   });
+};
 
-  // Vitals
-  messageObj = {
+pharmacy.displayVitals = function(EWD, DFN) {
+  let messageObj = {
     service: 'ewd-vista-pharmacy',
     type: 'getLatestVitals',
     params: { DFN: DFN },
@@ -1166,9 +1197,55 @@ pharmacy.populatePatientPage = function(EWD,DFN) {
       $tbody.append(row);
     });
   });
+};
 
+pharmacy.displayImmunizations = function(EWD, DFN) {
+  let messageObj = {
+    service: 'ewd-vista-pharmacy',
+    type: 'getImmunizations',
+    params: { DFN: DFN },
+  };
+  EWD.send(messageObj, function(res) {
+    let $imm = $('#patientInfoTabContent #immunizations');
+    let $badge = $('div#patientInfoTablist ul li a[href="#immunizations"] span.badge');
+    if (!res.message.data.length) {
+      $imm.html('<strong>No immunizations found</strong>');
+      $badge.html('0');
+      return;
+    }
+
+    $badge.html(res.message.data.length);
+
+    $imm.html('<table class="table"><thead></thead><tbody></tbody></table>');
+    $thead = $imm.find('table thead');
+    $tbody = $imm.find('table tbody');
+
+    let theading = '<tr>';
+    for (let h in res.message.headers) theading += '<th>' + res.message.headers[h] + '</th>';
+    theading += '</tr>';
+    $thead.html(theading);
+
+    res.message.data.forEach(function(datum) 
+    {
+      let row = '<tr id="' + datum[0] + '">';
+      datum.shift();
+      datum.forEach(function(cell, index) {
+        let str;
+        if (res.message.dataTypes[index] === 'date') {
+          str = new Date(cell).toLocaleString();
+        }
+        else str = cell;
+        row += '<td>' + str + '</td>';
+      });
+      row += '</tr>';
+      $tbody.append(row);
+    });
+  });
+};
+
+pharmacy.displayLabs = function(EWD, DFN) {
   // Labs
-  messageObj = {
+  let messageObj = {
     service: 'ewd-vista-pharmacy',
     type: 'getLatestLabs',
     params: { DFN: DFN }
@@ -1193,7 +1270,6 @@ pharmacy.populatePatientPage = function(EWD,DFN) {
     for (let h in res.message.headers) theading += '<th>' + res.message.headers[h] + '</th>';
     theading += '</tr>';
     $thead.html(theading);
-    console.log('foo');
 
     res.message.data.forEach(function(datum) 
     {
@@ -1211,95 +1287,11 @@ pharmacy.populatePatientPage = function(EWD,DFN) {
       $tbody.append(row);
     });
   });
+};
 
-  // Notes
-  messageObj = {
-    service: 'ewd-vista-pharmacy',
-    type: 'getLatestNotes',
-    params: { DFN: DFN }
-  };
-  EWD.send(messageObj, function(res) {
-    let $notes = $('#patientInfoTabContent #notes');
-    let $badge = $('div#patientInfoTablist ul li a[href="#notes"] span.badge');
-    if (!res.message.data.length) {
-      $notes.html('<strong>No notes found</strong>');
-      $badge.html('0');
-      return;
-    }
-
-    $badge.html(res.message.data.length);
-
-    $notes.html('<table class="table"><thead></thead><tbody></tbody></table>');
-    $thead = $notes.find('table thead');
-    $tbody = $notes.find('table tbody');
-
-    let theading = '<tr>';
-    for (let h in res.message.headers) theading += '<th>' + res.message.headers[h] + '</th>';
-    theading += '</tr>';
-    $thead.html(theading);
-
-    res.message.data.forEach(function(datum) 
-    {
-      let row = '<tr id="' + datum[0] + '">';
-      datum.shift();
-      datum.forEach(function(cell, index) {
-        let str;
-        if (res.message.dataTypes[index] === 'date') {
-          str = new Date(cell).toLocaleString();
-        }
-        else str = cell;
-        row += '<td>' + str + '</td>';
-      });
-      row += '</tr>';
-      $tbody.append(row);
-    });
-
-    // Add hover highlighting logic for table
-    $tbody.find('tr').hover(
-      function () {
-        $(this).addClass('table-highlight');
-      },
-      function () {
-        $(this).removeClass('table-highlight');
-      }
-    );
-
-    // Click logic for the table -- load modal window for allergy details
-    $tbody.find('tr').click(function() {
-      // NB: this is the tr that's clicked
-      //     this.id will give us the allergy IEN
-      let noteIEN = this.id;
-
-      let params = {
-        service: 'ewd-vista-pharmacy',
-        type: 'getNoteText',
-        params: { noteIEN: noteIEN }
-      };
-      EWD.send(params, function(res) {
-        let toAppend = '';
-        for (let i = 0 ; i < res.message.length; i++) {
-          toAppend += res.message[i] + '<br />';
-        }
-        $('#modal-window .modal-content .modal-header').html('<h3 class="modal-title">Note Text</h3>');
-        $('#modal-window .modal-content .modal-body').html('<pre></pre>');
-        $('#modal-window .modal-content .modal-footer').html('');
-
-        $('#modal-window .modal-content .modal-body pre').html(toAppend);
-        $('div.modal-dialog').addClass('modal-lg').removeClass('modal-sm');
-        $('#modal-window').modal({
-          backdrop: true,
-          keyboard: true,
-          focus: true,
-          show: true
-        });
-
-        $('#modal-window').modal('show');
-      });
-    });
-  });
-
+pharmacy.displayConsults = function(EWD, DFN) {
   // Consults
-  messageObj = {
+  let messageObj = {
     service: 'ewd-vista-pharmacy',
     type: 'getConsults',
     params: { DFN: DFN }
@@ -1385,27 +1377,29 @@ pharmacy.populatePatientPage = function(EWD,DFN) {
       });
     });
   });
+};
 
-  // Immunizations
-  messageObj = {
+pharmacy.displayNotes = function(EWD, DFN) {
+  // Notes
+  let messageObj = {
     service: 'ewd-vista-pharmacy',
-    type: 'getImmunizations',
-    params: { DFN: DFN },
+    type: 'getLatestNotes',
+    params: { DFN: DFN }
   };
   EWD.send(messageObj, function(res) {
-    let $imm = $('#patientInfoTabContent #immunizations');
-    let $badge = $('div#patientInfoTablist ul li a[href="#immunizations"] span.badge');
+    let $notes = $('#patientInfoTabContent #notes');
+    let $badge = $('div#patientInfoTablist ul li a[href="#notes"] span.badge');
     if (!res.message.data.length) {
-      $imm.html('<strong>No immunizations found</strong>');
+      $notes.html('<strong>No notes found</strong>');
       $badge.html('0');
       return;
     }
 
     $badge.html(res.message.data.length);
 
-    $imm.html('<table class="table"><thead></thead><tbody></tbody></table>');
-    $thead = $imm.find('table thead');
-    $tbody = $imm.find('table tbody');
+    $notes.html('<table class="table"><thead></thead><tbody></tbody></table>');
+    $thead = $notes.find('table thead');
+    $tbody = $notes.find('table tbody');
 
     let theading = '<tr>';
     for (let h in res.message.headers) theading += '<th>' + res.message.headers[h] + '</th>';
@@ -1427,201 +1421,39 @@ pharmacy.populatePatientPage = function(EWD,DFN) {
       row += '</tr>';
       $tbody.append(row);
     });
-  });
 
-  /////////////////////////////
-  // Write logic now         //
-  /////////////////////////////
+    // Add hover highlighting logic for table
+    $tbody.find('tr').hover(
+      function () {
+        $(this).addClass('table-highlight');
+      },
+      function () {
+        $(this).removeClass('table-highlight');
+      }
+    );
 
-  //Allergies/ADR first
-  $('div#patientInfoTablist i#addADR').off().click(function() {
-    let params = {
-      service: 'ewd-vista-pharmacy',
-      name: 'adr.html',
-      targetId: 'modal-window'
-    };
-    EWD.getFragment(params, function() {
-      // Allergies/ADRs
-      let messageObj = {
+    // Click logic for the table -- load modal window for allergy details
+    $tbody.find('tr').click(function() {
+      // NB: this is the tr that's clicked
+      //     this.id will give us the allergy IEN
+      let noteIEN = this.id;
+
+      let params = {
         service: 'ewd-vista-pharmacy',
-        type: 'getPatientAllergies',
-        params: { DFN: DFN }
+        type: 'getNoteText',
+        params: { noteIEN: noteIEN }
       };
-      EWD.send(messageObj, function(res) {
-        let $chkNKA = $('div.modal-dialog div.modal-body input#nka');
-        if (res.message.data) { // Patient already has allergies
-          let $mydiv = $chkNKA.parent(); // get parent div
-          $mydiv.html('<div class="adr-banner"></div>');
-          $banner = $mydiv.find('div.adr-banner');
-          $banner.html('<span>Current Allergies/ADRs:</span>'); // put this instead
-          res.message.data.forEach( function(datum) {
-            let id = datum[0];
-            datum.shift();
-            $banner.append('<span id="' + id + '">' + datum[0] + '</span>');
-          });
+      EWD.send(params, function(res) {
+        let toAppend = '';
+        for (let i = 0 ; i < res.message.length; i++) {
+          toAppend += res.message[i] + '<br />';
         }
+        $('#modal-window .modal-content .modal-header').html('<h3 class="modal-title">Note Text</h3>');
+        $('#modal-window .modal-content .modal-body').html('<pre></pre>');
+        $('#modal-window .modal-content .modal-footer').html('');
 
-        if (res.message.statusCode === 'NKA') {
-          $chkNKA.prop('checked', 'checked');
-          $chkNKA.prop('disabled', 'disabled');
-        }
-
-        EWD.off('vista.adr.update');
-        EWD.on('vista.adr.update', pharmacy.handleChangeADREvent);
-        $chkNKA.change(function() {
-          if ($chkNKA[0].checked) {
-            let messageObj = {
-              service: 'ewd-vista-pharmacy',
-              type: 'markPatientAllergies',
-              params: { 
-                DFN: DFN,
-                isNKA: true
-              }
-            };
-            EWD.send(messageObj, function(res) {
-              if (!res.error) {
-                $('#modal-window').modal('hide');
-                EWD.emit('vista.adr.update', { EWD: EWD, DFN: DFN });
-              }
-            });
-          }
-        });
-
-        let $reactant = $('div.modal-body form input#reactant');
-        let $availableSS = $('div.modal-body form select#availableSS');
-        let $selectedSS = $('div.modal-body form select#selectedSS');
-        let $obsInfoDiv =  $('div.modal-body form div#obsInfo');
-        let $chkObserved = $('div.modal-body form input#chkObserved');
-        let $txtSSSearch = $('div.modal-body form input#txtSSSearch');
-
-        let categories = [];
-        $reactant.autocomplete({
-          source: function (req, resp) {
-            if (req.term.length >= 3) {
-              let messageObj = {
-                service: 'ewd-vista-pharmacy',
-                type: 'searchforAllergens',
-                params: { from: req.term }
-              };
-              EWD.send(messageObj, function(res) {
-                categories = res.message.categories;
-                resp(res.message.allergens);
-              });
-            }
-          },
-          open: function() {
-            // NB: This is necessary b/c the modal z-index is 1050
-            $(this).autocomplete('widget').css('z-index', 1100);
-          }
-        });
-
-        $reactant.autocomplete('instance')._renderItem=function(ul,item){
-          console.log(item);
-          item.value = item.ien;
-          let itemCategory = categories[item.category];
-          item.label = itemCategory + '&nbsp; - &nbsp;' + item.name;
-          return $('<li>')
-            .append(item.label)
-            .appendTo(ul);
-        };
-
-        $chkObserved.change(function() {
-          this.checked ? $obsInfoDiv.show() : $obsInfoDiv.hide();
-        });
-
-        
-
-        let messageObj = {
-          service: 'ewd-vista-pharmacy',
-          type: 'getAllergyDialogData'
-        };
-
-        EWD.send(messageObj, function(res) {
-          let topTenSS = res.message.topTenSS;
-          let allSS    = res.message.allSS;
-          topTenSS.forEach(function(item) {
-            $availableSS[0].options.add(new Option(item.name, item.ien));
-          });
-          $availableSS[0].options.add(new Option('-----------', 0));
-          allSS.forEach(function(item) {
-            $availableSS[0].options.add(new Option(item.name, item.ien));
-          });
-        });
-
-        let loadMoreSymptomsTimedFunction = null;
-        $availableSS.scroll(function() {
-          let selectTag = $(this);
-          let lastOption = selectTag.find('option:last');
-          let s = selectTag.position().top + selectTag.height();
-          let o = lastOption.height() + lastOption.position().top - 20;
-
-          // next 2 lines to prevent us from responding to multiple events
-          // https://stackoverflow.com/questions/12119107/prevent-javascript-function-from-firing-multiple-times
-          // Fire repeated event every 200ms.
-          clearTimeout(loadMoreSymptomsTimedFunction);
-          loadMoreSymptomsTimedFunction = setTimeout(function() {
-            if (o < s) {
-              let messageObj = {
-                service: 'ewd-vista-pharmacy',
-                type: 'getAllergySignsSymptomsContinued',
-                params: { from: lastOption[0].text }
-              };
-              EWD.send(messageObj, function(res) {
-                let allSS = res.message;
-                allSS.forEach(function(item) {
-                  $availableSS[0].options.add(new Option(item.name, item.ien));
-                });
-              });
-            }
-          }, 200);
-        });
-
-        $availableSS.change(function() {
-          let selection = this.item(this.selectedIndex);
-          if (selection.value == 0) return; // don't process the ---- line
-          // Next two lines to prevent adding item twice
-          let found = false;
-          $selectedSS.find('option').each(function() {
-            if (this.value === selection.value) {
-              found = true;
-              return false;
-            }
-          });
-          if (!found) $selectedSS[0].add(new Option(selection.text, selection.value));
-        });
-
-        $selectedSS.change(function() {
-          this.remove(this.selectedIndex);
-        });
-
-
-        $txtSSSearch.on('input', function() {
-          if (this.value === '') return;
-          let messageObj = {
-            service: 'ewd-vista-pharmacy',
-            type: 'getAllergySignsSymptomsContinued',
-            params: { from: this.value.toUpperCase() }
-          };
-          EWD.send(messageObj, function(res) {
-            $availableSS.empty();
-            let allSS = res.message;
-            allSS.forEach(function(item) {
-              $availableSS[0].options.add(new Option(item.name, item.ien));
-            });
-          });
-        });
-
-        let $obsDate = $('div.modal-body form input#obsDate');
-        $obsDate.datepicker();
-
-        let $cancelButton = $('div.modal-footer button#cancel-button');
-        $cancelButton.click(function() {
-          $('#modal-window').modal('hide');
-        });
-
-        $('div.modal-dialog').removeClass('modal-lg')
-          .removeClass('modal-sm');
-
+        $('#modal-window .modal-content .modal-body pre').html(toAppend);
+        $('div.modal-dialog').addClass('modal-lg').removeClass('modal-sm');
         $('#modal-window').modal({
           backdrop: true,
           keyboard: true,
@@ -1640,7 +1472,7 @@ pharmacy.populatePatientADRs = function(EWD, DFN) {
   let messageObj = {
     service: 'ewd-vista-pharmacy',
     type: 'getPatientAllergies',
-    params: { DFN: DFN },
+    params: { DFN: DFN }
   };
 
   EWD.send(messageObj, function(res) {
@@ -1726,8 +1558,312 @@ pharmacy.populatePatientADRs = function(EWD, DFN) {
   });
 };
 
-pharmacy.handleChangeADREvent = function(eventData) {
-  pharmacy.populatePatientADRs(eventData.EWD, eventData.DFN);
+/* Logic that handles adding an allergy */
+pharmacy.wireUpAddAllADRForm = function (EWD, DFN) {
+  // Add an event for allergy updates
+  EWD.off('vista.adr.update');
+  EWD.on('vista.adr.update', function(eventData) {
+    pharmacy.populatePatientADRs(eventData.EWD, eventData.DFN);
+  });
+
+  //Allergies/ADR first
+  $('div#patientInfoTablist i#addADR').off().click(function() {
+    let params = {
+      service: 'ewd-vista-pharmacy',
+      name: 'adr.html',
+      targetId: 'modal-window'
+    };
+    EWD.getFragment(params, function() {
+
+      // Allergies/ADRs
+      let messageObj = {
+        service: 'ewd-vista-pharmacy',
+        type: 'getPatientAllergies',
+        params: { DFN: DFN }
+      };
+      EWD.send(messageObj, function(res) {
+        // This block deals with showing allergies.
+        let $chkNKA = $('div.modal-dialog div.modal-body input#nka');
+        if (res.message.data) { // Patient already has allergies
+          let $mydiv = $chkNKA.parent(); // get parent div
+          $mydiv.html('<div class="adr-banner"></div>');
+          $banner = $mydiv.find('div.adr-banner');
+          $banner.html('<span>Current Allergies/ADRs:</span>'); // put this instead
+          res.message.data.forEach( function(datum) {
+            let id = datum[0];
+            datum.shift();
+            $banner.append('<span id="' + id + '">' + datum[0] + '</span>');
+          });
+        }
+
+        // If NKA, disable mark NKA checkbox
+        if (res.message.statusCode === 'NKA') {
+          $chkNKA.prop('checked', 'checked');
+          $chkNKA.prop('disabled', true);
+        }
+
+        // else (default case), $chkNKA is enabled and can be clicked by the
+        // user
+        $chkNKA.change(function() {
+          if ($chkNKA[0].checked) {
+            let messageObj = {
+              service: 'ewd-vista-pharmacy',
+              type: 'markPatientAllergies',
+              params: { 
+                DFN: DFN,
+                isNKA: true
+              }
+            };
+            EWD.send(messageObj, function(res) {
+              if (!res.error) {
+                $('#modal-window').modal('hide');
+                EWD.emit('vista.adr.update', { EWD: EWD, DFN: DFN });
+              }
+            });
+          }
+        });
+
+        // Reference various inputs
+        let $reactant = $('div.modal-body form input#reactant');
+        let $availableSS = $('div.modal-body form select#availableSS');
+        let $selectedSS = $('div.modal-body form select#selectedSS');
+        let $obsInfoDiv =  $('div.modal-body form div#obsInfo');
+        let $chkObserved = $('div.modal-body form input#chkObserved');
+        let $txtSSSearch = $('div.modal-body form input#txtSSSearch');
+        let $okayButton  = $('div.modal-footer button#ok-button');
+
+        // All of the following is jquery-ui stuff for the reactant field.
+        // http://jqueryui.com/autocomplete/
+        let categories = [];
+        $reactant.autocomplete({
+          open: function() {
+            // NB: This is necessary b/c the modal z-index is 1050
+            // Rest is for paging long selecions.
+            $(this).autocomplete('widget').css('z-index', 1100);
+            $(this).autocomplete('widget').css('max-height', '300px');
+            $(this).autocomplete('widget').css('overflow-y', 'auto');
+            $(this).autocomplete('widget').css('overflow-x', 'hidden');
+          },
+          source: function (req, resp) {
+            if (req.term.length >= 3) {
+              let messageObj = {
+                service: 'ewd-vista-pharmacy',
+                type: 'searchforAllergens',
+                params: { from: req.term }
+              };
+              EWD.send(messageObj, function(res) {
+                let vistaCategories = res.message.categories;
+                categories = pharmacy.reorgVistAAllergenCategories(vistaCategories);
+                resp(res.message.allergens);
+              });
+            }
+          },
+          select: function(e, ui) {
+            console.log(ui);
+            $reactant.val(ui.item.name);
+            $reactant.data('ien', ui.item.ien);
+            $reactant.data('name', ui.item.name);
+            $reactant.data('global', ui.item.global);
+            $reactant.data('type', ui.item.type);
+            $okayButton.prop('disabled', false);
+            return false;
+          }
+        });
+
+        // Custom rendering to show 
+        $reactant.autocomplete('instance')._renderItem=function(ul,item){
+          item.value = item.ien;
+          let itemCategory = categories[item.category];
+          item.label = '<span class="label label-default">' + itemCategory + '</span>' +
+            '<span class="label label-info">' + item.name + '</span>';
+          return $('<li>')
+            .append(item.label)
+            .appendTo(ul);
+        };
+
+        // Observed click shows two extra fields
+        $chkObserved.change(function() {
+          this.checked ? $obsInfoDiv.show() : $obsInfoDiv.hide();
+        });
+
+        // Fill top 10 sign and symptoms and then alpha sign and symptoms
+        let messageObj = {
+          service: 'ewd-vista-pharmacy',
+          type: 'getAllergyDialogData'
+        };
+        EWD.send(messageObj, function(res) {
+          let topTenSS = res.message.topTenSS;
+          let allSS    = res.message.allSS;
+          topTenSS.forEach(function(item) {
+            $availableSS[0].options.add(new Option(item.name, item.ien));
+          });
+          $availableSS[0].options.add(new Option('-----------', 0));
+          allSS.forEach(function(item) {
+            $availableSS[0].options.add(new Option(item.name, item.ien));
+          });
+        });
+
+        // Below logic is for sign and symptoms select box scrolling and
+        // autoloading
+        let loadMoreSymptomsTimedFunction = null;
+        $availableSS.scroll(function() {
+          let selectTag = $(this);
+          let lastOption = selectTag.find('option:last');
+          let s = selectTag.position().top + selectTag.height();
+          let o = lastOption.height() + lastOption.position().top - 20;
+
+          // next 2 lines to prevent us from responding to multiple events
+          // https://stackoverflow.com/questions/12119107/prevent-javascript-function-from-firing-multiple-times
+          // Fire repeated event every 200ms.
+          clearTimeout(loadMoreSymptomsTimedFunction);
+          loadMoreSymptomsTimedFunction = setTimeout(function() {
+            if (o < s) {
+              let messageObj = {
+                service: 'ewd-vista-pharmacy',
+                type: 'getAllergySignsSymptomsContinued',
+                params: { from: lastOption[0].text }
+              };
+              EWD.send(messageObj, function(res) {
+                let allSS = res.message;
+                allSS.forEach(function(item) {
+                  $availableSS[0].options.add(new Option(item.name, item.ien));
+                });
+              });
+            }
+          }, 200);
+        });
+
+        // Logic here is to select an entry when clicked and move it over to
+        // the other listbox
+        // TODO: Not 508 compliant
+        $availableSS.change(function() {
+          let selection = this.item(this.selectedIndex);
+          if (selection.value == 0) return; // don't process the ---- line
+          // Next two lines to prevent adding item twice
+          let found = false;
+          $selectedSS.find('option').each(function() {
+            if (this.value === selection.value) {
+              found = true;
+              return false;
+            }
+          });
+          if (!found) $selectedSS[0].add(new Option(selection.text, selection.value));
+        });
+
+        // ditto here to remove an entry when clicked.
+        // TODO: Not 508 compliant
+        $selectedSS.change(function() {
+          this.remove(this.selectedIndex);
+        });
+
+        // Search for signs and symptoms input handling
+        $txtSSSearch.on('input', function() {
+          if (this.value === '') return;
+          let messageObj = {
+            service: 'ewd-vista-pharmacy',
+            type: 'getAllergySignsSymptomsContinued',
+            params: { from: this.value.toUpperCase() }
+          };
+          EWD.send(messageObj, function(res) {
+            $availableSS.empty();
+            let allSS = res.message;
+            allSS.forEach(function(item) {
+              $availableSS[0].options.add(new Option(item.name, item.ien));
+            });
+          });
+        });
+
+        // Add a date picker to observation date
+        let $obsDate = $('div.modal-body form input#obsDate');
+        $obsDate.datepicker();
+
+        // Cancel button wireup
+        let $cancelButton = $('div.modal-footer button#cancel-button');
+        $cancelButton.click(function() {
+          $('#modal-window').modal('hide');
+        });
+        // Okay button submits
+        $okayButton.click(function() {
+          $('div.modal-body form').submit();
+        });
+
+        // Form submission logic
+        $('div.modal-body form').submit(function(e){
+          e.preventDefault(); // Don't do a GET http request on submit
+          let p = {}; // for parameeters
+          p.DFN = DFN;
+          p.adrIEN = 0;
+
+          p.allergen = {};
+          p.allergen.name         = $reactant.data().name;
+          p.allergen.ien          = $reactant.data().ien;
+          p.allergen.global       = $reactant.data().global;
+          p.allergen.typeInternal = $reactant.data().type;
+
+          // radio button
+          p.reactionTypeInternal =  $('div.modal-body form input[name=reactionType]:checked').val();
+
+          p.ss = [];
+
+          $selectedSS.find('option').each(function() {
+            let one = {};
+            one.ien = this.value;
+            one.name = this.text;
+            p.ss.push(one);
+          });
+
+          p.comments = $('div.modal-body form textarea#comments').val();
+
+          p.observationType = 'historical';
+
+          if ($chkObserved[0].checked) {
+            p.observationType = 'observed';
+            p.fmObsDate = $obsDate.datepicker('getDate').toTimsonDate();
+            p.obsADRSeverity = $('div form input[name=reactionSeverity]:checked').val();
+          }
+
+          let messageObj = {
+            service: 'ewd-vista-pharmacy',
+            type: 'addOrEditADRRecord',
+            params: p 
+          };
+
+          EWD.send(messageObj, function(res) {
+            EWD.emit('vista.adr.update', { EWD: EWD, DFN: DFN });
+            $('#modal-window').modal('hide');
+          });
+
+        });
+
+        // Finally, show modal
+        $('div.modal-dialog').removeClass('modal-lg')
+          .removeClass('modal-sm');
+        $('#modal-window').modal({
+          backdrop: true,
+          keyboard: true,
+          focus: true,
+          show: true
+        });
+        $('#modal-window').modal('show');
+      });
+    });
+  });
+};
+
+// Change the VistA allergen categories into something more user friendly.
+pharmacy.reorgVistAAllergenCategories = function(vistaCategories) {
+  let newCategories = {};
+  Object.keys(vistaCategories).forEach(function(key) {
+    let catDescription = vistaCategories[key];
+    if (catDescription.indexOf('VA Allergies File') > -1) newCategories[key] = 'Allergen';
+    if (catDescription.indexOf('Generic Drug Name') > -1) newCategories[key] = 'Generic';
+    if (catDescription.indexOf('Trade Name') > -1)        newCategories[key] = 'Brand';
+    if (catDescription.indexOf('Local Drug') > -1)        newCategories[key] = 'Local Drug';
+    if (catDescription.indexOf('Drug Ingredients') > -1)  newCategories[key] = 'Ingredient';
+    if (catDescription.indexOf('Drug Class') > -1)        newCategories[key] = 'Class';
+
+  });
+  return newCategories;
 };
 
 /*
