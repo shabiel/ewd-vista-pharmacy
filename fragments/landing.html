@@ -1,6 +1,6 @@
 <div class="container">
   <div id="pharmacy-landing" class="row ">
-    <form id="file-2-find" role="form" novalidate> <div class="vertical-align input-group input-group-lg"> <span class="input-group-addon" style="width: auto"><i class="fa fa-female"></i></span>
+    <form id="file-2-find" role="form" novalidate> <div class="vertical-align input-group input-group-lg"> <span class="input-group-addon" style="width: auto"><i class="fas fa-female"></i></span>
       <input id="patient" class="form-control fileman-autocomplete" type="text" 
         data-fileman-config='{"file": {"number": "2"}, "quantity": 4}'>
       </div>
@@ -17,10 +17,12 @@
 		  <a href="#outpatient-pending-table" aria-controls="outpatient-pending-table" role="tab" data-toggle="tab">
 			  Outpatient
 			  <span class="badge">
-				  <i class="fa fa-spinner fa-spin"></i>
+				  <i class="fas fa-spinner fa-spin"></i>
 				</span>
 				&nbsp;
-				<i id="outpatient-refresh-info" class="fa fa-refresh" aria-hidden="true"></i>
+        <span id="outpatient-refresh-info">
+          <i class="fas fa-sync" aria-hidden="true"></i>
+        </span>
 			</a>
 		</li>
     <li role="presentation" class="dropdown">
@@ -28,10 +30,12 @@
 				Inpatient
 				<span class="caret"></span>
 				<span class="badge">
-				  <i class="fa fa-spinner fa-spin"></i>
+				  <i class="fas fa-spinner fa-spin"></i>
 				</span>
 				&nbsp;
-				<i id="inpatient-refresh-info" class="fa fa-refresh" aria-hidden="true"></i>
+        <span id="inpatient-refresh-info">
+          <i class="fas fa-sync" aria-hidden="true"></i>
+        </span>
 			</a>
       <ul class="dropdown-menu">
         <li><a href="#inpatient-pending-table" aria-controls="inpatient-pending-table" role="tab" data-toggle="tab">UD <span class="badge"></span></a></li>
@@ -54,14 +58,48 @@
       <table class="table">
         <thead>
           <tr>
-            <th id="sortGroups">Clinic Sort Groups&nbsp;<i class="fa fa-caret-up sortable" aria-hidden="true"></i>&nbsp;<i class="fa fa-eye-slash" aria-hidden="true"></i></th>
-            <th>Clinic Name&nbsp;<i class="fa fa-caret-up sortable" aria-hidden="true"></i>&nbsp;<i class="fa fa-eye-slash" aria-hidden="true"></i></th>
-            <th id="institution">Institution&nbsp;<i class="fa fa-caret-up sortable" aria-hidden="true"></i>&nbsp;<i class="fa fa-eye-slash" aria-hidden="true"></i></th>
-            <th>Earliest&nbsp;<i class="fa fa-caret-up sortable" aria-hidden="true"></i>&nbsp;<i class="fa fa-eye-slash" aria-hidden="true"></i></th>
-            <th>Latest&nbsp;<i class="fa fa-caret-up sortable" aria-hidden="true"></i>&nbsp;<i class="fa fa-eye-slash" aria-hidden="true"></i></th>
-            <th>Flagged&nbsp;<i class="fa fa-caret-up sortable" aria-hidden="true"></i>&nbsp;<i class="fa fa-eye-slash" aria-hidden="true"></i></th>
+            <th id="sortGroups">Clinic Sort Groups&nbsp;
+              <span class="sortable">
+                <i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp;
+              </span>
+              <i class="fa fa-eye-slash" aria-hidden="true"></i>
+            </th>
+            <th>Clinic Name&nbsp;
+              <span class="sortable">
+                <i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp;
+              </span>
+              <i class="fa fa-eye-slash" aria-hidden="true"></i>
+            </th>
+            <th id="institution">Institution&nbsp;
+              <span class="sortable">
+                <i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp;
+              </span>
+              <i class="fa fa-eye-slash" aria-hidden="true"></i>
+            </th>
+            <th>Earliest&nbsp;
+              <span class="sortable">
+                <i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp;
+              </span>
+              <i class="fa fa-eye-slash" aria-hidden="true"></i>
+            </th>
+            <th>Latest&nbsp;
+              <span class="sortable">
+                <i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp;
+              </span>
+              <i class="fa fa-eye-slash" aria-hidden="true"></i>
+            </th>
+            <th>Flagged&nbsp;
+              <span class="sortable">
+                <i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp;
+              </span>
+              <i class="fa fa-eye-slash" aria-hidden="true"></i>
+            </th>
             <th>Pickup&nbsp;<i class="fa fa-eye-slash" aria-hidden="true"></i></th>
-            <th>Count&nbsp;<i class="fa fa-caret-up sortable" aria-hidden="true"></i></th>
+            <th>Count&nbsp;
+              <span class="sortable">
+                <i class="fa fa-caret-up" aria-hidden="true"></i>
+              </span>
+            </th>
           </tr>
         </thead>
         <tbody>

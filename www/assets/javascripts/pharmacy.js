@@ -56,12 +56,12 @@ pharmacy.landingPage = function(EWD) {
     pharmacy.getOutpatientPharmacyOrders(EWD);
 
     $('#inpatient-refresh-info').off().on('click', function() {
-      $('#inpatient-refresh-info').addClass('fa-spin');
+      $('#inpatient-refresh-info svg').addClass('fa-spin');
       pharmacy.getInpatientPharmacyOrders(EWD);
     });
 
     $('#outpatient-refresh-info').off().on('click', function() {
-      $('#outpatient-refresh-info').addClass('fa-spin');
+      $('#outpatient-refresh-info svg').addClass('fa-spin');
       pharmacy.getOutpatientPharmacyOrders(EWD);
     });
 
@@ -91,7 +91,7 @@ pharmacy.getInpatientPharmacyOrders = function(EWD) {
   };
   EWD.send(params, function(res) {
     pharmacy.drawInpatientPendingOrders(EWD, res.message);
-    $('#inpatient-refresh-info').removeClass('fa-spin');
+    $('#inpatient-refresh-info svg').removeClass('fa-spin');
   });
 };
 
@@ -103,7 +103,7 @@ pharmacy.getOutpatientPharmacyOrders = function(EWD) {
   };
   EWD.send(params, function(res)  {
     pharmacy.drawOutpatientPendingOrders(EWD, res.message);
-    $('#outpatient-refresh-info').removeClass('fa-spin');
+    $('#outpatient-refresh-info svg').removeClass('fa-spin');
   });
 };
 
@@ -297,7 +297,7 @@ pharmacy.drawOutpatientPatientsTable = function(EWD, drawData) {
 
   // Draw headers into $thead
   drawData.header.forEach(function(eachHeader) {$thead.append('<th>' + 
-        eachHeader + '&nbsp;<i class="fa fa-caret-up sortable" aria-hidden="true"></i></th>');
+        eachHeader + '&nbsp<span class="sortable"><i class="fa fa-caret-up" aria-hidden="true"></i></span></th>');
   }
   );
 
@@ -381,8 +381,8 @@ pharmacy.drawOutpatientPatientsTable = function(EWD, drawData) {
   };
 
   // To show filters
-  $('h4 i.fa-caret-right').off().click(function(){
-    $(this).toggleClass('fa-caret-right fa-caret-down');
+  $('h4 span#fa-caret').off().click(function(){
+    $(this).find('svg').toggleClass('fa-caret-right fa-caret-down');
     $('div#filters').slideToggle();
   });
 
@@ -656,11 +656,11 @@ pharmacy.drawOutpatientPatientsTable = function(EWD, drawData) {
 pharmacy.addTableBehaviors = function(EWD, $table) {
 
   // Add sorting behavior
-  $table.find('i.sortable').click(function() {
-    let dir = $(this).hasClass('fa-caret-down') ? 'forwards' : 'backwards';
+  $table.find('.sortable').click(function() {
+    let dir = $(this).find('svg').hasClass('fa-caret-down') ? 'forwards' : 'backwards';
 
-    if (dir === 'backwards') $(this).removeClass('fa-caret-up').addClass('fa-caret-down');
-    if (dir === 'forwards')  $(this).removeClass('fa-caret-down').addClass('fa-caret-up');
+    if (dir === 'backwards') $(this).find('svg').removeClass('fa-caret-up').addClass('fa-caret-down');
+    if (dir === 'forwards')  $(this).find('svg').removeClass('fa-caret-down').addClass('fa-caret-up');
 
     // Table sorting logic. Takes into account whether to sort lexically or numerically.
     let thisTable = $(this).closest('table');
@@ -683,7 +683,7 @@ pharmacy.addTableBehaviors = function(EWD, $table) {
   });
 
   // Add hiding behavior
-  $table.find('i.fa-eye-slash').click(function() {
+  $table.find('.fa-eye-slash').click(function() {
     let columnIndex = $(this).closest('th').index();
     $table.find('tr > *:nth-child(' + (columnIndex + 1) + ')').hide();
   });
@@ -1567,7 +1567,8 @@ pharmacy.wireUpAddAllADRForm = function (EWD, DFN) {
   });
 
   //Allergies/ADR first
-  $('div#patientInfoTablist i#addADR').off().click(function() {
+  console.log('adr');
+  $('div#patientInfoTablist #addADR').off().click(function() {
     let params = {
       service: 'ewd-vista-pharmacy',
       name: 'adr.html',
