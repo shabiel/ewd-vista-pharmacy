@@ -1,0 +1,1068 @@
+/*
+ * Basic global adjustments: margin, padding, and overflow.
+ */
+body, div, header, nav, footer,
+h1, h2, h3, h4, p, span, a,
+#app ul, #app li,
+label, input, textarea,
+img {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    /*
+     * Panel transitions are cleaner when background and foreground colors
+     * are defined here.
+     * 
+     * Hidden overflow maintains the panel illusion (no scroll bars).
+     */
+    background: #fafafa;
+    color: #333333;
+    overflow: hidden;
+    height: 100%;
+}
+
+
+
+
+a {
+    text-decoration: none;
+    
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+}
+
+a:hover {
+    cursor: pointer;        /* for placeholder anchors */
+    text-decoration: underline;
+}
+
+/*
+ * Enable horizontal panels.
+ */
+.panel {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    
+    -webkit-transition: all 0.8s cubic-bezier(0.3, 0.3, 0.1, 0.99);
+    -webkit-backface-visibility: hidden;        /* avoid odd flicker */
+    -moz-transition: all 0.8s cubic-bezier(0.3, 0.3, 0.1, 0.99);
+    -ms-transition: all 0.8s cubic-bezier(0.3, 0.3, 0.1, 0.99);
+    -o-transition: all 0.8s cubic-bezier(0.3, 0.3, 0.1, 0.99);
+    transition: all 0.8s cubic-bezier(0.3, 0.3, 0.1, 0.99);
+}
+
+.hide-left {
+    -webkit-transform: translateX(-100%);
+    -moz-transform: translateX(-100%);
+    -ms-transform: translateX(-100%);
+    -o-transform: translateX(-100%);
+    transform: translateX(-100%);
+}
+
+.hide-right {
+    -webkit-transform: translateX(100%);
+    -moz-transform: translateX(100%);
+    -ms-transform: translateX(100%);
+    -o-transform: translateX(100%);
+    transform: translateX(100%);
+}
+
+.forward {
+    font-family: "Andale Mono", monospace;
+
+    padding: 0.5em;
+    position: absolute;
+
+    -webkit-transition: all 0.2s;
+    -moz-transition: all 0.2s;
+    -ms-transition: all 0.2s;
+    -o-transition: all 0.2s;
+    transition: all 0.ss;
+    
+    border-left: 0.4em solid #999999;
+    right: 0;
+}
+
+.forward:hover {
+    padding-right: 3em;
+    text-decoration: none;
+}
+
+.top {
+    top: 5%;
+}
+
+.bottom {
+    bottom: 5%;
+}
+
+/*
+ * Intro panel (hides to the left).
+ */
+#intro h1, #intro h2 {
+    margin: 3% 0;
+}
+
+#intro h1 {
+    letter-spacing: 0.25em;
+}
+
+#intro a, #intro h4 {
+    color: #666666;
+}
+
+#ul_config li {
+	height: 2em;
+}
+
+#intro select {
+	height: 2em;
+}
+
+.column {
+    height: 100%;
+
+    position: absolute;
+}
+
+.column.left {
+    padding: 7.5% 5%;
+    width: 30%;
+}
+
+.column.right {
+    padding: 5% 7.5%;
+    width: 45%;
+    right: 0;
+}
+
+.sub-blurb {
+    margin: 15% 0;
+}
+
+.sub-blurb p {
+    text-align: justify;
+    margin: 5% 0;
+}
+
+
+/*
+ * Main panel. Hides to the left or right, depending.
+ */
+.banner {
+    background: #333333;
+    line-height: 250%;
+}
+
+.logo, .nav-item {
+    display: inline;
+}
+
+.logo {
+    font-size: 175%;
+    font-weight: normal;
+    color: #f0f0f0;
+    letter-spacing: 0.25em;
+    
+    margin-left: 5%;
+}
+
+.main-nav {
+    font-size: 90%;
+    float: right;
+    margin-right: 5%;
+}
+
+.nav-link {
+    color: #999999;
+    margin: 0 1em;
+}
+
+.nav-link:hover {
+    color: #f0f0f0;
+}
+
+.active {
+    text-decoration: underline;
+}
+
+.inactive {
+    color: #666666 !important;
+    text-decoration: line-through !important;
+}
+
+
+
+
+#app > .content {
+    position: absolute;
+    margin: 0.75em 5%;
+    height: 70%;                    /* fallback */
+    width: 90%;
+
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+}
+
+.scrolling_content {
+    position: absolute;
+    overflow-x: hidden;
+    height: 70%;                    /* fallback */
+    width: 100%;
+
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+}
+
+.backdrop {
+    border-bottom: 0.3em solid #f3f3f3;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.backdrop th {
+    color: #f0f0f0;
+    font-weight: normal;
+    text-align: left;
+
+    padding: 0.75em 1em 0.5em 1em;
+    width: 20%;
+}
+
+.backdrop th:first-child {
+    border-top-left-radius: 0.2em;
+}
+
+.backdrop th:last-child {
+    border-top-right-radius: 0.2em;
+}
+
+.col-header .name {
+    margin-bottom: 0.4em;
+}
+
+.col-header .action {
+    font-size: 65%;
+}
+
+.col-header .action ul, .col-header .action li {
+    display: inline;
+}
+
+.col-header .action li:first-child::after {
+    opacity: 0.6;
+    content: "|";
+}
+
+.col-header .action li:last-child::before {
+    opacity: 0.6;
+    content: "[";
+}
+
+.col-header .action li:last-child::after {
+    opacity: 0.6;
+    content: "]";
+}
+
+.col-header .action li:last-child {
+    float: right;
+}
+
+.col-header .action a {
+    opacity: 0.6;
+}
+
+.col-header .action a:hover {
+    opacity: 1;
+}
+
+.keep {
+    margin-right: 0.3em;
+}
+
+.reject {
+    margin-left: 0.3em;
+}
+
+.clear {
+    margin: 0 0.5em;
+}
+
+.backdrop tr {
+    -webkit-transition: background 0.8s ease-in-out;
+    -moz-transition: background 0.8s ease-in-out;
+    -ms-transition: background 0.8s ease-in-out;
+    -o-transition: background 0.8s ease-in-out;
+    transition: background 0.8s ease-in-out;
+}
+
+.backdrop td, .item .header, .item .detail, .diagnosis .header {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.backdrop td, .item {
+    width: 18%;
+    height: 2.5em;
+    padding: 0.6em 0.5em 0.4em 0.5em;
+    
+    -webkit-transition: background 0.8s;
+    -moz-transition: background 0.8s;
+    -ms-transition: background 0.8s;
+    -o-transition: background 0.8s;
+    transition: background 0.8s;
+}
+
+
+.diagnosis {
+    width: 18%;
+    height: 1.5em;
+    padding: 0.6em 0.5em 0.4em 0.5em;
+    -webkit-transition: background 0.8s;
+    -moz-transition: background 0.8s;
+    -ms-transition: background 0.8s;
+    -o-transition: background 0.8s;
+    transition: background 0.8s;
+}
+
+
+.item, .diagnosis {
+    position: absolute;
+    
+    -webkit-transition: -webkit-transform 0.2s ease-in-out,
+            opacity 0.2s;
+    -moz-transition: -moz-transform 0.2s ease-in-out,
+            opacity 0.2s;
+    -ms-transition: -ms-transform 0.2s ease-in-out,
+            opacity 0.2s;
+    -o-transition: -o-transform 0.2s ease-in-out,
+            opacity 0.2s;
+    transition: transform 0.2s ease-in-out,
+            opacity 0.2s;
+            
+    z-index: 10;	/* > 1 to be above shadows (ghosts) */
+}
+
+.item:hover, .item-hover, .diagnosis:hover {
+    -webkit-transform: translateX(2%);
+    -moz-transform: translateX(2%);
+    -ms-transform: translateX(2%);
+    -o-transform: translateX(2%);
+    transform: translateX(2%);
+    
+    text-overflow: ellipsis;
+}
+
+.item .header, .diagnosis .header {
+    margin-bottom: 0.15em;
+}
+
+.item .name {
+    font-weight: bold;
+    margin: 0 0.2em;
+    padding: 0 0.2em;
+    
+    -webkit-transition: background 0.4s;    /* match .name .difference */
+    -moz-transition: background 0.4s;
+    -ms-transition: background 0.4s;
+    -o-transition: background 0.4s;
+    transition: background 0.4s;
+}
+
+.diagnosis .name {
+    font-weight: lighter;
+    font-style: italic;
+    margin: 0 0.2em;
+    padding: 0 0.2em;
+    
+    -webkit-transition: background 0.4s;    /* match .name .difference */
+    -moz-transition: background 0.4s;
+    -ms-transition: background 0.4s;
+    -o-transition: background 0.4s;
+    transition: background 0.4s;
+}
+
+.item .detail span {
+    font-size: 80%;
+    margin: 0 0.3em;
+    padding: 0 0.2em;
+}
+
+.shadow {
+    color: #bbbbbb;
+    opacity: 0.6;
+    z-index: 1;	/* > 0 to be above the backdrop */
+}
+
+
+/* TODO ellipsis coloring issues here... */
+.undecided-hover {
+    background: #555555;
+    border-radius: 0.2em;
+    color: #f0f0f0;
+}
+
+.third-col-anchor-hover {
+    background: rgb(223, 243, 235);
+    border-radius: 0.2em;
+    color: #333333;
+}
+
+.diagnosis-hover {
+	background: rgb(21, 99, 77);
+    border-radius: 0.2em;
+    color: #f0f0f0;
+}
+
+.accepted {
+    background: #8fbe00;
+    border-radius: 0.2em;
+    color: #f0f0f0;
+}
+
+.rejected {
+    color: #bbbbbb;
+    text-decoration: line-through;
+}
+
+.modified .name::before {
+    content: "*";
+    margin-right: 0.5em;
+}
+
+
+.difference {
+    -webkit-transition: background 0.4s;
+    -moz-transition: background 0.4s;
+    -ms-transition: background 0.4s;
+    -o-transition: background 0.4s;
+    transition: background 0.4s;
+}
+
+.highlight {
+    color: #333333;
+    background: #f2e4ac;
+    border: 1px solid #f0e0a3;
+    border-radius: 0.2em;
+    
+    -webkit-transition: all 0.4s;
+    -moz-transition: all 0.4s;
+    -ms-transition: all 0.4s;
+    -o-transition: all 0.4s;
+    transition: all 0.4s;
+}
+
+
+.groups .label {
+    color: #333333;
+    font-size: 60%;
+    font-style: italic;
+    position: absolute;
+    
+    opacity: 0;
+    
+    -webkit-transition: all 0.8s;
+    -moz-transition: all 0.8s;
+    -ms-transition: all 0.8s;
+    -o-transition: all 0.8s;
+    transition: all 0.8s;
+}
+
+.diagnoses .diagnosis {
+	position: absolute;
+}
+
+.groups .label.show {
+    opacity: 1;
+}
+
+
+#app > .detail {
+    position: absolute;
+    bottom: 3em;
+    margin: 0 5%;
+    width: 90%;
+}
+
+.label, #app > .detail .content {
+    display: table-cell;
+    margin: 0;
+    padding: 0.75em;
+}
+
+.label {
+    color: #f0f0f0;
+    border-top-left-radius: 0.2em;
+    border-bottom-left-radius: 0.2em;
+}
+
+#app > .detail .content {
+    font-size: 95%;
+    width: 100%;
+
+    border-top-right-radius: 0.2em;
+    border-bottom-right-radius: 0.2em;
+}
+
+#app .annotation {
+    position: absolute;
+    bottom: 1em;
+    left: 5%;
+}
+
+
+.branding {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    
+    margin: 0.5em 5%;
+    width: 20%;
+    
+    text-align: right;
+    display: inline;
+}
+
+.branding ul, .branding li {
+    display: inline;
+}
+
+.branding .logo {
+    height: 1em;
+}
+
+
+.scrolltip {
+    background: #54787d;
+    border-radius: 0.2em;
+    color: #f0f0f0;
+    text-align: right;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    padding: 0.25em;
+    width: 7.5em;
+    
+    position: absolute;
+    right: 5%;
+
+    opacity: 0;
+    
+    -webkit-transform: translateY(50%);
+    -webkit-transition: all 0.2s;
+    -moz-transform: translateY(50%);
+    -moz-transition: all 0.2s;
+    -ms-transform: translateY(50%);
+    -ms-transition: all 0.2s;
+    -o-transform: translateY(50%);
+    -o-transition: all 0.2s;
+    transform: translateY(50%);
+    transition: all 0.2s;
+}
+
+
+#app > .modify {
+    font-size: 90%;
+}
+
+#app > .modify a {
+    position: absolute;
+    right: 0;
+    
+    padding: 0.5em;
+    width: 3%;
+    
+    -webkit-transition: all 0.2s;
+    -moz-transition: all 0.2s;
+    -ms-transition: all 0.2s;
+    -o-transition: all 0.2s;
+    transition: all 0.2s;
+}
+
+#app > .modify a:hover {
+    width: 5%;
+}
+
+#app > .review_button {
+    font-size: 90%;
+}
+
+.disabled_button {
+	color: #BBBBBB;
+}
+
+#app > .review_button a {
+    position: absolute;
+    right: 0;
+    
+    padding: 0.5em;
+    width: 3%;
+    
+    overflow-x: hidden;
+    overflow-y: hidden;
+    white-space: nowrap;
+    
+    -webkit-transition: all 0.2s;
+    -moz-transition: all 0.2s;
+    -ms-transition: all 0.2s;
+    -o-transition: all 0.2s;
+    transition: all 0.2s;
+}
+
+#app > .review_button a:hover {
+    width: 10em;
+}
+
+#app > .cancel_button {
+    font-size: 90%;
+}
+
+#app > .cancel_button a {
+    position: absolute;
+    right: 0;
+    
+    padding: 0.5em;
+    width: 3%;
+    
+    overflow-x: hidden;
+    overflow-y: hidden;
+    white-space: nowrap;
+    
+    -webkit-transition: all 0.2s;
+    -moz-transition: all 0.2s;
+    -ms-transition: all 0.2s;
+    -o-transition: all 0.2s;
+    transition: all 0.2s;
+}
+
+#app > .cancel_button a:hover {
+    width: 5%;
+}
+
+.patient_name {
+	font-size: 80%;
+	/* TODO figure out ellipses */
+}
+
+
+
+.modal {
+    padding: 2em;
+    border: 1px solid #999999;
+    border-bottom-left-radius: 0.5em;
+    border-bottom-right-radius: 0.5em;
+    
+    background: #f8f8f8;
+    background: -webkit-gradient(linear, left top, left bottom, from(#ffffff), to(#f8f8f8));
+    background: -webkit-linear-gradient(top, #ffffff, #f8f8f8);
+    background: -moz-linear-gradient(top, #ffffff, #f8f8f8);
+    background: -ms-linear-gradient(top, #ffffff, #f8f8f8);
+    background: -o-linear-gradient(top, #ffffff, #f8f8f8);
+    
+    color: #333333;
+ 
+    -webkit-transition: all 0.2s;
+    -webkit-backface-visibility: hidden;
+    -moz-transition: all 0.2s;
+    -ms-transition: all 0.2s;
+    -o-transition: all 0.2s;
+    
+    z-index: -100;
+    opacity: 0;
+}
+
+.modal a {
+    font-weight: bold;
+    color: #333333;
+}
+
+.modal a:hover {
+    color: #777777;
+}
+
+.alert-modal {
+    position: absolute;
+    width: 30%;
+    top: 25%;
+    left: 32.5%;
+    border-radius: 0.5em;
+    
+    -webkit-transform: translateY(-100%);
+    -moz-transform: translateY(-100%);
+    -ms-transform: translateY(-100%);
+    -o-transform: translateY(-100%);
+}
+
+.alert-modal a {
+    color: #333333;
+}
+
+.alert-modal strong {
+    color: #dd4b39;
+}
+
+.help-modal {
+    display: block;
+    position: absolute;
+    left: 12.5%;
+    top: 0;
+    width: 70%;
+    height: 80%;
+    overflow: auto;
+	
+	-webkit-transform: translateY(-100%);
+    -moz-transform: translateY(-100%);
+    -ms-transform: translateY(-100%);
+    -o-transform: translateY(-100%);
+}
+
+.modify-modal {
+    display: block;
+    position: absolute;
+    left: 12.5%;
+    top: 0;
+    width: 70%;
+    height: 80%;
+    overflow: auto;
+    
+    -webkit-transform: translateY(-100%);
+    -moz-transform: translateY(-100%);
+    -ms-transform: translateY(-100%);
+    -o-transform: translateY(-100%);
+}
+
+#app .help-modal li {
+    margin-left: 2em;
+}
+
+.show {
+    -webkit-transform: translateY(0);
+    -moz-transform: translateY(0);
+    -ms-transform: translateY(0);
+    -o-transform: translateY(0);
+    
+    z-index: 500;
+    opacity: 1;
+}
+
+.close {
+    margin-top: 1em;
+    width: 5em;
+    float: right;
+}
+
+
+
+.options-panel {
+    background: #333333;
+    color: #999999;
+    font-size: 80%;
+    
+    border-collapse: collapse;
+    
+    position: absolute;
+    right: 0;
+    width: 97%;
+    
+    border-bottom-left-radius: 0.2em;
+    
+    opacity: 0;
+    
+    -webkit-transform: translateY(-200%);
+    -moz-transform: translateY(-200%);
+    -ms-transform: translateY(-200%);
+    -o-transform: translateY(-200%);
+    transform: translateY(-200%);
+}
+
+.options-panel td:nth-child(odd) {
+    padding: 0.25em 0 0.25em 2em;
+}
+
+.options-panel td:nth-child(even) {
+    padding: 0.25em 0 0.25em 0.5em;
+}
+
+.options-panel select, .options-panel input[type="text"] {
+    width: 100%;
+}
+
+.options-panel li {
+    display: inline;
+    padding: 0;
+    margin: 0;
+}
+
+.options-panel a {
+    color: #999999;
+}
+
+.options-panel a:hover {
+    color: #f0f0f0;
+}
+
+
+/*
+ * Review panel (hides to the right).
+ */
+#review h1 {
+    display: inline;
+}
+
+#review table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+#review th {
+    padding: 0.5em 0.4em;
+    text-align: left;
+}
+
+#review .content th {
+    padding: 0.4em;
+}
+
+#review td {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    
+    height: 2.5em;
+    margin: 0;
+    padding: 0.5em 0;
+}
+
+#review .content {
+    position: absolute;
+    margin: 0 0 0 10%;
+}
+
+#review .content {
+    top: 25%;
+    width: 80%;
+}
+
+#review .content {
+    overflow-x: hidden;
+    
+    top: 30%;
+    height: 55%;
+    width: 80%;
+}
+
+#review .item {
+    position: inherit;
+}
+
+#review .annotation {
+    margin-left: 2em;
+}
+
+
+/*
+ * Add / edit panel (hides to the right).
+ */
+#modify, #review {
+    margin: 10% 5%;
+}
+
+#modify h1, #review header {
+    position: absolute;
+    top: 12%;
+    margin: 3% 0;
+}
+
+.fields {
+    margin-top: 10%;
+    position: absolute;
+    right: 5%;
+    width: 31%;
+}
+
+.fields label {
+    float: left;
+    padding: 1%;
+    margin: 2% 1% 2% 0;
+    text-align: right;
+    width: 30%;
+}
+
+.fields input, .fields textarea {
+    border: 0.1em solid #bbbbbb;
+    border-radius: 0.2em;
+    
+    font-size: 90%;
+    font-family: "Andale Mono", monospace;
+    
+    margin: 2% 0 2% 1%;
+    padding: 1%;
+    width: 60%;
+}
+
+.fields textarea {
+    resize: vertical;
+}
+
+.fields ::-webkit-input-placeholder {
+    font-style: italic;
+    opacity: 0.8;
+}
+
+.fields :-moz-placeholder {
+    font-style: italic;
+    opacity: 0.8;
+}
+
+.fields :-ms-input-placeholder {
+    font-style: italic;
+    opacity: 0.8;
+}
+
+.fields :-o-placeholder {
+    font-style: italic;
+    opacity: 0.8;
+}
+
+.preview {
+    background: white;
+    border: 0.1em dashed #bbbbbb;
+    border-radius: 0.2em;
+
+    position: absolute;
+    top: 40%;
+    left: 20%;
+}
+
+#modify .action, #review .action {
+    position: absolute;
+    right: 5%;
+
+    top: 70%;
+    width: 35%;
+}
+
+.save, .response {
+    float: right;
+    padding: 0.5em;
+}
+
+.save {
+    border-left: 0.4em solid #999999;
+    width: 90%;
+    
+    -webkit-transition: all 0.2s;
+    -moz-transition: all 0.2s;
+    -ms-transition: all 0.2s;
+    -o-transition: all 0.2s;
+    transition: all 0.2s;
+}
+
+.save:hover {
+    width: 100%;
+    text-decoration: none;
+}
+
+.response {
+    font-size: 95%;
+    opacity: 0;
+    
+    -webkit-transition: all 0.4s;
+    -moz-transition: all 0.4s;
+    -ms-transition: all 0.4s;
+    -o-transition: all 0.4s;
+    transition: all 0.4s;
+}
+
+.response .back::before {
+    content: "[ ";
+}
+
+.response .back::after {
+    content: " ]";
+}
+
+.watermark {
+    font-size: 300%;
+
+    position: absolute;
+    bottom: 15%;
+    
+    opacity: 0.4;
+    pointer-events: none;
+}
+
+
+/*
+ * Utility: colors, fonts, ...
+ */
+.content-text {
+    font-family: "Lucida Grande", "Lucida Sans", Helvetica, sans-serif;
+}
+
+.explanatory-text {
+    font-family: "Andale Mono", monospace;
+}
+
+.keyword {
+    font-weight: normal;
+}
+
+.link {
+    text-decoration: underline;
+}
+
+.warning {
+    color: #dd4b39;
+}
+
+.annotation {
+    font-size: 80%;
+    font-style: italic;
+    font-weight: normal;
+}
+
+.bg-accent {
+    background: #54787d;
+}
+
+thead {
+	z-index: 999;	/* > 10 to be above items, > 500 to be above .show */
+}
+
+.bg-contrast-light {
+    background: #f0f0f0;
+}
+
+.bg-contrast-dark {
+    background: #e5e5e5;
+}
+
+.show {
+    opacity: 1;
+    -webkit-transform: translate(0, 0);
+    -moz-transform: translate(0, 0);
+    -ms-transform: translate(0, 0);
+    -o-transform: translate(0, 0);
+    transform: translate(0, 0);
+}
+
+/* TODO better place to put this stuff */
+.num_remaining {
+	text-decoration: underline;
+}

@@ -1,0 +1,52 @@
+body {
+    font-family: Georgia, serif;
+    margin: 2% 2%;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-bottom: 3%;
+}
+
+td {
+    padding: 0.25em 0.5em;
+    /*width: 10%;*/
+}
+
+/*
+td:first-child {
+    width: 24%;
+}
+*/
+tr:nth-child(odd) {
+    background: #f5f5f5;
+}
+
+#time {
+	margin: 3%;
+}
+
+#raw_log_header {
+	margin: 3%;
+	font-size: 110%;
+}
+/*
+.keep {
+	font-weight: bold;
+	background: 
+}
+
+.reject {
+	text-decoration: line-through;
+}
+*/
+.keep {
+	font-weight: bold;
+    border-radius: 0.2em;
+}
+
+.reject {
+    color:#777777;
+    text-decoration: line-through;
+}

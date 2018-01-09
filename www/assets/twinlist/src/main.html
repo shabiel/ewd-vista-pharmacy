@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<!-- saved from url=(0064)http://www.cs.umd.edu/hcil/sharp/twinlist/dev/indev/-/index.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        
+        <title>twinlist configuration</title>
+        <!-- <link rel="stylesheet" href="http://www.cs.umd.edu/hcil/sharp/twinlist/dev/indev/-/css/style.css"> -->
+        <link rel="stylesheet" href="./css/style.css">
+        <link rel="stylesheet" href="./css/jquery-ui-1.10.2.custom.css">
+        
+        <script src="./js/jquery-1.7.1.min.js"></script>
+        <script src="./js/jquery.transit.min.js"></script>
+        <script src="./js/jquery-ui-1.10.0.js"></script>
+        <script src="./js/utils.js"></script>
+        <script src="./js/logger.js"></script>
+        
+        <script src="./js/main.js"></script>
+    </head>
+    
+    <body>
+        <div class="panel">
+            <a class="forward top bg-contrast-dark">to the DEMO! &gt;&gt;</a>
+            
+            <div id="intro" class="explanatory-text">
+                <div class="column left bg-contrast-dark">
+                    <h1 class="content-text">twinlist :</h1>
+                    <h2>rethinking medication reconciliation</h2>
+                    
+                    <div class="blurb">
+                        <div class="sub-blurb">
+                            <div>We present a new take on two-list medication reconciliation: a novel interface built on spatial grouping and staged animation.</div>
+                            <p>
+                                The examples here are of
+                                <b class="keyword">hospital discharge
+                                scenarios</b>.
+                            </p>
+                        </div>
+                        
+                        <div class="sub-blurb">
+                            <h4>contact :</h4>
+                            
+                            <ul>
+                                <li>HCIL : plaisant [at] cs.umd.edu</li>
+                            </ul>
+                            <h4>see also :</h4>
+                            
+                            <ul>
+                                <li><a class="link" href="http://www.cs.umd.edu/hcil">
+                                    HCIL
+                                </a></li>
+                                <li><a class="link" href="http://www.cs.umd.edu/hcil/sharp">
+                                    SharpC
+                                </a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                
+                <div class="column right">
+                    <div class="blurb">
+                        <h4>Note: Google Chrome highly recommended</h4>
+                        <div class="sub-blurb">
+                            <h4>to get started :</h4>
+                            
+                            <ul>
+                                <li>
+                                    choose a <b class="keyword">case</b>,
+                                    <b class="keyword">version</b>, and
+                                    <b class="keyword">animation option</b>
+                                </li>
+                                <li>
+                                    click <b class="keyword">"to the DEMO!"</b>
+                                </li>
+                                <li>
+                                    Or, click one of the following quick start configurations:
+                                    <ul>
+                                        <li>
+                                            <a class="link annotation quick_start" href="index.html?case=__DATASET_CONGESTIVE_HEART_FAILURE_1_MODIFIED__&version=__VERSION_BASELINE__" target="_blank">
+                                                CHF1mod - Baseline
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="link annotation quick_start" href="index.html?case=__DATASET_CONGESTIVE_HEART_FAILURE_1_MODIFIED__&version=__VERSION_FULL__&animate=__AUTO_ANIMATE_ON__" target="_blank">
+                                                CHF1mod - Twinlist (animation)
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="link annotation quick_start" href="index.html?case=__DATASET_CONGESTIVE_HEART_FAILURE_1_MODIFIED__&version=__VERSION_FULL__&animate=__AUTO_ANIMATE_END__" target="_blank">
+                                                CHF1mod - Twinlist (jump to end)
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <div class="sub-blurb">
+                            <h4>config : </h4>
+                            <ul id="ul_config">
+                                <li>
+                                    <label for="dataset">case :</label>
+                                    <select name="dataset">
+                                        <option value="__DATASET_APPENDECTOMY__">
+                                            appendectomy
+                                        </option>
+                                        <option value="__DATASET_CONGESTIVE_HEART_FAILURE_1__">
+                                            congestive heart failure 1
+                                        </option>
+                                        <option value="__DATASET_CONGESTIVE_HEART_FAILURE_2__">
+                                            congestive heart failure 2
+                                        </option>
+                                        <option value="__DATASET_PULMONARY_DISEASE_1__">
+                                            pulmonary disease 1
+                                        </option>
+                                        <option value="__DATASET_PULMONARY_DISEASE_2__">
+                                            pulmonary disease 2
+                                        </option>
+                                        <option value="__DATASET_OTHER_SIMPLE__">
+                                            other (simple)
+                                        </option>
+                                        <option value="__DATASET_OTHER_COMPLEX__">
+                                            other (complex)
+                                        </option>
+                                        <option value="__DATASET_OTHER_EXTRA__">
+                                            other (extra)
+                                        </option>
+                                        <option value="__DATASET_PULMONARY_DISEASE_2_CORRECTED__">
+                                            PD2 (correct)
+                                        </option>
+                                        <option value="__DATASET_CONGESTIVE_HEART_FAILURE_1_MODIFIED__">
+                                            CHF1 (modified)
+                                        </option>
+                                    </select>
+                                    
+                                    <a class="link" class="annotation" href="../case-narratives.pdf" target="_blank">
+                                        read narratives
+                                    </a>
+                                </li>
+                                <li>
+                                    <label for="version">version :</label>
+                                    <select name="version">
+                                        <option value="__VERSION_FULL__">
+                                            5 column
+                                        </option>
+                                        <option value="__VERSION_BASELINE__">
+                                            2 column
+                                        </option>
+                                        <option value="__VERSION_LINK_ONLY__">
+                                            2 column (links)
+                                        </option>
+                                        <option value="__VERSION_THREE_COLUMN__">
+                                            3 column (diagnoses)
+                                        </option>
+                                        <option value="__VERSION_3COL_CLASSES__">
+                                            3 column (drug classes)
+                                        </option>
+                                    </select>
+                                </li>
+                                <li>
+                                    <label for="autoAnimate">animate :</label>
+                                    <select name="autoAnimate">
+                                        <option value="__AUTO_ANIMATE_ON__">
+                                            automatically
+                                        </option>
+                                        <option value="__AUTO_ANIMATE_OFF__">
+                                            on "compare lists"
+                                        </option>
+                                        <option value="__AUTO_ANIMATE_END__">
+                                            jump to compact
+                                        </option>
+                                    </select>
+                                </li>
+                                <li>
+                                    <a id="demo_start" class="link quick_start to_demo">TO THE DEMO</a>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <div class="sub-blurb">
+                            <h4>Desktop controls :</h4>
+                            <ul>
+                                <li>
+                                    click on a drug to decide :
+                                    <ul>
+                                        <li>
+                                            left-click once to
+                                            <b class="keyword">keep</b>
+                                        </li>
+                                        <li>
+                                            right-click once to
+                                            <b class="keyword">reject</b>
+                                        </li>
+                                        <li>
+                                            click repeatedly to
+                                            <b class="keyword">undo</b>
+                                        </li>
+                                    </ul>
+                                </li>
+                            </ul>
+                            <h4>Touch-device controls :</h4>
+                            <ul>
+                                <li>
+                                    tap on a drug to highlight and see additional information
+                                    <ul>
+                                        <li>
+                                            left-swipe once to
+                                            <b class="keyword">keep</b>
+                                        </li>
+                                        <li>
+                                            right-swipe once to
+                                            <b class="keyword">reject</b>
+                                        </li>
+                                        <li>
+                                            swipe repeatedly to
+                                            <b class="keyword">undo</b>
+                                        </li>
+                                    </ul>
+                                </li>
+                            </ul>
+                            <h4>Common controls :</h4>
+                            <ul>
+                                <li>
+                                    you can also use <b class="keyword">"keep rest"</b> 
+                                    and <b class="keyword">"reject rest"</b> 
+                                    to decide on multiple items in a column
+                                </li>
+                                <li>
+                                    click
+                                    <b class="keyword">sign off</b> when finished
+                                </li>
+                                <li>
+                                    (additional options also available by clicking "show options")
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <a class="forward top bg-contrast-dark to_demo">to the DEMO! &gt;&gt;</a>
+            </div>
+        </div>
+        
+        
+
+</body></html>

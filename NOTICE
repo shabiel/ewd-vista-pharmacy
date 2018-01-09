@@ -13,3 +13,9 @@ Website: http://www.daterangepicker.com/
 Date range picker uses moment.js.
 Copyright (c) JS Foundation and other contributors
 Licensed under the MIT license. See http://www.opensource.org/licenses/mit-license.php
+
+Code for Medication Reconciliation/Med Review is from Twinlist.
+Licensed under the MIT license. See http://www.opensource.org/licenses/mit-license.php
+Copyright (c) 2011 Human-Computer Interaction Lab, University of Maryland,                                                                              
+Tiffany Chao, Catherine Plaisant and Ben Shneiderman 
+http://www.cs.umd.edu/hcil/sharp
