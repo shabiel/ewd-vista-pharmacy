@@ -444,6 +444,14 @@ div.modal-body div#filters {
   border: solid 1px #ccc;
   margin-bottom: 0px;
 }
+
+#medicationList div h4 span#reconcile
+{
+  float: right;
+  cursor: pointer;
+  padding: 0 3px 0 0;
+}
+
 #medicationList div ul
 {
   list-style-type: none;

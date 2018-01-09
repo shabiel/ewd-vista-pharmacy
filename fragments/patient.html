@@ -267,19 +267,37 @@
     </div>
     <div class="container-fluid" id="medicationList">
       <div class="col-sm-3" id="inpatient">
-        <h4>Inpatient</h4>
+        <h4>Inpatient
+          <span id="reconcile">
+            <i class="fas fa-circle-notch" title="reconcile"></i>
+          </span>
+        </h4>
         <ul></ul>
       </div>
       <div class="col-sm-3" id="outpatient">
-        <h4>Outpatient</h4>
+        <h4>Outpatient
+          <span id="reconcile">
+            <i class="fas fa-circle-notch" title="reconcile"></i>
+          </span>
+        </h4>
         <ul></ul>
       </div>
       <div class="col-sm-3" id="outside">
-        <h4>Outside Medications</h4>
+        <!-- Extra span here b/c we have to replace Outside Meds with 
+          Non-VA meds, sometimes! -->
+        <h4><span>Outside Medications</span>
+          <span id="reconcile">
+            <i class="fas fa-circle-notch" title="reconcile"></i>
+          </span>
+        </h4>
         <ul></ul>
       </div>
       <div class="col-sm-3" id="clinic">
-        <h4>Clinic Medications</h4>
+        <h4>Clinic Medications
+          <span id="reconcile">
+            <i class="fas fa-circle-notch" title="reconcile"></i>
+          </span>
+        </h4>
         <ul></ul>
       </div>
     </div>

@@ -800,6 +800,11 @@ pharmacy.populatePatientPage = function(EWD,DFN) {
   /////////////////////////////
 
   pharmacy.wireUpAddAllADRForm(EWD, DFN);
+
+  ////////////////////////////
+  // Med Review buttons     //
+  ////////////////////////////
+  pharmacy.medReconReview(EWD, DFN);
 };
 
 pharmacy.displayPatientDemographics = function(EWD, DFN) {
@@ -1021,7 +1026,7 @@ pharmacy.displayPatientDemographics = function(EWD, DFN) {
     EWD.send(messageObj, function(res) {
       if (res.message) {// Yes, this is a VA system
         // Change outside meds to Non-VA Meds
-        $('div#medicationList div#outside h4').html('Non-VA Meds');
+        $('div#medicationList div#outside h4 span:eq(0)').text('Non-VA');
 
         // Get VA Data
         messageObj = {
@@ -1567,7 +1572,6 @@ pharmacy.wireUpAddAllADRForm = function (EWD, DFN) {
   });
 
   //Allergies/ADR first
-  console.log('adr');
   $('div#patientInfoTablist #addADR').off().click(function() {
     let params = {
       service: 'ewd-vista-pharmacy',
@@ -1865,6 +1869,23 @@ pharmacy.reorgVistAAllergenCategories = function(vistaCategories) {
 
   });
   return newCategories;
+};
+
+pharmacy.medReconReview = function(EWD, DFN) {
+  $('#medicationList div h4 span#reconcile').click(function() {
+    $('#modal-window .modal-content .modal-header').html('<h3 class="modal-title">Medication Review</h3>');
+    $('#modal-window .modal-content .modal-body').html('<pre></pre>');
+    $('#modal-window .modal-content .modal-footer').html('');
+    $('div.modal-dialog').addClass('modal-lg').removeClass('modal-sm');
+    $('#modal-window').modal({
+      backdrop: true,
+      keyboard: true,
+      focus: true,
+      show: true
+    });
+
+    $('#modal-window').modal('show');
+  });
 };
 
 /*
