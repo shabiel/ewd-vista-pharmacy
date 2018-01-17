@@ -15,11 +15,8 @@
     height: 100%;
 }
 
-
-
-
 /*
-a {
+#twinlist a {
     text-decoration: none;
     
     -webkit-user-select: none;
@@ -28,10 +25,8 @@ a {
     -o-user-select: none;
     user-select: none;
 }
-*/
 
-/*
-a:hover {
+#twinlist a:hover {
     cursor: pointer;
     text-decoration: underline;
 }
@@ -187,6 +182,7 @@ a:hover {
 
 .nav-link:hover {
     color: #f0f0f0;
+    cursor: pointer;
 }
 
 .active {
@@ -539,6 +535,9 @@ a:hover {
     
     text-align: right;
     display: inline;
+    background-color: white;
+
+    overflow-x: hidden;
 }
 
 .branding ul, .branding li {
@@ -690,6 +689,7 @@ a:hover {
     opacity: 0;
 }
 
+/*
 .modal a {
     font-weight: bold;
     color: #333333;
@@ -698,6 +698,7 @@ a:hover {
 .modal a:hover {
     color: #777777;
 }
+*/
 
 .alert-modal {
     position: absolute;
@@ -1070,4 +1071,3 @@ thead {
 /* TODO better place to put this stuff */
 .num_remaining {
 	text-decoration: underline;
-}

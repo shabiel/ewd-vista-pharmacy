@@ -1376,10 +1376,13 @@ var controller = function(controller, jQuery) {
         var brandingHeight = $(".branding").outerHeight(true);
         var footerHeight = detailHeight + brandingHeight;
         var tabHeight = $(".add").outerHeight(true);
+        var modalOffsetHeight = parseFloat($('#modal-dialog').css('margin-bottom'));
+        var appHeight = $(window).height() - headerHeight - optionsPanelHeight - footerHeight - contentMarginTop - contentMarginBottom - modalOffsetHeight;
+        var scrollingHeight = appHeight - contentHeader;
 
         $("#app > .content").css("bottom", footerHeight);
-        $("#app > .content").height($(window).height() - headerHeight - optionsPanelHeight - footerHeight - contentMarginTop - contentMarginBottom);
-        $(".scrolling_content").height($(window).height() - headerHeight - optionsPanelHeight - footerHeight - contentMarginTop - contentMarginBottom - contentHeader);
+        $("#app > .content").height(appHeight);
+        $(".scrolling_content").height(scrollingHeight);
 
         $(".add").css("top", headerHeight + contentMarginTop + topOffset() + optionsPanelHeight + tabHeight * 0.5);
         $(".edit").css("top", headerHeight + contentMarginTop + topOffset() + optionsPanelHeight + tabHeight * 1.75);
