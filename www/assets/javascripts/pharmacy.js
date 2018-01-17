@@ -1873,10 +1873,6 @@ pharmacy.reorgVistAAllergenCategories = function(vistaCategories) {
 
 pharmacy.medReconReview = function(EWD, DFN) {
   $('#medicationList div h4 span#reconcile').click(function() {
-    $('#modal-window .modal-content .modal-header').html('<h3 class="modal-title">Medication Review</h3>');
-    $('#modal-window .modal-content .modal-body').html('<pre></pre>');
-    $('#modal-window .modal-content .modal-footer').html('');
-    $('div.modal-dialog').addClass('modal-lg').removeClass('modal-sm');
     $('#modal-window').modal({
       backdrop: true,
       keyboard: true,
@@ -1884,7 +1880,14 @@ pharmacy.medReconReview = function(EWD, DFN) {
       show: true
     });
 
-    $('#modal-window').modal('show');
+    let params = {
+      service: 'ewd-vista-pharmacy',
+      name: 'med-recon.html',
+      targetId: 'modal-window'
+    };
+    EWD.getFragment(params, function() {
+      $('#modal-window').modal('show');
+    });
   });
 };
 
