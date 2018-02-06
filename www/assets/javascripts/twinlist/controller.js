@@ -89,6 +89,7 @@ var controller = function(controller, jQuery) {
     visible.init = function(dontRedraw, interfaceVersion, animate) {
                 
         // TODO might need string translation?
+        console.log("init");
         version = interfaceVersion;
         autoAnimate = animate;
     
@@ -342,7 +343,7 @@ var controller = function(controller, jQuery) {
         // clear
         // OSE/SMH: This is a problem. Unbinds everything. Wonder if can disable
         // that?
-        $("*").not(".backdrop *").off();
+        //$("*").not(".backdrop *").off();
 
         // item action
         $("#app .item").mousedown(mousedownHandler).mouseover(mouseoverHandler).mouseout(mouseoutHandler).bind("contextmenu", function() {
@@ -724,9 +725,8 @@ var controller = function(controller, jQuery) {
         });
 
         // hidden controls (shortcuts)
-        // OSE/SMH - Another problem
-        $(window).unbind("keydown")// for some reason, multiple keydowns firing, remove previous ones
-        .keydown(function(event) {
+        $(window).off('keydown.twinlist')
+        $(window).on('keydown.twinlist', function(event) {
 
             if (!$("input[name='filterOn']").is(':focus') &&
                 !$("input[name='name']").is(':focus') &&
@@ -827,17 +827,16 @@ var controller = function(controller, jQuery) {
 
         // count scrolls
         var lastScrollTop = 0;
-        $(".scrolling_content").unbind("scroll").bind('scroll', function() {
-
-            var st = $(this).scrollTop();
-            if (st > lastScrollTop) {
-                // downscroll code
-                logger.log(logger.EVENT_SCROLLED, "down");
-            } else {
-                // upscroll code
-                logger.log(logger.EVENT_SCROLLED, "up");
-            }
-            lastScrollTop = st;
+        $(".scrolling_content").off("scroll").on('scroll', function() {
+          var st = $(this).scrollTop();
+          if (st > lastScrollTop) {
+            // downscroll code
+            logger.log(logger.EVENT_SCROLLED, "down");
+          } else {
+            // upscroll code
+            logger.log(logger.EVENT_SCROLLED, "up");
+          }
+          lastScrollTop = st;
         });
 
         // resize with window
