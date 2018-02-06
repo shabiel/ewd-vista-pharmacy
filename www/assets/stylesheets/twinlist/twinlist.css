@@ -15,132 +15,111 @@
     height: 100%;
 }
 
-/*
 #twinlist a {
+    font-weight: bold;
+    color: #333333;
     text-decoration: none;
-    
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    -o-user-select: none;
     user-select: none;
 }
 
 #twinlist a:hover {
     cursor: pointer;
     text-decoration: underline;
+    color: #777777;
 }
-*/
 
 
 /*
  * Enable horizontal panels.
  */
-.twinlist-panel {
+#twinlist #panel {
     /*
     position: absolute;
     width: 100%;
     height: 100%;
     */
     
-    -webkit-transition: all 0.8s cubic-bezier(0.3, 0.3, 0.1, 0.99);
-    -webkit-backface-visibility: hidden;        /* avoid odd flicker */
-    -moz-transition: all 0.8s cubic-bezier(0.3, 0.3, 0.1, 0.99);
-    -ms-transition: all 0.8s cubic-bezier(0.3, 0.3, 0.1, 0.99);
-    -o-transition: all 0.8s cubic-bezier(0.3, 0.3, 0.1, 0.99);
     transition: all 0.8s cubic-bezier(0.3, 0.3, 0.1, 0.99);
 }
 
-.hide-left {
-    -webkit-transform: translateX(-100%);
-    -moz-transform: translateX(-100%);
-    -ms-transform: translateX(-100%);
-    -o-transform: translateX(-100%);
+#twinlist .hide-left {
     transform: translateX(-100%);
 }
 
-.hide-right {
-    -webkit-transform: translateX(100%);
-    -moz-transform: translateX(100%);
-    -ms-transform: translateX(100%);
-    -o-transform: translateX(100%);
+#twinlist .hide-right {
     transform: translateX(100%);
 }
 
-.forward {
+#twinlist .forward {
     font-family: "Andale Mono", monospace;
 
     padding: 0.5em;
     position: absolute;
 
-    -webkit-transition: all 0.2s;
-    -moz-transition: all 0.2s;
-    -ms-transition: all 0.2s;
-    -o-transition: all 0.2s;
     transition: all 0.ss;
     
     border-left: 0.4em solid #999999;
     right: 0;
 }
 
-.forward:hover {
+#twinlist .forward:hover {
     padding-right: 3em;
     text-decoration: none;
 }
 
-.top {
+#twinlist .top {
     top: 5%;
 }
 
-.bottom {
+#twinlist .bottom {
     bottom: 5%;
 }
 
 /*
  * Intro panel (hides to the left).
  */
-#intro h1, #intro h2 {
+#twinlist #intro h1, #twinlist #intro h2 {
     margin: 3% 0;
 }
 
-#intro h1 {
+#twinlist #intro h1 {
     letter-spacing: 0.25em;
 }
 
-#intro a, #intro h4 {
+#twinlist #intro a, #twinlist #intro h4 {
     color: #666666;
 }
 
-#ul_config li {
+#twinlist #ul_config li {
 	height: 2em;
 }
 
-#intro select {
+#twinlist #intro select {
 	height: 2em;
 }
 
-.column {
+#twinlist .column {
     height: 100%;
 
     position: absolute;
 }
 
-.column.left {
+#twinlist .column.left {
     padding: 7.5% 5%;
     width: 30%;
 }
 
-.column.right {
+#twinlist .column.right {
     padding: 5% 7.5%;
     width: 45%;
     right: 0;
 }
 
-.sub-blurb {
+#twinlist .sub-blurb {
     margin: 15% 0;
 }
 
-.sub-blurb p {
+#twinlist .sub-blurb p {
     text-align: justify;
     margin: 5% 0;
 }
@@ -149,18 +128,18 @@
 /*
  * Main panel. Hides to the left or right, depending.
  */
-.banner {
+#twinlist .banner {
     background: #333333;
     line-height: 250%;
     margin: 0;
     padding: 0;
 }
 
-.logo, .nav-item {
+#twinlist .logo, .nav-item {
     display: inline;
 }
 
-.logo {
+#twinlist .logo {
     font-size: 175%;
     font-weight: normal;
     color: #f0f0f0;
@@ -169,27 +148,27 @@
     margin-left: 5%;
 }
 
-.main-nav {
+#twinlist .main-nav {
     font-size: 90%;
     float: right;
     margin-right: 5%;
 }
 
-.nav-link {
+#twinlist .nav-link {
     color: #999999;
     margin: 0 1em;
 }
 
-.nav-link:hover {
+#twinlist .nav-link:hover {
     color: #f0f0f0;
     cursor: pointer;
 }
 
-.active {
+#twinlist #app .active {
     text-decoration: underline;
 }
 
-.inactive {
+#twinlist #app .inactive {
     color: #666666 !important;
     text-decoration: line-through !important;
 }
@@ -197,7 +176,7 @@
 
 
 
-#app > .content {
+#twinlist #app > .content {
     /*
     position: absolute;
     */
@@ -205,35 +184,25 @@
     height: 70%;                    /* fallback */
     width: 90%;
 
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    -o-user-select: none;
     user-select: none;
 }
 
-.scrolling_content {
-    /*
+#twinlist .scrolling_content {
     position: absolute;
-    */
     overflow-x: hidden;
     height: 70%;                    /* fallback */
-    width: 100%;
-
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    -o-user-select: none;
+    width: 90%;
+    
     user-select: none;
 }
 
-.backdrop {
+#twinlist .backdrop {
     border-bottom: 0.3em solid #f3f3f3;
     border-collapse: collapse;
     width: 100%;
 }
 
-.backdrop th {
+#twinlist .backdrop th {
     color: #f0f0f0;
     font-weight: normal;
     text-align: left;
@@ -242,167 +211,138 @@
     width: 20%;
 }
 
-.backdrop th:first-child {
+#twinlist .backdrop th:first-child {
     border-top-left-radius: 0.2em;
 }
 
-.backdrop th:last-child {
+#twinlist .backdrop th:last-child {
     border-top-right-radius: 0.2em;
 }
 
-.col-header .name {
+#twinlist .col-header .name {
     margin-bottom: 0.4em;
 }
 
-.col-header .action {
-    font-size: 65%;
+#twinlist .col-header .action {
+    font-size: 75%;
 }
 
-.col-header .action ul, .col-header .action li {
+#twinlist .col-header .action ul, .col-header .action li {
     display: inline;
+    padding: 0;
 }
 
-.col-header .action li:first-child::after {
+#twinlist .col-header .action li:first-child::after {
     opacity: 0.6;
     content: "|";
 }
 
-.col-header .action li:last-child::before {
+#twinlist .col-header .action li:last-child::before {
     opacity: 0.6;
     content: "[";
 }
 
-.col-header .action li:last-child::after {
+#twinlist .col-header .action li:last-child::after {
     opacity: 0.6;
     content: "]";
 }
 
-.col-header .action li:last-child {
+#twinlist .col-header .action li:last-child {
     float: right;
 }
 
-.col-header .action a {
+#twinlist .col-header .action a {
     opacity: 0.6;
+    color: #f0f0f0;
 }
 
-.col-header .action a:hover {
+#twinlist .col-header .action a:hover {
     opacity: 1;
+    color: #f0f0f0;
 }
 
-.keep {
+#twinlist .keep {
     margin-right: 0.3em;
 }
 
-.reject {
+#twinlist .reject {
     margin-left: 0.3em;
 }
 
-.clear {
+#twinlist .clear {
     margin: 0 0.5em;
 }
 
-.backdrop tr {
-    -webkit-transition: background 0.8s ease-in-out;
-    -moz-transition: background 0.8s ease-in-out;
-    -ms-transition: background 0.8s ease-in-out;
-    -o-transition: background 0.8s ease-in-out;
+#twinlist .backdrop tr {
     transition: background 0.8s ease-in-out;
 }
 
-.backdrop td, .item .header, .item .detail, .diagnosis .header {
+#twinlist .backdrop td, .item .header, .item .detail, .diagnosis .header {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
-.backdrop td, .item {
+#twinlist .backdrop td, .item {
     width: 18%;
-    height: 2.5em;
+    height: 4.0em;
     padding: 0.6em 0.5em 0.4em 0.5em;
     
-    -webkit-transition: background 0.8s;
-    -moz-transition: background 0.8s;
-    -ms-transition: background 0.8s;
-    -o-transition: background 0.8s;
     transition: background 0.8s;
 }
 
 
-.diagnosis {
+#twinlist .diagnosis {
     width: 18%;
     height: 1.5em;
     padding: 0.6em 0.5em 0.4em 0.5em;
-    -webkit-transition: background 0.8s;
-    -moz-transition: background 0.8s;
-    -ms-transition: background 0.8s;
-    -o-transition: background 0.8s;
     transition: background 0.8s;
 }
 
 
-.item, .diagnosis {
+#twinlist .item, #twinlist .diagnosis {
     position: absolute;
     
-    -webkit-transition: -webkit-transform 0.2s ease-in-out,
-            opacity 0.2s;
-    -moz-transition: -moz-transform 0.2s ease-in-out,
-            opacity 0.2s;
-    -ms-transition: -ms-transform 0.2s ease-in-out,
-            opacity 0.2s;
-    -o-transition: -o-transform 0.2s ease-in-out,
-            opacity 0.2s;
     transition: transform 0.2s ease-in-out,
             opacity 0.2s;
             
     z-index: 10;	/* > 1 to be above shadows (ghosts) */
 }
 
-.item:hover, .item-hover, .diagnosis:hover {
-    -webkit-transform: translateX(2%);
-    -moz-transform: translateX(2%);
-    -ms-transform: translateX(2%);
-    -o-transform: translateX(2%);
+#twinlist .item:hover,#twinlist .item-hover,#twinlist .diagnosis:hover {
     transform: translateX(2%);
     
     text-overflow: ellipsis;
 }
 
-.item .header, .diagnosis .header {
+#twinlist .item .header, #twinlist .diagnosis .header {
     margin-bottom: 0.15em;
 }
 
-.item .name {
+#twinlist .item .name {
     font-weight: bold;
     margin: 0 0.2em;
     padding: 0 0.2em;
     
-    -webkit-transition: background 0.4s;    /* match .name .difference */
-    -moz-transition: background 0.4s;
-    -ms-transition: background 0.4s;
-    -o-transition: background 0.4s;
     transition: background 0.4s;
 }
 
-.diagnosis .name {
+#twinlist .diagnosis .name {
     font-weight: lighter;
     font-style: italic;
     margin: 0 0.2em;
     padding: 0 0.2em;
     
-    -webkit-transition: background 0.4s;    /* match .name .difference */
-    -moz-transition: background 0.4s;
-    -ms-transition: background 0.4s;
-    -o-transition: background 0.4s;
     transition: background 0.4s;
 }
 
-.item .detail span {
+#twinlist .item .detail span {
     font-size: 80%;
     margin: 0 0.3em;
     padding: 0 0.2em;
 }
 
-.shadow {
+#twinlist .shadow {
     color: #bbbbbb;
     opacity: 0.6;
     z-index: 1;	/* > 0 to be above the backdrop */
@@ -410,64 +350,56 @@
 
 
 /* TODO ellipsis coloring issues here... */
-.undecided-hover {
+#twinlist .undecided-hover {
     background: #555555;
     border-radius: 0.2em;
     color: #f0f0f0;
 }
 
-.third-col-anchor-hover {
+#twinlist .third-col-anchor-hover {
     background: rgb(223, 243, 235);
     border-radius: 0.2em;
     color: #333333;
 }
 
-.diagnosis-hover {
+#twinlist .diagnosis-hover {
 	background: rgb(21, 99, 77);
     border-radius: 0.2em;
     color: #f0f0f0;
 }
 
-.accepted {
+#twinlist .accepted {
     background: #8fbe00;
     border-radius: 0.2em;
     color: #f0f0f0;
 }
 
-.rejected {
+#twinlist .rejected {
     color: #bbbbbb;
     text-decoration: line-through;
 }
 
-.modified .name::before {
+#twinlist .modified .name::before {
     content: "*";
     margin-right: 0.5em;
 }
 
 
-.difference {
-    -webkit-transition: background 0.4s;
-    -moz-transition: background 0.4s;
-    -ms-transition: background 0.4s;
-    -o-transition: background 0.4s;
+#twinlist .difference {
     transition: background 0.4s;
 }
 
-.highlight {
+#twinlist .highlight {
     color: #333333;
     background: #f2e4ac;
     border: 1px solid #f0e0a3;
     border-radius: 0.2em;
     
-    -webkit-transition: all 0.4s;
-    -moz-transition: all 0.4s;
-    -ms-transition: all 0.4s;
-    -o-transition: all 0.4s;
     transition: all 0.4s;
 }
 
 
-.groups .label {
+#twinlist .groups .label {
     color: #333333;
     font-size: 60%;
     font-style: italic;
@@ -475,42 +407,38 @@
     
     opacity: 0;
     
-    -webkit-transition: all 0.8s;
-    -moz-transition: all 0.8s;
-    -ms-transition: all 0.8s;
-    -o-transition: all 0.8s;
     transition: all 0.8s;
 }
 
-.diagnoses .diagnosis {
+#twinlist .diagnoses .diagnosis {
 	position: absolute;
 }
 
-.groups .label.show {
+#twinlist .groups .label.show {
     opacity: 1;
 }
 
 
-#app > .detail {
+#twinlist #app > .detail {
     position: absolute;
     bottom: 3em;
     margin: 0 5%;
     width: 90%;
 }
 
-.label, #app > .detail .content {
+#twinlist .label, #twinlist #app > .detail .content {
     display: table-cell;
     margin: 0;
     padding: 0.75em;
 }
 
-.label {
+#twinlist .label {
     color: #f0f0f0;
     border-top-left-radius: 0.2em;
     border-bottom-left-radius: 0.2em;
 }
 
-#app > .detail .content {
+#twinlist #app > .detail .content {
     font-size: 95%;
     width: 100%;
 
@@ -518,14 +446,14 @@
     border-bottom-right-radius: 0.2em;
 }
 
-#app .annotation {
+#twinlist #app .annotation {
     position: absolute;
     bottom: 1em;
     left: 5%;
 }
 
 
-.branding {
+#twinlist .branding {
     position: absolute;
     bottom: 0;
     right: 0;
@@ -540,16 +468,16 @@
     overflow-x: hidden;
 }
 
-.branding ul, .branding li {
+#twinlist .branding ul, #twinlist .branding li {
     display: inline;
 }
 
-.branding .logo {
+#twinlist .branding .logo {
     height: 1em;
 }
 
 
-.scrolltip {
+#twinlist .scrolltip {
     background: #54787d;
     border-radius: 0.2em;
     color: #f0f0f0;
@@ -566,50 +494,38 @@
 
     opacity: 0;
     
-    -webkit-transform: translateY(50%);
-    -webkit-transition: all 0.2s;
-    -moz-transform: translateY(50%);
-    -moz-transition: all 0.2s;
-    -ms-transform: translateY(50%);
-    -ms-transition: all 0.2s;
-    -o-transform: translateY(50%);
-    -o-transition: all 0.2s;
     transform: translateY(50%);
     transition: all 0.2s;
 }
 
 
-#app > .modify {
+#twinlist #app > .modify {
     font-size: 90%;
 }
 
-#app > .modify a {
+#twinlist #app > .modify a {
     position: absolute;
     right: 0;
     
     padding: 0.5em;
     width: 3%;
     
-    -webkit-transition: all 0.2s;
-    -moz-transition: all 0.2s;
-    -ms-transition: all 0.2s;
-    -o-transition: all 0.2s;
     transition: all 0.2s;
 }
 
-#app > .modify a:hover {
+#twinlist #app > .modify a:hover {
     width: 5%;
 }
 
-#app > .review_button {
+#twinlist #app > .review_button {
     font-size: 90%;
 }
 
-.disabled_button {
+#twinlist .disabled_button {
 	color: #BBBBBB;
 }
 
-#app > .review_button a {
+#twinlist #app > .review_button a {
     position: absolute;
     right: 0;
     
@@ -620,22 +536,18 @@
     overflow-y: hidden;
     white-space: nowrap;
     
-    -webkit-transition: all 0.2s;
-    -moz-transition: all 0.2s;
-    -ms-transition: all 0.2s;
-    -o-transition: all 0.2s;
     transition: all 0.2s;
 }
 
-#app > .review_button a:hover {
+#twinlist #app > .review_button a:hover {
     width: 10em;
 }
 
-#app > .cancel_button {
+#twinlist #app > .cancel_button {
     font-size: 90%;
 }
 
-#app > .cancel_button a {
+#twinlist #app > .cancel_button a {
     position: absolute;
     right: 0;
     
@@ -646,82 +558,60 @@
     overflow-y: hidden;
     white-space: nowrap;
     
-    -webkit-transition: all 0.2s;
-    -moz-transition: all 0.2s;
-    -ms-transition: all 0.2s;
-    -o-transition: all 0.2s;
     transition: all 0.2s;
 }
 
-#app > .cancel_button a:hover {
+#twinlist #app > .cancel_button a:hover {
     width: 5%;
 }
 
-.patient_name {
+#twinlist .patient_name {
 	font-size: 80%;
 	/* TODO figure out ellipses */
 }
 
 
 
-.twinlist-modal {
+#twinlist .twinlist-modal {
     padding: 2em;
     border: 1px solid #999999;
     border-bottom-left-radius: 0.5em;
     border-bottom-right-radius: 0.5em;
     
     background: #f8f8f8;
-    background: -webkit-gradient(linear, left top, left bottom, from(#ffffff), to(#f8f8f8));
-    background: -webkit-linear-gradient(top, #ffffff, #f8f8f8);
-    background: -moz-linear-gradient(top, #ffffff, #f8f8f8);
-    background: -ms-linear-gradient(top, #ffffff, #f8f8f8);
-    background: -o-linear-gradient(top, #ffffff, #f8f8f8);
+    background: gradient(linear, left top, left bottom, from(#ffffff), to(#f8f8f8));
+    background: linear-gradient(top, #ffffff, #f8f8f8);
     
     color: #333333;
  
-    -webkit-transition: all 0.2s;
-    -webkit-backface-visibility: hidden;
-    -moz-transition: all 0.2s;
-    -ms-transition: all 0.2s;
-    -o-transition: all 0.2s;
+    transition: all 0.2s;
+    backface-visibility: hidden;
+    transition: all 0.2s;
     
     z-index: -100;
     opacity: 0;
 }
 
-/*
-.modal a {
-    font-weight: bold;
-    color: #333333;
-}
 
-.modal a:hover {
-    color: #777777;
-}
-*/
-
-.alert-modal {
+#twinlist .alert-modal {
     position: absolute;
     width: 30%;
     top: 25%;
     left: 32.5%;
     border-radius: 0.5em;
     
-    -webkit-transform: translateY(-100%);
-    -moz-transform: translateY(-100%);
-    -ms-transform: translateY(-100%);
-    -o-transform: translateY(-100%);
+    transform: translateY(-100%);
 }
 
-.alert-modal a {
+#twinlist .alert-modal a {
     color: #333333;
 }
 
-.alert-modal strong {
+#twinlist .alert-modal strong {
     color: #dd4b39;
 }
 
-.help-modal {
+#twinlist .help-modal {
     display: block;
     position: absolute;
     left: 12.5%;
@@ -730,13 +620,10 @@
     height: 80%;
     overflow: auto;
 	
-	-webkit-transform: translateY(-100%);
-    -moz-transform: translateY(-100%);
-    -ms-transform: translateY(-100%);
-    -o-transform: translateY(-100%);
+    transform: translateY(-100%);
 }
 
-.modify-modal {
+#twinlist .modify-modal {
     display: block;
     position: absolute;
     left: 12.5%;
@@ -745,27 +632,21 @@
     height: 80%;
     overflow: auto;
     
-    -webkit-transform: translateY(-100%);
-    -moz-transform: translateY(-100%);
-    -ms-transform: translateY(-100%);
-    -o-transform: translateY(-100%);
+    transform: translateY(-100%);
 }
 
-#app .help-modal li {
+#twinlist #app .help-modal li {
     margin-left: 2em;
 }
 
-.show {
-    -webkit-transform: translateY(0);
-    -moz-transform: translateY(0);
-    -ms-transform: translateY(0);
-    -o-transform: translateY(0);
+#twinlist .show {
+    transform: translateY(0);
     
     z-index: 500;
     opacity: 1;
 }
 
-.close {
+#twinlist .close {
     margin-top: 1em;
     width: 5em;
     float: right;
@@ -773,7 +654,7 @@
 
 
 
-.options-panel {
+#twinlist .options-panel {
     background: #333333;
     color: #999999;
     font-size: 80%;
@@ -782,42 +663,39 @@
     
     position: absolute;
     right: 0;
+    top: 0;
     width: 97%;
     
     border-bottom-left-radius: 0.2em;
     
     opacity: 0;
     
-    -webkit-transform: translateY(-200%);
-    -moz-transform: translateY(-200%);
-    -ms-transform: translateY(-200%);
-    -o-transform: translateY(-200%);
     transform: translateY(-200%);
 }
 
-.options-panel td:nth-child(odd) {
+#twinlist .options-panel td:nth-child(odd) {
     padding: 0.25em 0 0.25em 2em;
 }
 
-.options-panel td:nth-child(even) {
+#twinlist .options-panel td:nth-child(even) {
     padding: 0.25em 0 0.25em 0.5em;
 }
 
-.options-panel select, .options-panel input[type="text"] {
+#twinlist .options-panel select, .options-panel input[type="text"] {
     width: 100%;
 }
 
-.options-panel li {
+#twinlist .options-panel li {
     display: inline;
     padding: 0;
     margin: 0;
 }
 
-.options-panel a {
+#twinlist .options-panel a {
     color: #999999;
 }
 
-.options-panel a:hover {
+#twinlist .options-panel a:hover {
     color: #f0f0f0;
 }
 
@@ -825,26 +703,26 @@
 /*
  * Review panel (hides to the right).
  */
-#review h1 {
+#twinlist #review h1 {
     display: inline;
 }
 
-#review table {
+#twinlist #review table {
     width: 100%;
     border-collapse: collapse;
     table-layout: fixed;
 }
 
-#review th {
+#twinlist #review th {
     padding: 0.5em 0.4em;
     text-align: left;
 }
 
-#review .content th {
+#twinlist #review .content th {
     padding: 0.4em;
 }
 
-#review td {
+#twinlist #review td {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -854,17 +732,17 @@
     padding: 0.5em 0;
 }
 
-#review .content {
+#twinlist #review .content {
     position: absolute;
     margin: 0 0 0 10%;
 }
 
-#review .content {
+#twinlist #review .content {
     top: 25%;
     width: 80%;
 }
 
-#review .content {
+#twinlist #review .content {
     overflow-x: hidden;
     
     top: 30%;
@@ -872,11 +750,11 @@
     width: 80%;
 }
 
-#review .item {
+#twinlist #review .item {
     position: inherit;
 }
 
-#review .annotation {
+#twinlist #review .annotation {
     margin-left: 2em;
 }
 
@@ -884,24 +762,24 @@
 /*
  * Add / edit panel (hides to the right).
  */
-#modify, #review {
+#twinlist #modify, #review {
     margin: 10% 5%;
 }
 
-#modify h1, #review header {
+#twinlist #modify h1, #review header {
     position: absolute;
     top: 12%;
     margin: 3% 0;
 }
 
-.fields {
+#twinlist .fields {
     margin-top: 10%;
     position: absolute;
     right: 5%;
     width: 31%;
 }
 
-.fields label {
+#twinlist .fields label {
     float: left;
     padding: 1%;
     margin: 2% 1% 2% 0;
@@ -909,7 +787,7 @@
     width: 30%;
 }
 
-.fields input, .fields textarea {
+#twinlist .fields input, #twinlist .fields textarea {
     border: 0.1em solid #bbbbbb;
     border-radius: 0.2em;
     
@@ -921,31 +799,16 @@
     width: 60%;
 }
 
-.fields textarea {
+#twinlist .fields textarea {
     resize: vertical;
 }
 
-.fields ::-webkit-input-placeholder {
+#twinlist .fields :placeholder {
     font-style: italic;
     opacity: 0.8;
 }
 
-.fields :-moz-placeholder {
-    font-style: italic;
-    opacity: 0.8;
-}
-
-.fields :-ms-input-placeholder {
-    font-style: italic;
-    opacity: 0.8;
-}
-
-.fields :-o-placeholder {
-    font-style: italic;
-    opacity: 0.8;
-}
-
-.preview {
+#twinlist .preview {
     background: white;
     border: 0.1em dashed #bbbbbb;
     border-radius: 0.2em;
@@ -955,7 +818,7 @@
     left: 20%;
 }
 
-#modify .action, #review .action {
+#twinlist #modify .action, #twinlist #review .action {
     position: absolute;
     right: 5%;
 
@@ -963,47 +826,39 @@
     width: 35%;
 }
 
-.save, .response {
+#twinlist .save, #twinlist .response {
     float: right;
     padding: 0.5em;
 }
 
-.save {
+#twinlist .save {
     border-left: 0.4em solid #999999;
     width: 90%;
     
-    -webkit-transition: all 0.2s;
-    -moz-transition: all 0.2s;
-    -ms-transition: all 0.2s;
-    -o-transition: all 0.2s;
     transition: all 0.2s;
 }
 
-.save:hover {
+#twinlist .save:hover {
     width: 100%;
     text-decoration: none;
 }
 
-.response {
+#twinlist .response {
     font-size: 95%;
     opacity: 0;
     
-    -webkit-transition: all 0.4s;
-    -moz-transition: all 0.4s;
-    -ms-transition: all 0.4s;
-    -o-transition: all 0.4s;
     transition: all 0.4s;
 }
 
-.response .back::before {
+#twinlist .response .back::before {
     content: "[ ";
 }
 
-.response .back::after {
+#twinlist .response .back::after {
     content: " ]";
 }
 
-.watermark {
+#twinlist .watermark {
     font-size: 300%;
 
     position: absolute;
@@ -1017,57 +872,54 @@
 /*
  * Utility: colors, fonts, ...
  */
-.content-text {
+#twinlist .content-text {
     font-family: "Lucida Grande", "Lucida Sans", Helvetica, sans-serif;
 }
 
-.explanatory-text {
+#twinlist .explanatory-text {
     font-family: "Andale Mono", monospace;
 }
 
-.keyword {
+#twinlist .keyword {
     font-weight: normal;
 }
 
-.link {
+#twinlist .link {
     text-decoration: underline;
 }
 
-.warning {
+#twinlist .warning {
     color: #dd4b39;
 }
 
-.annotation {
+#twinlist .annotation {
     font-size: 80%;
     font-style: italic;
     font-weight: normal;
 }
 
-.bg-accent {
+#twinlist .bg-accent {
     background: #54787d;
 }
 
-thead {
+#twinlist thead {
 	z-index: 999;	/* > 10 to be above items, > 500 to be above .show */
 }
 
-.bg-contrast-light {
+#twinlist .bg-contrast-light {
     background: #f0f0f0;
 }
 
-.bg-contrast-dark {
+#twinlist .bg-contrast-dark {
     background: #e5e5e5;
 }
 
-.show {
+#twinlist .show {
     opacity: 1;
-    -webkit-transform: translate(0, 0);
-    -moz-transform: translate(0, 0);
-    -ms-transform: translate(0, 0);
-    -o-transform: translate(0, 0);
     transform: translate(0, 0);
 }
 
 /* TODO better place to put this stuff */
-.num_remaining {
+#twinlist .num_remaining {
 	text-decoration: underline;
+}
