@@ -69,12 +69,12 @@ var model = function(model, jQuery) {
 
     visible.list1 = {
         id : "list0",
-        name : "Intake",
+        name : pharmacy.twinlist ? pharmacy.twinlist.headers[0] : "Intake",
         source : []
     };
     visible.list2 = {
         id : "list1",
-        name : "Hospital",
+        name : pharmacy.twinlist ? pharmacy.twinlist.headers[1] : "Hospital",
         source : []
     };
 

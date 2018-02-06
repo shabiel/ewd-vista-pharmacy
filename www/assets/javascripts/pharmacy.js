@@ -1872,22 +1872,39 @@ pharmacy.reorgVistAAllergenCategories = function(vistaCategories) {
 };
 
 pharmacy.medReconReview = function(EWD, DFN) {
+  // Pick selected elements only up to 2; and then process these for recon
   $('#medicationList div h4 span#reconcile').click(function() {
-    $('#modal-window').modal({
-      backdrop: true,
-      keyboard: true,
-      focus: true,
-      show: true
-    });
+    $(this).toggleClass('selected');
+    let $allCurrentlySelected = $('#medicationList div h4 span.selected');
+    if ($allCurrentlySelected.length > 1) {
+      pharmacy.twinlist = {};
+      pharmacy.twinlist.headers = [];
 
-    let params = {
-      service: 'ewd-vista-pharmacy',
-      name: 'med-recon.html',
-      targetId: 'modal-window'
-    };
-    EWD.getFragment(params, function() {
-      $('#modal-window').modal('show');
-    });
+      $allCurrentlySelected.each(function() {
+        pharmacy.twinlist.headers.push(this.parentElement.innerText);
+      });
+
+      $('#modal-window').modal({
+        backdrop: true,
+        keyboard: true,
+        focus: true,
+        show: true
+      });
+
+      $('#modal-window').one('hidden.bs.modal', function() {
+        $('#medicationList div h4 span#reconcile').removeClass('selected');
+        $(this).off();
+      });
+
+      let params = {
+        service: 'ewd-vista-pharmacy',
+        name: 'med-recon.html',
+        targetId: 'modal-window'
+      };
+      EWD.getFragment(params, function() {
+        $('#modal-window').modal('show');
+      });
+    }
   });
 };
 
