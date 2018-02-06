@@ -445,11 +445,16 @@ div.modal-body div#filters {
   margin-bottom: 0px;
 }
 
-#medicationList div h4 span#reconcile
+#medicationList div h4 span:last-child
 {
   float: right;
   cursor: pointer;
   padding: 0 3px 0 0;
+}
+
+#medicationList div h4 span:last-child.selected
+{
+  color: red;
 }
 
 #medicationList div ul
