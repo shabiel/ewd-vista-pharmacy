@@ -40,16 +40,16 @@ var controller = function(controller, jQuery) {
     var CUSTOM_EASE_IN = "cubic-bezier(0.4, 0.2, 0.1, 0.9)";
 
     // config - version
-    var VERSION_FULL = "__VERSION_FULL__";
-    var VERSION_BASELINE = "__VERSION_BASELINE__";
-    var VERSION_LINK_ONLY = "__VERSION_LINK_ONLY__";
-    var VERSION_THREE_COLUMN = "__VERSION_THREE_COLUMN__";
-    var VERSION_3COL_CLASSES = "__VERSION_3COL_CLASSES__";
+    var VERSION_FULL = "__VERSION_FULL__";                  //SMH: Full version used in demos
+    var VERSION_BASELINE = "__VERSION_BASELINE__";          //SMH: This has no add; no amimation.
+    var VERSION_LINK_ONLY = "__VERSION_LINK_ONLY__";        //SMH: Has classes on one column
+    var VERSION_THREE_COLUMN = "__VERSION_THREE_COLUMN__";  //SMH: Show and hide based on hover on diagnoses -- really nice!
+    var VERSION_3COL_CLASSES = "__VERSION_3COL_CLASSES__";  //SMH: Ditto, by classes -- really nice!
 
     // config - animation
-    var AUTO_ANIMATE_ON = "__AUTO_ANIMATE_ON__";
-    var AUTO_ANIMATE_OFF = "__AUTO_ANIMATE_OFF__";
-    var AUTO_ANIMATE_END = "__AUTO_ANIMATE_END__";
+    var AUTO_ANIMATE_ON = "__AUTO_ANIMATE_ON__";            //SMH: I hate this!
+    var AUTO_ANIMATE_OFF = "__AUTO_ANIMATE_OFF__";          //SMH: Much better!
+    var AUTO_ANIMATE_END = "__AUTO_ANIMATE_END__";          //SMH: Takes you to the end
 
     var WHITE = "#fafafa";
     var NEUTRAL_GRAY = "#f0f0f0";
@@ -69,8 +69,8 @@ var controller = function(controller, jQuery) {
     // state /////////////////////////////////////////////////////////////
     visible.editID = 0;
     
-    visible.versionDefault = VERSION_FULL;
-    visible.autoAnimateDefault = AUTO_ANIMATE_ON;
+    visible.versionDefault = VERSION_LINK_ONLY
+    visible.autoAnimateDefault = AUTO_ANIMATE_OFF;
 
     var version = VERSION_FULL;
     var autoAnimate = AUTO_ANIMATE_ON;
@@ -120,7 +120,7 @@ var controller = function(controller, jQuery) {
         // TODO hack (should be a supported by populate code)
         // show diagnoses column
         if (version === VERSION_THREE_COLUMN || version === VERSION_3COL_CLASSES)
-            $(".backdrop th:nth-child(1) .col-header").show();
+            $("#twinlist .backdrop th:nth-child(1) .col-header").show();
             
         // set up auto animation
         if (autoAnimate === AUTO_ANIMATE_ON) {
@@ -291,39 +291,39 @@ var controller = function(controller, jQuery) {
     	$(".ui-loader").remove();
     	
         // clear
-        $(".backdrop thead").remove();
-        $(".backdrop tbody").remove();
-        $("#app .item").remove();
-        $("#app .diagnosis").remove();
+        $("#twinlist .backdrop thead").remove();
+        $("#twinlist .backdrop tbody").remove();
+        $("#twinlist #app .item").remove();
+        $("#twinlist #app .diagnosis").remove();
         // TODO rename - includes drug class items right now
 
         // create actual objects
-        populateBackdrop($(".backdrop-header"), $(".backdrop-body"));
-        populateItems($(".items"));
+        populateBackdrop($("#twinlist .backdrop-header"), $("#twinlist .backdrop-body"));
+        populateItems($("#twinlist .items"));
 
         // TODO refactor? Diagnoses -> Control column?
         if (version === VERSION_THREE_COLUMN) {
-            populateThirdAnchorColumn($(".diagnoses"), model.diagnoses);
+            populateThirdAnchorColumn($("#twinlist .diagnoses"), model.diagnoses);
         } else if (version === VERSION_3COL_CLASSES) {
-            populateThirdAnchorColumn($(".drug_classes"), model.drugClasses);
+            populateThirdAnchorColumn($("#twinlist drug_classes"), model.drugClasses);
         }
         // TODO: faster / neater to wrap all shadows in a separate div?
 
         // start shadowing
-        $(".shadow").hide();
+        $("#twinlist .shadow").hide();
 
         // hide unused column headers; avoid unexpected behavior
-        $(".backdrop th:nth-child(odd) .col-header").hide();
+        $("#twinlist .backdrop th:nth-child(odd) .col-header").hide();
 
-        $(".conditional").hide();
+        $("#twinlist .conditional").hide();
 
         // TODO might be removed
         // indicate current config
-        $("select[name='dataset']").val(model.dataset);
-        $("#app .annotation").text("[ case : " + model.dataset.toLowerCase().replace(/_/g, " ").replace(/dataset/, "").trim() + " ]");
-        $("select[name='version']").val(version);
-        $("select[name='autoAnimate']").val(autoAnimate);
-        $("select[name='speed']").val(visible.animationSpeed);
+        $("#twinlist select[name='dataset']").val(model.dataset);
+        $("#twinlist #app .annotation").text("[ case : " + model.dataset.toLowerCase().replace(/_/g, " ").replace(/dataset/, "").trim() + " ]");
+        $("#twinlist select[name='version']").val(version);
+        $("#twinlist select[name='autoAnimate']").val(autoAnimate);
+        $("#twinlist select[name='speed']").val(visible.animationSpeed);
 
         // initialize the number of drugs to act on
         updateReviewButton();
@@ -341,18 +341,16 @@ var controller = function(controller, jQuery) {
 
     function prepareHandlers() {
         // clear
-        // OSE/SMH: This is a problem. Unbinds everything. Wonder if can disable
-        // that?
-        //$("*").not(".backdrop *").off();
+        $("#twinlist *").not("#twinlist .backdrop *").off();
 
         // item action
-        $("#app .item").mousedown(mousedownHandler).mouseover(mouseoverHandler).mouseout(mouseoutHandler).bind("contextmenu", function() {
+        $("#twinlist #app .item").mousedown(mousedownHandler).mouseover(mouseoverHandler).mouseout(mouseoutHandler).bind("contextmenu", function() {
             // free right click for item action
             return false;
         });
 
 		// touch-controls
-		$("#app .item").on(
+		$("#twinlist #app .item").on(
 			{
 			    // left swipe = left click
 				"swipeleft": function(ev) {
@@ -370,26 +368,26 @@ var controller = function(controller, jQuery) {
 		);
 		
 		// touch start mimics hover for items
-		$("#app .item").bind("touchstart", function(ev) {
+		$("#twinlist #app .item").bind("touchstart", function(ev) {
 		    touchEvent = true;
 		    $(this).mouseover();
 		    $lastTouchedItem = $(this);
 		});
 		
 		// touch start mimics hover for diagnoses / drug class anchors
-		$("#app .diagnosis").bind("touchstart", function(ev) {
+		$("#twinlist #app .diagnosis").bind("touchstart", function(ev) {
             touchEvent = true;
             $(this).mouseover();
             $lastTouchedItem = $(this);
         });
 
         // if body of page is touched, undo hover of last item		
-		$("body").bind("touchstart", function(ev) {
+		$("#twinlist").bind("touchstart", function(ev) {
             $lastTouchedItem.mouseout();
         });
 		
 		// Prevent rubber-banding of the body, but allow for scrolling elements
-        $('body').on('touchmove', function (e) {
+        $('#twinlist').on('touchmove', function (e) {
             var searchTerms = '.scroll, .scroll-y, .scroll-x',
                 $target = $(e.target),
                 parents = $target.parents(searchTerms);
@@ -404,7 +402,7 @@ var controller = function(controller, jQuery) {
 
         // diagnosis mouseover
         if (version === VERSION_THREE_COLUMN) {
-            $("#app .diagnosis").mouseover(function() {
+            $("#twinlist #app .diagnosis").mouseover(function() {
                 // highlight diagnosis and items for this diagnosis
 
                 var id = this.id;
@@ -413,7 +411,7 @@ var controller = function(controller, jQuery) {
                 $(this).addClass("third-col-anchor-hover");
 
                 // de-emphasize all items - Note: needs to be changed if allowing multigrouping...
-                $(".item").css("opacity", "0.0");
+                $("#twinlist .item").css("opacity", "0.0");
 
                 // hover appropriate item(s) - TODO: does not support with shadows
                 var toHover = model.diagnosisSet[id];
@@ -431,7 +429,7 @@ var controller = function(controller, jQuery) {
                 $(this).removeClass("third-col-anchor-hover");
 
                 // revert de-emphasization
-                $(".item").css("opacity", "1.0");
+                $("#twinlist .item").css("opacity", "1.0");
 
                 // hover appropriate item(s) - TODO: does not support with shadows
                 var toHover = model.diagnosisSet[id];
@@ -447,7 +445,7 @@ var controller = function(controller, jQuery) {
         // TODO should refactor...
         // drug class mouseover
         if (version === VERSION_3COL_CLASSES) {
-            $("#app .diagnosis").mouseover(function() {
+            $("#twinlist #app .diagnosis").mouseover(function() {
                 // highlight diagnosis and items for this diagnosis
 
                 var id = this.id;
@@ -456,7 +454,7 @@ var controller = function(controller, jQuery) {
                 $(this).addClass("third-col-anchor-hover");
                 
                 // de-emphasize all items - Note: needs to be changed if allowing multigrouping...
-                $(".item").css("opacity", "0.0");
+                $("#twinlist .item").css("opacity", "0.0");
 
 
                 // hover appropriate item(s) - TODO: does not support with shadows
@@ -476,7 +474,7 @@ var controller = function(controller, jQuery) {
                 $(this).removeClass("third-col-anchor-hover");
                 
                 // revert de-emphasization
-                $(".item").css("opacity", "1.0");
+                $("#twinlist .item").css("opacity", "1.0");
 
                 // hover appropriate item(s) - TODO: does not support with shadows
                 var toHover = model.drugClassSet[id];
@@ -489,7 +487,7 @@ var controller = function(controller, jQuery) {
             });
         }
         // basic controls
-        $(".compare").click(function() {
+        $("#twinlist .compare").click(function() {
             if (version === VERSION_FULL) {
                 logger.log(logger.EVENT_CLICKED, "compare");
                 // TODO use button constants?
@@ -497,11 +495,11 @@ var controller = function(controller, jQuery) {
             
             if(!$(this).hasClass("inactive")) {
             	changeState(STATE_COMPACT);
-            	$(".compare").addClass("inactive");
+            	$("#twinlist .compare").addClass("inactive");
             }
         });
 
-        $(".review").click(function() {
+        $("#twinlist .review").click(function() {
             
             logger.log(logger.EVENT_CLICKED, "sign off");
 
@@ -555,53 +553,53 @@ var controller = function(controller, jQuery) {
         });
         // end of $(".review").click
 
-        $(".retry").click(function() {
+        $("#twinlist .retry").click(function() {
             logger.log(logger.EVENT_CLICKED, "reset");
-            $(".compare").removeClass("inactive");
+            $("#twinlist .compare").removeClass("inactive");
             resetDecisions();
             
             redraw(true, true);
         });
 
         // options panel
-        $(".options").click(function() {
+        $("#twinlist .options").click(function() {
             logger.log(logger.EVENT_CLICKED, "options");
 
             toggleOptionsPanel($(this), true);
         });
 
         // when clicked, cycles the current groupby layout used
-        $(".cycle_groupby").click(function() {
+        $("#twinlist .cycle_groupby").click(function() {
             logger.log(logger.EVENT_CLICKED, "cycle_groupby");
             updateGroupBy($(this).attr("value"));
         });
         
         // help modal
-        $(".help-modal").css("top", $("header").height());
+        $("#twinlist .help-modal").css("top", $("header").height());
 
-        $(".help").click(function() {
+        $("#twinlist .help").click(function() {
             logger.log(logger.EVENT_CLICKED, "help");
             $(".help-modal").addClass("show");
         });
 
-        $(".help-close").click(function() {
+        $("#twinlist .help-close").click(function() {
             logger.log(logger.EVENT_CLICKED, "help_close");
             $(".help-modal .welcome").remove();
             $(".help-modal").removeClass("show");
         });
 
         // alert modal
-        $("#alert-close").click(function() {
+        $("#twinlist #alert-close").click(function() {
             logger.log(logger.EVENT_CLICKED, "alert_close");
             $(".alert-modal").removeClass("show");
         });
         
         // options
-        $("select[name='groupBy']").change(function() {
+        $("#twinlist select[name='groupBy']").change(function() {
             updateGroupBy($(this).attr("value"));
         });
 
-        $("input[name='multigroup']").click(function() {
+        $("#twinlist input[name='multigroup']").click(function() {
             logger.log(logger.EVENT_CLICKED, "multigroup");
 
             model.multigroup = this.checked;
@@ -610,50 +608,50 @@ var controller = function(controller, jQuery) {
             $("select[name='groupBy']").change();
         });
 
-        $("input[name='patient_tab']").click(function() {
+        $("#twinlist input[name='patient_tab']").click(function() {
             logger.log(logger.EVENT_CLICKED, "patient_tab");
             showPatientTab = this.checked;
         });
 
-        $("select[name='speed']").change(function() {
+        $("#twinlist select[name='speed']").change(function() {
             setAnimationSpeed($(this).val());
         });
 
-        $("input[name='filterOn']").keyup(function() {
+        $("#twinlist input[name='filterOn']").keyup(function() {
             model.filterOn = $(this).val();
             redraw(true, true);
         });
 
-        $(".separate").click(function() {
+        $("#twinlist .separate").click(function() {
             logger.log(logger.EVENT_CLICKED, "separate");
             changeState(STATE_SEPARATE);
         });
 
-        $(".identical").click(function() {
+        $("#twinlist .identical").click(function() {
             logger.log(logger.EVENT_CLICKED, "identical");
             if (!$(this).hasClass("inactive")) {
                 changeState(STATE_IDENTICAL);
             }
         });
 
-        $(".unique").click(function() {
+        $("#twinlist .unique").click(function() {
             logger.log(logger.EVENT_CLICKED, "unique");
             if (!$(this).hasClass("inactive")) {
                 changeState(STATE_UNIQUE);
             }
         });
 
-        $(".similar").click(function() {
+        $("#twinlist .similar").click(function() {
             logger.log(logger.EVENT_CLICKED, "similar");
             changeState(STATE_SIMILAR);
         });
 
-        $(".compact").click(function() {
+        $("#twinlist .compact").click(function() {
             logger.log(logger.EVENT_CLICKED, "compact");
             changeState(STATE_COMPACT);
         });
 
-        $(".grayout").click(function() {
+        $("#twinlist .grayout").click(function() {
             logger.log(logger.EVENT_CLICKED, "grayout");
             if (!$(this).hasClass("active")) {
                 $(".remove").removeClass("active");
@@ -664,7 +662,7 @@ var controller = function(controller, jQuery) {
             }
         });
 
-        $(".remove").click(function() {
+        $("#twinlist .remove").click(function() {
             logger.log(logger.EVENT_CLICKED, "remove");
             if (!$(this).hasClass("active")) {
                 $(".grayout").removeClass("active");
@@ -675,7 +673,7 @@ var controller = function(controller, jQuery) {
             }
         });
 
-        $("select[name='displayName']").change(function() {
+        $("#twinlist select[name='displayName']").change(function() {
             model.displayName = $(this).val();
 
             $("#app .item").each(function() {
@@ -686,41 +684,41 @@ var controller = function(controller, jQuery) {
             redraw(true, true);
         });
 
-        $("input[name='displayDetails']").click(function() {
+        $("#twinlist input[name='displayDetails']").click(function() {
             logger.log(logger.EVENT_CLICKED, "displayDetails");
             displayDetails = this.checked;
             redraw(true, true);
         });
 
         // item modification modal dialog
-        $(".modify-modal").css("top", $("header").height());
+        $("#twinlist .modify-modal").css("top", $("header").height());
         
-        $(".add").click(function() {
+        $("#twinlist .add").click(function() {
             logger.log(logger.EVENT_CLICKED, "add");
             resetModifyPanel("add");
             $(".modify-modal").addClass("show");
         });
 
-        $(".edit").click(function() {
+        $("#twinlist .edit").click(function() {
             logger.log(logger.EVENT_CLICKED, "edit");
             resetModifyPanel("edit");
             $(".modify-modal").addClass("show");
         });
 
         // preview
-        $("input, textarea").keyup(function() {
+        $("#twinlist input, #twinlist textarea").keyup(function() {
             updatePreview($(this));
         });
 
         // modify panel
-        $("#modify .save").click(function() {
+        $("#twinlist #modify .save").click(function() {
             logger.log(logger.EVENT_CLICKED, "save_modified");
             saveModifiedItem($("#modify h1").text());
             // $("#modify .response").addClass("show");
             $("#modify .close").click();
         });
         
-        $("#modify .close").click(function() {
+        $("#twinlist #modify .close").click(function() {
             $(".modify-modal").removeClass("show");
         });
 
@@ -728,12 +726,12 @@ var controller = function(controller, jQuery) {
         $(window).off('keydown.twinlist')
         $(window).on('keydown.twinlist', function(event) {
 
-            if (!$("input[name='filterOn']").is(':focus') &&
-                !$("input[name='name']").is(':focus') &&
-                !$("input[name='dose']").is(':focus') &&
-                !$("input[name='route']").is(':focus') &&
-                !$("input[name='frequency']").is(':focus') &&
-                !$("textarea[name='instructions']").is(':focus')) {
+            if (!$("#twinlist input[name='filterOn']").is(':focus') &&
+                !$("#twinlist input[name='name']").is(':focus') &&
+                !$("#twinlist input[name='dose']").is(':focus') &&
+                !$("#twinlist input[name='route']").is(':focus') &&
+                !$("#twinlist input[name='frequency']").is(':focus') &&
+                !$("#twinlist textarea[name='instructions']").is(':focus')) {
                 switch (event.which) {
                     case 48:
                         // the '0' key
@@ -773,14 +771,14 @@ var controller = function(controller, jQuery) {
                         // toggle multigroup
 
                         // toggle controls
-                        if ($("#chk_mg").attr("checked")) {
-                            $("#chk_mg").attr('checked', false);
+                        if ($("#twinlist #chk_mg").attr("checked")) {
+                            $("#twinlist #chk_mg").attr('checked', false);
                         } else {
-                            $("#chk_mg").attr('checked', true);
+                            $("#twinlist #chk_mg").attr('checked', true);
                         }
                         
                         // update model
-                        model.multigroup = $("#chk_mg").attr("checked");
+                        model.multigroup = $("#twinlist #chk_mg").attr("checked");
                         
                         // trigger layout change
                         redraw(true, true);
@@ -794,7 +792,7 @@ var controller = function(controller, jQuery) {
                     case 79:
                         // the 'o' key
                         // toggle options panel
-                        $(".options").click();
+                        $("#twinlist .options").click();
                         break;
                     case 68:
                         // the 'd' key
@@ -827,7 +825,7 @@ var controller = function(controller, jQuery) {
 
         // count scrolls
         var lastScrollTop = 0;
-        $(".scrolling_content").off("scroll").on('scroll', function() {
+        $("#twinlist .scrolling_content").off("scroll").on('scroll', function() {
           var st = $(this).scrollTop();
           if (st > lastScrollTop) {
             // downscroll code
@@ -1331,7 +1329,7 @@ var controller = function(controller, jQuery) {
      */
     function calculateNumRemaining() {
         // return the number of page elements that are undecided
-        return $(".undecided:not(.preview):not(.shadow):visible").length;
+        return $("#twinlist .undecided:not(.preview):not(.shadow):visible").length;
     }
 
     // called to update the review button
@@ -1339,11 +1337,11 @@ var controller = function(controller, jQuery) {
         var $numRemaining = calculateNumRemaining();
         if ($numRemaining > 0) {
             // TODO rename
-            $(".review_button .review").html('<div style="text-align:right"><strong>sign<br/>off</strong></div>' + '<span class="num_remaining">' + $numRemaining + '</span><br/>left<br/>' + '<div class="patient_name">' + model.patientLastName + ', ' + model.patientFirstName + ' (' + model.patientAge + model.patientGender + ')</div>');
-            $(".review_button .review").addClass("disabled_button");
+            $("#twinlist .review_button .review").html('<div style="text-align:right"><strong>sign<br/>off</strong></div>' + '<span class="num_remaining">' + $numRemaining + '</span><br/>left<br/>' + '<div class="patient_name">' + model.patientLastName + ', ' + model.patientFirstName + ' (' + model.patientAge + model.patientGender + ')</div>');
+            $("#twinlist .review_button .review").addClass("disabled_button");
         } else {
-            $(".review_button .review").html('<div style="text-align:right"><strong>sign<br/>off</strong></div>' + '<div class="patient_name">' + model.patientLastName + ', ' + model.patientFirstName + ' (' + model.patientAge + model.patientGender + ')</div>');
-            $(".review_button .review").removeClass("disabled_button");
+            $("#twinlist .review_button .review").html('<div style="text-align:right"><strong>sign<br/>off</strong></div>' + '<div class="patient_name">' + model.patientLastName + ', ' + model.patientFirstName + ' (' + model.patientAge + model.patientGender + ')</div>');
+            $("#twinlist .review_button .review").removeClass("disabled_button");
         }
     }
 
@@ -1366,25 +1364,25 @@ var controller = function(controller, jQuery) {
          * options panel: overlapping might make it harder to forget that
          * it's open (and occupying unnecessary space).
          */
-        var headerHeight = $(".banner").outerHeight(true);
-        var optionsPanelHeight = $(".options").hasClass("active") ? $(".options-panel").outerHeight(true) : 0;
-        var contentMarginTop = parseFloat($("#app > .content").css("margin-top"));
-        var contentHeader = $(".backdrop-header").outerHeight(true);    // column headers
-        var contentMarginBottom = parseFloat($("#app > .content").css("margin-bottom"));
-        var detailHeight = $("#app > .detail").outerHeight(true);
-        var brandingHeight = $(".branding").outerHeight(true);
+        var headerHeight = $("#twinlist .banner").outerHeight(true);
+        var optionsPanelHeight = $("#twinlist .options").hasClass("active") ? $(".options-panel").outerHeight(true) : 0;
+        var contentMarginTop = parseFloat($("#twinlist #app > .content").css("margin-top"));
+        var contentHeader = $("#twinlist .backdrop-header").outerHeight(true);    // column headers
+        var contentMarginBottom = parseFloat($("#twinlist #app > .content").css("margin-bottom"));
+        var detailHeight = $("#twinlist #app > .detail").outerHeight(true);
+        var brandingHeight = $("#twinlist .branding").outerHeight(true);
         var footerHeight = detailHeight + brandingHeight;
-        var tabHeight = $(".add").outerHeight(true);
+        var tabHeight = $("#twinlist .add").outerHeight(true);
         var modalOffsetHeight = parseFloat($('#modal-dialog').css('margin-bottom'));
         var appHeight = $(window).height() - headerHeight - optionsPanelHeight - footerHeight - contentMarginTop - contentMarginBottom - modalOffsetHeight;
         var scrollingHeight = appHeight - contentHeader;
 
-        $("#app > .content").css("bottom", footerHeight);
-        $("#app > .content").height(appHeight);
-        $(".scrolling_content").height(scrollingHeight);
+        $("#twinlist #app > .content").css("bottom", footerHeight);
+        $("#twinlist #app > .content").height(appHeight);
+        $("#twinlist .scrolling_content").height(scrollingHeight);
 
-        $(".add").css("top", headerHeight + contentMarginTop + topOffset() + optionsPanelHeight + tabHeight * 0.5);
-        $(".edit").css("top", headerHeight + contentMarginTop + topOffset() + optionsPanelHeight + tabHeight * 1.75);
+        $("#twinlist .add").css("top", headerHeight + contentMarginTop + topOffset() + optionsPanelHeight + tabHeight * 0.5);
+        $("#twinlist .edit").css("top", headerHeight + contentMarginTop + topOffset() + optionsPanelHeight + tabHeight * 1.75);
 
         // TODO: move scrolltip adjustment?
 
@@ -1399,7 +1397,7 @@ var controller = function(controller, jQuery) {
             
         
         if (immediate) {
-            $("#app .item").each(function() {
+            $("#twinlist #app .item").each(function() {
                 animateItem(this.id, state, jumpToPosition ? 0 : visible.animationDelay / 4);
             });
         } else {
@@ -1410,7 +1408,7 @@ var controller = function(controller, jQuery) {
     function changeState(toState, jumpToPosition) {
     	// if state is final one, disable compare
     	if(toState === STATE_COMPACT) {
-    		$(".compare").addClass("inactive");
+    		$("#twinlist .compare").addClass("inactive");
     	}
     	
         if (state === toState || version === VERSION_BASELINE || version === VERSION_LINK_ONLY || version === VERSION_THREE_COLUMN || version === VERSION_3COL_CLASSES) {
@@ -1469,9 +1467,9 @@ var controller = function(controller, jQuery) {
             adjustDifferenceHighlights(to);
 
             // clear striping
-            $(".backdrop td").css("background", "");
+            $("#twinlist .backdrop td").css("background", "");
 
-            var $tbody = $(".backdrop tbody");
+            var $tbody = $("#twinlist .backdrop tbody");
             var height = $tbody.children().length;
 
             for (var i = 0; i < height; i++) {
@@ -1621,7 +1619,7 @@ var controller = function(controller, jQuery) {
         if(jumpToPosition)
             duration = 0;
             
-        $("#app .item").each(function() {
+        $("#twinlist #app .item").each(function() {
             animateItem(this.id, toState, duration);
         });
     }
@@ -1653,7 +1651,7 @@ var controller = function(controller, jQuery) {
         if (!positions[id] || !positions[id][toState])
             return;
 
-        var $item = $("#" + id);
+        var $item = $("#twinlist #" + id);
 
         var position = (toState !== undefined) ? offsetToPosition(positions[id][toState]) : offsetToPosition(positions[id]);
         
@@ -1705,23 +1703,23 @@ var controller = function(controller, jQuery) {
     }
 
     function topOffset() {
-        return $(".backdrop-header th").outerHeight(true);
+        return $("#twinlist .backdrop-header th").outerHeight(true);
     }
 
     function columnWidth() {
         // align according to column headers
-        return $(".backdrop-header tr").outerWidth(true) / 5;
+        return $("#twinlist .backdrop-header tr").outerWidth(true) / 5;
     }
 
     function scrollbarAdjust() {
         // compare body's trs with headers to determine if scrollbar present
-        var ret = $(".backdrop-header tr").outerWidth(true) - $(".backdrop-body tr").outerWidth(true);
+        var ret = $("#twinlist .backdrop-header tr").outerWidth(true) - $(".backdrop-body tr").outerWidth(true);
         return ret
     }
 
     function rowHeight() {
         // include padding but exclude margin
-        return $(".backdrop td").outerHeight();
+        return $("#twinlist .backdrop td").outerHeight();
     }
 
     // given offset information (which row/column), convert into (x,y) position info for css "top" and "left"
@@ -1729,7 +1727,7 @@ var controller = function(controller, jQuery) {
         var twoColOffset = 0;
         // offset for 2 column versions to make lists closer together
         if (version != VERSION_FULL) {
-            twoColOffset = $(".backdrop thead").outerWidth() * 0.1;
+            twoColOffset = $("#twinlist .backdrop thead").outerWidth() * 0.1;
             if (offset.col == 3)
                 twoColOffset = twoColOffset * -1;
         }
@@ -1789,7 +1787,7 @@ var controller = function(controller, jQuery) {
     function setAnimationSpeed(speed) {
         // adjust speed
         visible.animationSpeed = speed;
-        $("select[name='speed']").val(speed);
+        $("#twinlist select[name='speed']").val(speed);
 
         if (speed === ANIMATION_SPEED_0) {
             // use neutral (median) animation speed for single transition
@@ -1813,7 +1811,7 @@ var controller = function(controller, jQuery) {
     // interface adjustment //////////////////////////////////////////////
     function adjustBackdrop(toState) {
         // redraw everything: avoid odd white stripe when end row changes
-        $(".backdrop tbody tr").remove();
+        $("#twinlist .backdrop tbody tr").remove();
 
         for (var i = 0; i < NUM_ROWS[toState]; i++) {
             var $tr = $("<tr></tr>");
@@ -1821,7 +1819,7 @@ var controller = function(controller, jQuery) {
             for (var j = 0; j < NUM_COLUMNS; j++) {
                 $tr.append("<td></td>");
             }
-            $(".backdrop tbody").append($tr);
+            $("#twinlist .backdrop tbody").append($tr);
         }
     }
 
@@ -1842,7 +1840,7 @@ var controller = function(controller, jQuery) {
      * "state" is one of the defined constants above
      */
     function adjustAnimationControls(state) {
-    	$(".separate, .identical, .unique, .similar, .compact").removeClass("active inactive");
+    	$("#twinlist .separate, #twinlist .identical, #twinlist .unique, #twinlist .similar, #twinlist .compact").removeClass("active inactive");
         var active = {};
         var inactive = {};
 
@@ -1867,17 +1865,17 @@ var controller = function(controller, jQuery) {
             for (var i = STATE_IDENTICAL; i < NUM_STATES; i++) {
                 inactive[i] = true;
             }
-            $(".compare").addClass("inactive");
+            $("#twinlist .compare").addClass("inactive");
         }
 
         for (var stateIndex in inactive) {
-            $("." + stateIndexToName(parseInt(stateIndex))).addClass("inactive");
+            $("#twinlist ." + stateIndexToName(parseInt(stateIndex))).addClass("inactive");
         }
-        $("." + stateIndexToName(state)).removeClass("inactive").addClass("active");
+        $("#twinlist ." + stateIndexToName(state)).removeClass("inactive").addClass("active");
     }
 
     function adjustGroupLabels(from, to) {
-        $(".groups .label").remove();
+        $("#twinlist .groups .label").remove();
 
         if (model.groupBy) {
             for (var groupKey in viewData.groups) {
@@ -1888,9 +1886,9 @@ var controller = function(controller, jQuery) {
                 $label.text(groupKey);
                 $label.css("left", 0);
                 $label.css("top", (viewData.groupLengths[groupKey]['startRow'][to] * rowHeight()));
-                $(".groups").append($label);
+                $("#twinlist .groups").append($label);
             }
-            $(".groups .label").addClass("show");
+            $("#twinlist .groups .label").addClass("show");
         }
     }
     
@@ -1937,42 +1935,42 @@ var controller = function(controller, jQuery) {
 
     function adjustCellDimensions() {
         // adjust padding
-        $("#app .item").css("padding-top", model.groupBy ? "1em" : "0.6em");
-        $("#app .item").css("padding-bottom", model.groupBy ? 0 : "0.4em");
+        $("#twinlist #app .item").css("padding-top", model.groupBy ? "1em" : "0.6em");
+        $("#twinlist #app .item").css("padding-bottom", model.groupBy ? 0 : "0.4em");
 
         // adjust height
         if (displayDetails) {
-            $("#app .item .detail").fadeIn();
+            $("#twinlist #app .item .detail").fadeIn();
         } else {
-            $("#app .item .detail").fadeOut();
+            $("#twinlist #app .item .detail").fadeOut();
         }
     }
 
     // given a state, adjust difference highlights on items
     function adjustDifferenceHighlights(toState) {
         if (toState < STATE_SIMILAR) {
-            $(".difference").removeClass("highlight");
+            $("#twinlist .difference").removeClass("highlight");
         } else {
             if (model.displayName !== model.RECORDED_NAME) {
-                $(".name.difference").removeClass("highlight");
-                $(".undecided .difference:not(.name)").addClass("highlight");
+                $("#twinlist .name.difference").removeClass("highlight");
+                $("#twinlist .undecided .difference:not(.name)").addClass("highlight");
             } else {
-                $(".undecided .difference").addClass("highlight");
+                $("#twinlist .undecided .difference").addClass("highlight");
             }
         }
     }
 
     function adjustScrolltips() {
-        var bottom = $("#app > .detail").outerHeight(true) + $(".branding").outerHeight(true) + parseFloat($("#app > .content").css("margin-bottom"));
+        var bottom = $("#twinlist #app > .detail").outerHeight(true) + $("#twinlist .branding").outerHeight(true) + parseFloat($("#twinlist #app > .content").css("margin-bottom"));
 
         // hand-tweaked positions, adjust as appropriate
-        $(".up").css("top", topOffset() * 2);
+        $("#twinlist .up").css("top", topOffset() * 2);
         // * 2 just for simple rough positioning
-        $(".down").css("bottom", bottom);
+        $("#twinlist .down").css("bottom", bottom);
     }
 
     function toggleHeader(index, show) {
-        var $header = $(".backdrop th:nth-child(" + (index + 1) + ") .col-header");
+        var $header = $("#twinlist .backdrop th:nth-child(" + (index + 1) + ") .col-header");
 
         if (show) {
             $header.fadeIn(visible.toggleOnDelay);
@@ -1983,11 +1981,11 @@ var controller = function(controller, jQuery) {
 
     function toggleConditionalHeaders(show) {
         if (show) {
-            $(".backdrop th:nth-child(" + (LIST_1_INDEX + 1) + ") .name .conditional").fadeIn(visible.toggleOnDelay);
-            $(".backdrop th:nth-child(" + (LIST_2_INDEX + 1) + ") .name .conditional").fadeIn(visible.toggleOnDelay);
+            $("#twinlist .backdrop th:nth-child(" + (LIST_1_INDEX + 1) + ") .name .conditional").fadeIn(visible.toggleOnDelay);
+            $("#twinlist .backdrop th:nth-child(" + (LIST_2_INDEX + 1) + ") .name .conditional").fadeIn(visible.toggleOnDelay);
         } else {
-            $(".backdrop th:nth-child(" + (LIST_1_INDEX + 1) + ") .name .conditional").fadeOut(visible.toggleOffDelay);
-            $(".backdrop th:nth-child(" + (LIST_2_INDEX + 1) + ") .name .conditional").fadeOut(visible.toggleOffDelay);
+            $("#twinlist .backdrop th:nth-child(" + (LIST_1_INDEX + 1) + ") .name .conditional").fadeOut(visible.toggleOffDelay);
+            $("#twinlist .backdrop th:nth-child(" + (LIST_2_INDEX + 1) + ") .name .conditional").fadeOut(visible.toggleOffDelay);
         }
     }
 
@@ -2086,7 +2084,7 @@ var controller = function(controller, jQuery) {
         hoverScrolltips(id, true);
 
         // update item detail
-        var $detail = $(".detail .content");
+        var $detail = $("#twinlist .detail .content");
         
         // color detail panel to draw attention
         $detail.css("background", "#555555");
@@ -2145,7 +2143,7 @@ var controller = function(controller, jQuery) {
             for (var diagnosisId in diagnosisSets) {
                 if (diagnosisSets[diagnosisId].indexOf(id) >= 0) {
                     hoverDiagnosisSet.push(diagnosisId);
-                    $("#" + diagnosisId).addClass("third-col-anchor-hover");
+                    $("#twinlist #" + diagnosisId).addClass("third-col-anchor-hover");
                 }
             }
         } else if (version === VERSION_3COL_CLASSES) {
@@ -2155,7 +2153,7 @@ var controller = function(controller, jQuery) {
                 if (dcSets[dcId].indexOf(id) >= 0) {
                     hoverDiagnosisSet.push(dcId);
                     // TODO rename when control col refactor
-                    $("#" + dcId).addClass("third-col-anchor-hover");
+                    $("#twinlist #" + dcId).addClass("third-col-anchor-hover");
                 }
             }
         }
@@ -2168,7 +2166,7 @@ var controller = function(controller, jQuery) {
         hoverSet = {};
         hoverScrolltips(this.id, false);
 
-        var $detail = $(".detail .content");
+        var $detail = $("#twinlist .detail .content");
         $detail.text("Nothing to display.");   
         
         // remove detail panel's coloring
@@ -2178,13 +2176,13 @@ var controller = function(controller, jQuery) {
         // diagnosis unhighlight
         if (version === VERSION_THREE_COLUMN) {
             for (var diagnosisId in hoverDiagnosisSet) {
-                $("#" + hoverDiagnosisSet[diagnosisId]).removeClass("third-col-anchor-hover");
+                $("#twinlist #" + hoverDiagnosisSet[diagnosisId]).removeClass("third-col-anchor-hover");
             }
             hoverDiagnosisSet = [];
         } else if (version === VERSION_3COL_CLASSES) {
             // drug class unhighlight // TODO clean - rename
             for (var diagnosisId in hoverDiagnosisSet) {
-                $("#" + hoverDiagnosisSet[diagnosisId]).removeClass("third-col-anchor-hover");
+                $("#twinlist #" + hoverDiagnosisSet[diagnosisId]).removeClass("third-col-anchor-hover");
             }
             hoverDiagnosisSet = [];
         }
@@ -2221,7 +2219,7 @@ var controller = function(controller, jQuery) {
 
             // for 2 column w/ links or 3col, highlight differences on mouseover
             if (version === VERSION_LINK_ONLY || (version === VERSION_THREE_COLUMN && showHighlights) || (version === VERSION_3COL_CLASSES && showHighlights)) {
-                $("#" + id + " .difference").removeClass("highlight");
+                $("#twinlist #" + id + " .difference").removeClass("highlight");
             }
         }
     }
@@ -2231,7 +2229,7 @@ var controller = function(controller, jQuery) {
     // hover item if mouseover is on a diagnosis
     function diagnosisHoverItem(id, mouseover, showHighlights) {
         var item = model.items[id];
-        var $item = $("#" + id);
+        var $item = $("#twinlist #" + id);
 
         if (mouseover) {
             $item.addClass("item-hover");
@@ -2250,7 +2248,7 @@ var controller = function(controller, jQuery) {
 
             // for 2 column w/ links or 3col, highlight differences on mouseover
             if (version === VERSION_LINK_ONLY || (version === VERSION_THREE_COLUMN && showHighlights) || (version === VERSION_3COL_CLASSES && showHighlights)) {
-                $("#" + id + " .difference").addClass("highlight");
+                $("#twinlist #" + id + " .difference").addClass("highlight");
             }
 
         } else {
@@ -2262,13 +2260,13 @@ var controller = function(controller, jQuery) {
 
             // for 2 column w/ links or 3col, highlight differences on mouseover
             if (version === VERSION_LINK_ONLY || (version === VERSION_THREE_COLUMN && showHighlights) || (version === VERSION_3COL_CLASSES && showHighlights)) {
-                $("#" + id + " .difference").removeClass("highlight");
+                $("#twinlist #" + id + " .difference").removeClass("highlight");
             }
         }
     }
 
     function hoverScrolltips(id, mouseover) {
-        $(".scrolltip").removeClass("show");
+        $("#twinlist .scrolltip").removeClass("show");
 
         if (mouseover) {
             var checkItems = (version === VERSION_FULL || version === VERSION_LINK_ONLY || version === VERSION_THREE_COLUMN || version === VERSION_3COL_CLASSES) ? model.getRelatedSet(id, model.multigroup) : model.getShadowSet(id);
@@ -2315,46 +2313,16 @@ var controller = function(controller, jQuery) {
     function toggleOptionsPanel($panel, doRedraw) {
         if ($panel.hasClass("active")) {
             $panel.text("show options").removeClass("active");
-
-            $(".options-panel").css("transition", "transform 0.3s, opacity 0.2s").removeClass("show");
-            $(".options-panel").css("-webkit-transition", "-webkit-transform 0.3s, opacity 0.2s").removeClass("show");
-            $(".options-panel").css("-moz-transition", "-moz-transform 0.3s, opacity 0.2s").removeClass("show");
-            $(".options-panel").css("-ms-transition", "-ms-transform 0.3s, opacity 0.2s").removeClass("show");
-            $(".options-panel").css("-o-transition", "-o-transform 0.3s, opacity 0.2s").removeClass("show");
-
-            $("#app > .content").css("transition", "height 0.3s");
-            $("#app > .content").css("-webkit-transition", "height 0.3s");
-            $("#app > .content").css("-moz-transition", "height 0.3s");
-            $("#app > .content").css("-ms-transition", "height 0.3s");
-            $("#app > .content").css("-o-transition", "height 0.3s");
-
-            $(".add, .edit").css("transition", "top 0.3s, width 0.2s");
-            $(".add, .edit").css("-webkit-transition", "top 0.3s, width 0.2s");
-            $(".add, .edit").css("-moz-transition", "top 0.3s, width 0.2s");
-            $(".add, .edit").css("-ms-transition", "top 0.3s, width 0.2s");
-            $(".add, .edit").css("-o-transition", "top 0.3s, width 0.2s");
+            $("#twinlist .options-panel").css("transition", "transform 0.3s, opacity 0.2s").removeClass("show");
+            $("#twinlist #app > .content").css("transition", "height 0.3s");
+            $("#twinlist .add, #twinlist .edit").css("transition", "top 0.3s, width 0.2s");
 
         } else {
             $panel.text("hide options").addClass("active");
 
-            $(".options-panel").css("transition", "transform 0.2s, opacity 0.2s").addClass("show");
-            $(".options-panel").css("-webkit-transition", "-webkit-transform 0.2s, opacity 0.2s").addClass("show");
-            $(".options-panel").css("-moz-transition", "-moz-transform 0.2s, opacity 0.2s").addClass("show");
-            $(".options-panel").css("-ms-transition", "-ms-transform 0.2s, opacity 0.2s").addClass("show");
-            $(".options-panel").css("-o-transition", "-o-transform 0.2s, opacity 0.2s").addClass("show");
-
-            $("#app > .content").css("transition", "height 0.2s");
-            $("#app > .content").css("-webkit-transition", "height 0.2s");
-            $("#app > .content").css("-moz-transition", "height 0.2s");
-            $("#app > .content").css("-ms-transition", "height 0.2s");
-            $("#app > .content").css("-o-transition", "height 0.2s");
-
-            $(".add, .edit").css("transition", "top 0.2s, width 0.2s");
-            $(".add, .edit").css("-webkit-transition", "top 0.2s, width 0.2s");
-            $(".add, .edit").css("-moz-transition", "top 0.2s, width 0.2s");
-            $(".add, .edit").css("-ms-transition", "top 0.2s, width 0.2s");
-            $(".add, .edit").css("-o-transition", "top 0.2s, width 0.2s");
-
+            $("#twinlist .options-panel").css("transition", "transform 0.2s, opacity 0.2s").addClass("show");
+            $("#twinlist #app > .content").css("transition", "height 0.2s");
+            $("#twinlist .add, #twinlist .edit").css("transition", "top 0.2s, width 0.2s");
         }
 
         if (doRedraw)
@@ -2363,9 +2331,9 @@ var controller = function(controller, jQuery) {
 
     function isOffscreen(id) {
         var status = "neither";
-        var $content = $(".scrolling_content");
-        var divHeight = $(".item").outerHeight();
-        var topEdge = $(".scrolling_content").scrollTop();
+        var $content = $("#twinlist .scrolling_content");
+        var divHeight = $("#twinlist .item").outerHeight();
+        var topEdge = $("#twinlist .scrolling_content").scrollTop();
         var bottomEdge = topEdge + $content.outerHeight();
 
         if (!positions[id]) {
@@ -2389,7 +2357,7 @@ var controller = function(controller, jQuery) {
         model.rejected = [];
         model.undecided = model.list1.source.concat(model.list2.source);
 
-        $(".item").removeClass("accepted rejected").addClass("undecided");
+        $("#twinlist .item").removeClass("accepted rejected").addClass("undecided");
         resetLinkActionFlags();
 
         state = STATE_SEPARATE;
@@ -2405,7 +2373,7 @@ var controller = function(controller, jQuery) {
 
     function processItem(id, dst, nolink) {
         // don't trigger meaningless linked actions
-        if (!$("#" + id).hasClass(dst)) {
+        if (!$("#twinlist #" + id).hasClass(dst)) {
             if (nolink) {
                 actOnItem(id, dst);
             } else {
@@ -2480,7 +2448,7 @@ var controller = function(controller, jQuery) {
             var id = col[j];
             // only act on items in this particular column
             //  and only act on undecided ones
-            if (event.data.dst == 'undecided' || $("#" + id).hasClass('undecided')) {
+            if (event.data.dst == 'undecided' || $("#twinlist #" + id).hasClass('undecided')) {
                 processItem(id, event.data.dst, event.data.index != LIST_IDENTICAL_INDEX);
             }
         }
@@ -2535,8 +2503,8 @@ var controller = function(controller, jQuery) {
     }
 
     function decide(id, dst) {
-        var $item = $("#" + id);
-        var $differences = $("#" + id + " .difference");
+        var $item = $("#twinlist #" + id);
+        var $differences = $("#twinlist #" + id + " .difference");
         var checkID = model.items[id].isShadow ? model.getShadowed(id) : id;
 
         // update model
@@ -2594,8 +2562,8 @@ var controller = function(controller, jQuery) {
             }
 
             // update view
-            $("#" + id + " .name").text(item.name);
-            $("#" + id + " .detail").remove();
+            $("#twinlist #" + id + " .name").text(item.name);
+            $("#twinlist #" + id + " .detail").remove();
 
             var newDetailHTML = "<div class='detail'>";
             var differences = [];
@@ -2611,8 +2579,8 @@ var controller = function(controller, jQuery) {
             }
             newDetailHTML += "</div>";
 
-            $("#" + id).addClass("modified");
-            $("#" + id).append($(newDetailHTML));
+            $("#twinlist #" + id).addClass("modified");
+            $("#twinlist #" + id).append($(newDetailHTML));
         } else {
             item = false;
             // return falsey value so no updates made
@@ -2625,11 +2593,11 @@ var controller = function(controller, jQuery) {
         var allNames = {};
         var attributes = {};
 
-        var name = $("#modify input[name='name']").val() + "";
-        var route = $("#modify input[name='route']").val() + "";
-        var frequency = $("#modify input[name='frequency']").val() + "";
-        var dose = $("#modify input[name='dose']").val() + "";
-        var instructions = $("#modify textarea[name='instructions']").val() || "";
+        var name = $("#twinlist #modify input[name='name']").val() + "";
+        var route = $("#twinlist #modify input[name='route']").val() + "";
+        var frequency = $("#twinlist #modify input[name='frequency']").val() + "";
+        var dose = $("#twinlist #modify input[name='dose']").val() + "";
+        var instructions = $("#twinlist #modify textarea[name='instructions']").val() || "";
         var drugClass = "unknown";
 
         allNames = {
@@ -2692,10 +2660,10 @@ var controller = function(controller, jQuery) {
                     }
                 }
                 htmlItem += "</div></div>";
-                $(".items").append($(htmlItem));
+                $("#twinlist .items").append($(htmlItem));
 
                 // prepare actions
-                $("#" + newItem.id).mousedown(mousedownHandler).mouseover(mouseoverHandler).mouseout(mouseoutHandler).bind("contextmenu", function() {
+                $("#twinlist #" + newItem.id).mousedown(mousedownHandler).mouseover(mouseoverHandler).mouseout(mouseoutHandler).bind("contextmenu", function() {
                     // free right click for item action
                     return false;
                 });
@@ -2715,10 +2683,10 @@ var controller = function(controller, jQuery) {
         };
 
         // nothing to respond to
-        $("#modify .response").removeClass("show");
+        $("#twinlist #modify .response").removeClass("show");
 
         // panel title
-        $("#modify h1").text(type);
+        $("#twinlist #modify h1").text(type);
 
         // preview and form contents
         if (type === "edit") {
@@ -2737,16 +2705,16 @@ var controller = function(controller, jQuery) {
             var value = attributes[attribute].toString();
 
             if (attribute === "instructions") {
-                $("textarea[name='instructions']").val(value);
+                $("#twinlist textarea[name='instructions']").val(value);
             } else {
-                $("input[name='" + attribute + "']").val(value);
-                $(".preview ." + attribute).text(value);
+                $("#twinlist input[name='" + attribute + "']").val(value);
+                $("#twinlist .preview ." + attribute).text(value);
             }
         }
     }
 
     function updatePreview($field) {
-        $(".preview ." + $field.attr("name")).text($field.val());
+        $("#twinlist .preview ." + $field.attr("name")).text($field.val());
     }
 
     function populateColumn(arr, rows) {
@@ -2783,7 +2751,7 @@ var controller = function(controller, jQuery) {
             if (item.isShadow) {
                 continue;
             }
-            var $item = $("#" + id);
+            var $item = $("#twinlist #" + id);
             var frequency = item.attributes[model.ATTR_FREQUENCY].toString();
 
             // expand abbreviations
@@ -2849,11 +2817,11 @@ var controller = function(controller, jQuery) {
         }
 
         // update the grouping in the options (using value)
-        $("select[name='groupBy']").val(toGroup);
+        $("#twinlist select[name='groupBy']").val(toGroup);
 
         // update the cycle group button's text
-        $(".cycle_groupby").html("group by: " + $next_name);
-        $(".cycle_groupby").attr("value", $next_val);
+        $("#twinlist .cycle_groupby").html("group by: " + $next_name);
+        $("#twinlist .cycle_groupby").attr("value", $next_val);
 
         // update mpdel
         model.groupBy = toGroup;
